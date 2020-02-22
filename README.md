@@ -1,4 +1,4 @@
-# CANcli
+# CANopen-monitor
 
 A utility for displaying and tracking activity over the CAN bus.
 
