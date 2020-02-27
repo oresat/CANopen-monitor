@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Hearbeats",
+    "capacity": 8,
+    "stale_node_timeout": 3,
+    "dead_node_timeout": 10
+  },
+  {
+    "name": "Misc",
+    "capacity": 32,
+    "stale_node_timeout": null,
+    "dead_node_timeout": null
+  }
+]
