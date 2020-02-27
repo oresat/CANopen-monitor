@@ -82,7 +82,7 @@ def disp_table(window, table):
 
 def main(window):
     # Init config
-    config = load_config("config.json")
+    config = load_config("../config.json")
 
     # Init color pairs
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -145,7 +145,7 @@ def main(window):
                     tables[1].add(new_frame)
                 elif(id >= 0x181 and id <= 0x57F): # PDO
                     new_frame.id -= 0x181
-                    new_frame.type = FrameType.RDO
+                    new_frame.type = FrameType.PDO
                     tables[1].add(new_frame)
                 else: tables[1].add(new_frame) # Other
             except OSError as e:
