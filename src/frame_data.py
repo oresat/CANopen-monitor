@@ -32,9 +32,8 @@ class FrameData(Frame):
         self.frame_type = src.frame_type
 
     def hex_data_str(self):
-        res = "[ "
+        res = ""
         for i in self.data: res += str(hex(i)) + " "
-        res += "]"
         return res
 
     def is_stale(self): return ((time.time() - self.last_modified) >= self.stale_time)

@@ -12,6 +12,8 @@ def delims(data, start, end='\0', n=0):
     return [ find_n(data, start, n) + 1,
              len(data) - find_n(data[::-1], end, n) - 1 ]
 
+def pad(data): return " " * (curses.COLS - len(data.expandtabs()))
+
 def error(window, message):
     window.addstr(1, 1, message, curses.color_pair(1))
     window.refresh()
@@ -53,7 +55,7 @@ def disp_banner(window, devices):
     window.addstr(data)
 
     for dev in devices:
-        if(dev[0]): window.addstr(dev[1].ndev + " ", curses.color_pair(2))
+        if(dev[0]): window.addstr(dev[1].ndev + " ", curses.color_pair(3))
         else: window.addstr(dev[1].ndev + " ", curses.color_pair(1))
 
     # Reformat the printed data
@@ -62,43 +64,58 @@ def disp_banner(window, devices):
 
 def disp_heartbeats(window, table):
     if(len(table) > 0):
-        window.addstr("\n " + table.name + ": ")
-        if(table.max_table_size is not None): window.addstr("(" + str(len(table)) + "/" + str(table.max_table_size) + ")")
-        window.addstr("\n Id:\tDevice:\tStatus:\n")
+        data = table.name + ":"
+        if(table.max_table_size is not None): data += "(" + str(len(table)) + "/" + str(table.max_table_size) + ")"
+        data += pad(data)
+        window.addstr(data, curses.color_pair(5))
+
+        data = "Id:\tDevice:\tStatus:"
+        data += pad(data)
+        window.addstr(data, curses.color_pair(6))
 
         # Display raw data
         for id in table.ids():
             frame = table[id]
-            if(frame.is_dead()): status = "DEAD"
-            elif(frame.is_stale()): status = "STALE"
-            else: status = str(hex(frame.data[0]))
-
-            data = str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t" + status
-            window.addstr(" " + data + "\n")
+            window.addstr(str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t")
+            if(frame.is_dead()): window.addstr("DEAD", curses.color_pair(1))
+            elif(frame.is_stale()): window.addstr("STALE", curses.color_pair(2))
+            else: status = window.addstr(str(hex(frame.data[0])), curses.color_pair(3))
+            window.addstr("\n")
+        window.addstr("\n")
 
 def disp_table(window, table):
     if(len(table) > 0):
-        window.addstr("\n " + table.name + ": ")
-        if(table.max_table_size is not None): window.addstr("(" + str(len(table)) + "/" + str(table.max_table_size) + ")")
-        window.addstr("\n Id:\tDevice:\tType:\tData:\n")
+        data = table.name + ":"
+        if(table.max_table_size is not None): data += "(" + str(len(table)) + "/" + str(table.max_table_size) + ")"
+        data += pad(data)
+        window.addstr(data, curses.color_pair(5))
+
+        data = "Id:\tDevice:\tType:\tData:"
+        data += pad(data)
+        window.addstr(data, curses.color_pair(6))
 
         # Display raw data
         for id in table.ids():
             frame = table[id]
-            data = str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t" + str(frame.type) + "\t" + str(frame.hex_data_str())
-            d_delims = delims(data, '[', ']', 0)
-            window.addstr(" " + data + "\n")
-            # window.chgat(d_delims[0], d_delims[1] - d_delims[0], curses.color_pair(3)) # Reformat the printed data
+            window.addstr(str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t")
+            window.addstr(str(frame.type), curses.color_pair(frame.type.value + 1))
+            window.addstr("\t[ ")
+            window.addstr(str(frame.hex_data_str()) + " ", curses.color_pair(4))
+            window.addstr("]\n")
+        window.addstr("\n")
 
 def main(window):
     # Init scroll posiotion
     scroll_pos = 0
+    app_size = curses.LINES
 
     # Init color pairs
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
-    curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_GREEN)
+    curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_GREEN)
+    curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_CYAN)
 
     # Open the standard output
     stdscr = curses.initscr()
@@ -111,7 +128,7 @@ def main(window):
     # UI setup
     app = curses.newwin(curses.LINES, curses.COLS)
     banner = app.subwin(1, curses.COLS, 0, 0)
-    t_data = curses.newpad(curses.LINES - 1, curses.COLS)
+    t_data = curses.newpad(app_size, curses.COLS)
 
     # Init config
     dev_config = load_config(t_data, "configs/devices.json")
@@ -162,22 +179,34 @@ def main(window):
                 dev[0] = False
                 continue
 
+        # Determine if the app window needs to grow
+        table_size = 0;
+        for table in tables: table_size += len(table)
+
+        if(table_size >= ((3 * app_size) / 4)):
+            app_size *= 2
+            t_data = curses.newpad(app_size, curses.COLS)
+
         # Display things
         disp_banner(banner, devs)
         t_data.erase() # Clear the table window
         disp_heartbeats(t_data, tables[0])
         disp_table(t_data, tables[1])
-        t_data.box()
 
         # Get user input
         input = stdscr.getch()
-        if(input == curses.KEY_DOWN): scroll_pos -= 1
-        elif(input ==  curses.KEY_UP): scroll_pos += 1
+        curses.flushinp()
+        if(input == curses.KEY_DOWN): scroll_pos += 5
+        elif(input ==  curses.KEY_UP): scroll_pos -= 5
+
+        # Check scroll overflow/underflow
+        if(scroll_pos < 0): scroll_pos = 0
+        elif(scroll_pos > app_size): scroll_pos = app_size
 
         # Refresh the screen
         app.refresh()
         banner.refresh()
-        t_data.refresh(scroll_pos, 0, 1, 0, 10, 60)
+        t_data.refresh(scroll_pos, 0, 1, 0, curses.LINES - 1, curses.COLS - 1)
 
     # Close the standard output
     stdscr.keypad(False)
