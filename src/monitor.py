@@ -15,8 +15,7 @@ def delims(data, start, end='\0', n=0):
 def error(window, message):
     window.addstr(1, 1, message, curses.color_pair(1))
     window.refresh()
-    while True: pass
-
+    while True: pass # Hang and never return
 
 def load_config(window, filename):
     try:
