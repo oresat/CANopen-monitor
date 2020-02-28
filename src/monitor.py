@@ -46,7 +46,7 @@ def init_tables(window, config):
     return tables
 
 def disp_banner(window, devices):
-    window.clear() # Clear the banner
+    window.erase() # Clear the banner
 
     # Display raw data
     data = "Time: (" + time.ctime() + ") | Devices: "
@@ -161,7 +161,7 @@ def main(window):
                 continue
 
         # Display things
-        t_data.clear() # Clear the table window
+        t_data.erase() # Clear the table window
         disp_banner(banner, devs)
         disp_heartbeats(t_data, tables[0])
         disp_table(t_data, tables[1])
