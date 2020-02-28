@@ -1,9 +1,9 @@
 [
   {
     "name": "Hearbeats",
-    "capacity": 8,
-    "stale_node_timeout": 3,
-    "dead_node_timeout": 10
+    "capacity": 16,
+    "stale_node_timeout": 60,
+    "dead_node_timeout": 600
   },
   {
     "name": "Misc",

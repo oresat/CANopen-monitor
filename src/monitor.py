@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-import curses, time, sys, json
+import curses, time, json
 from canard.hw import socketcan
 from frame_table import FrameTable
 from frame_data import FrameData, FrameType
@@ -19,29 +18,38 @@ def load_config(filename):
     file.close()
     return json.loads(raw_data)
 
-def init_devices(window):
+def init_devices(window, config):
     devs = []
-    dev_names = sys.argv[1:] # CMD arg stuff
-
     try:
-        for name in dev_names:
+        for name in config:
             dev = socketcan.SocketCanDev(name)
-            dev.socket.settimeout(0.1)
+            dev.socket.settimeout(0.5)
             dev.start()
             devs.append([True, dev])
     except OSError as e:
-        window.addstr(1, 1, "Error: failed to open device: " + name, curses.color_pair(1))
+        window.addstr(1, 1, "Fatal error: failed to open device " + name)
         window.refresh()
+        while True: pass
 
     return devs
 
-def disp_banner(window):
-    devs = sys.argv[1:] # CMD arg stuff
+def init_tables(window, config):
+    tables = []
+    try:
+        for c in config:
+            table = FrameTable(c['name'], c['capacity'], c['stale_node_timeout'], c['dead_node_timeout'])
+            tables.append(table)
+    except OSError as e:
+        window.addstr(1, 1, "Fatal error: " + str(e))
+        window.refresh()
+        while True: pass
+    return tables
 
+def disp_banner(window, devices):
     window.clear() # Clear the banner
 
     # Display raw data
-    data = "Time: (" + time.ctime() + ") | Devices: " + str(devs)
+    data = "Time: (" + time.ctime() + ") | Devices: " + str(devices)
     window.addstr(data)
 
     # Reformat the printed data
@@ -82,7 +90,8 @@ def disp_table(window, table):
 
 def main(window):
     # Init config
-    config = load_config("../config.json")
+    dev_config = load_config("configs/devices.json")
+    table_config = load_config("configs/tables.json")
 
     # Init color pairs
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -99,11 +108,11 @@ def main(window):
     curses.curs_set(0)
 
     # UI setup
-    app = curses.newwin(curses.LINES - 1, curses.COLS)
+    app = curses.newwin(curses.LINES, curses.COLS)
     banner = app.subwin(1, curses.COLS, 0, 0)
-    t_data = app.subwin(curses.LINES - 2, curses.COLS, 1, 0)
+    t_data = app.subwin(curses.LINES - 1, curses.COLS, 1, 0)
 
-    disp_banner(banner)
+    disp_banner(banner, dev_config)
 
     # Refresh the screen
     app.refresh()
@@ -111,12 +120,9 @@ def main(window):
     t_data.refresh()
     curses.doupdate()
 
-    # Init the tables + devices
-    tables = []
-    for c in config:
-        table = FrameTable(c['name'], c['capacity'], c['stale_node_timeout'], c['dead_node_timeout'])
-        tables.append(table)
-    devs = init_devices(t_data)
+    # Init the devices and tables
+    devs = init_devices(t_data, dev_config)
+    tables = init_tables(t_data, table_config)
 
     # Event loop
     while True:
@@ -154,12 +160,10 @@ def main(window):
 
         # Display things
         t_data.clear() # Clear the table window
-        disp_banner(banner)
+        disp_banner(banner, dev_config)
         disp_heartbeats(t_data, tables[0])
         disp_table(t_data, tables[1])
         t_data.box()
-
-        time.sleep(1)
 
         # Refresh the screen
         app.refresh()
@@ -176,4 +180,4 @@ def main(window):
 
 if __name__ == "__main__":
     try: curses.wrapper(main)
-    except OverflowError as e: print("fatal error: " + str(e))
+    except Exception as e: print("fatal error: " + str(e))
