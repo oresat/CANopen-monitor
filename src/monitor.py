@@ -167,19 +167,12 @@ def main(window):
         t_data.erase() # Clear the table window
         disp_heartbeats(t_data, tables[0])
         disp_table(t_data, tables[1])
+        t_data.box()
 
         # Get user input
         input = stdscr.getch()
-        if(input == curses.KEY_DOWN):
-            scroll_pos -= 1
-            t_data.addstr(1, curses.COLS - 20, "input: down(" + str(input) + ")")
-        elif(input ==  curses.KEY_UP):
-            scroll_pos += 1
-            t_data.addstr(1, curses.COLS - 20, "input: up(" + str(input) + ")")
-        elif(input == -1): t_data.addstr(1, curses.COLS - 20, "input: N/A")
-        else: t_data.addstr(1, curses.COLS - 20, "input: (" + str(input) + ")")
-
-        t_data.box()
+        if(input == curses.KEY_DOWN): scroll_pos -= 1
+        elif(input ==  curses.KEY_UP): scroll_pos += 1
 
         # Refresh the screen
         app.refresh()
