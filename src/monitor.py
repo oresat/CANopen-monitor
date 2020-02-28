@@ -30,7 +30,7 @@ def init_devices(window, config):
     try:
         for name in config:
             dev = socketcan.SocketCanDev(name)
-            dev.socket.settimeout(0.5)
+            dev.socket.settimeout(0.1)
             dev.start()
             devs.append([True, dev])
     except OSError as e: error(window, "Fatal error: failed to open device " + name)
@@ -91,6 +91,9 @@ def disp_table(window, table):
             # window.chgat(d_delims[0], d_delims[1] - d_delims[0], curses.color_pair(3)) # Reformat the printed data
 
 def main(window):
+    # Init scroll posiotion
+    scroll_pos = 0
+
     # Init color pairs
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -108,7 +111,7 @@ def main(window):
     # UI setup
     app = curses.newwin(curses.LINES, curses.COLS)
     banner = app.subwin(1, curses.COLS, 0, 0)
-    t_data = app.subwin(curses.LINES - 1, curses.COLS, 1, 0)
+    t_data = curses.newpad(curses.LINES - 1, curses.COLS)
 
     # Init config
     dev_config = load_config(t_data, "configs/devices.json")
@@ -117,18 +120,17 @@ def main(window):
     # Refresh the screen
     app.refresh()
     banner.refresh()
-    t_data.refresh()
+    t_data.refresh(scroll_pos, 0, 1, 0, 10, 60)
 
     # Init the devices and tables
     devs = init_devices(t_data, dev_config)
     tables = init_tables(t_data, table_config)
 
-    # Display bcanner
-    disp_banner(banner, devs)
+    disp_banner(banner, devs) # Display banner
 
     # Event loop
     while True:
-        # Update the table(s)
+        # Update the table(s) per device
         for dev in devs:
             try:
                 raw_frame = dev[1].recv()
@@ -161,16 +163,28 @@ def main(window):
                 continue
 
         # Display things
-        t_data.erase() # Clear the table window
         disp_banner(banner, devs)
+        t_data.erase() # Clear the table window
         disp_heartbeats(t_data, tables[0])
         disp_table(t_data, tables[1])
+
+        # Get user input
+        input = stdscr.getch()
+        if(input == curses.KEY_DOWN):
+            scroll_pos -= 1
+            t_data.addstr(1, curses.COLS - 20, "input: down(" + str(input) + ")")
+        elif(input ==  curses.KEY_UP):
+            scroll_pos += 1
+            t_data.addstr(1, curses.COLS - 20, "input: up(" + str(input) + ")")
+        elif(input == -1): t_data.addstr(1, curses.COLS - 20, "input: N/A")
+        else: t_data.addstr(1, curses.COLS - 20, "input: (" + str(input) + ")")
+
         t_data.box()
 
         # Refresh the screen
         app.refresh()
         banner.refresh()
-        t_data.refresh()
+        t_data.refresh(scroll_pos, 0, 1, 0, 10, 60)
 
     # Close the standard output
     stdscr.keypad(False)
