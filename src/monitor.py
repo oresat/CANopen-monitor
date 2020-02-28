@@ -12,11 +12,19 @@ def delims(data, start, end='\0', n=0):
     return [ find_n(data, start, n) + 1,
              len(data) - find_n(data[::-1], end, n) - 1 ]
 
-def load_config(filename):
-    file = open(filename)
-    raw_data = file.read()
-    file.close()
-    return json.loads(raw_data)
+def error(window, message):
+    window.addstr(1, 1, message, curses.color_pair(1))
+    window.refresh()
+    while True: pass
+
+
+def load_config(window, filename):
+    try:
+        file = open(filename)
+        raw_data = file.read()
+        file.close()
+        return json.loads(raw_data)
+    except Exception as e: error(window, "Fatal error: file does not exist " + filename)
 
 def init_devices(window, config):
     devs = []
@@ -26,11 +34,7 @@ def init_devices(window, config):
             dev.socket.settimeout(0.5)
             dev.start()
             devs.append([True, dev])
-    except OSError as e:
-        window.addstr(1, 1, "Fatal error: failed to open device " + name)
-        window.refresh()
-        while True: pass
-
+    except OSError as e: error(window, "Fatal error: failed to open device " + name)
     return devs
 
 def init_tables(window, config):
@@ -39,10 +43,7 @@ def init_tables(window, config):
         for c in config:
             table = FrameTable(c['name'], c['capacity'], c['stale_node_timeout'], c['dead_node_timeout'])
             tables.append(table)
-    except OSError as e:
-        window.addstr(1, 1, "Fatal error: " + str(e))
-        window.refresh()
-        while True: pass
+    except OSError as e: error(window, "Fatal error: " + str(e))
     return tables
 
 def disp_banner(window, devices):
@@ -89,10 +90,6 @@ def disp_table(window, table):
             # window.chgat(d_delims[0], d_delims[1] - d_delims[0], curses.color_pair(2))
 
 def main(window):
-    # Init config
-    dev_config = load_config("configs/devices.json")
-    table_config = load_config("configs/tables.json")
-
     # Init color pairs
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -112,6 +109,11 @@ def main(window):
     banner = app.subwin(1, curses.COLS, 0, 0)
     t_data = app.subwin(curses.LINES - 1, curses.COLS, 1, 0)
 
+    # Init config
+    dev_config = load_config(t_data, "configs/devices.json")
+    table_config = load_config(t_data, "configs/tables.json")
+
+    # Display bcanner
     disp_banner(banner, dev_config)
 
     # Refresh the screen
@@ -180,4 +182,4 @@ def main(window):
 
 if __name__ == "__main__":
     try: curses.wrapper(main)
-    except Exception as e: print("fatal error: " + str(e))
+    except OSError as e: print("fatal error: " + str(e))
