@@ -170,6 +170,7 @@ def main(window):
         banner.refresh()
         t_data.refresh()
         curses.doupdate()
+        time.sleep(1)
 
     # Close the standard output
     stdscr.keypad(False)
