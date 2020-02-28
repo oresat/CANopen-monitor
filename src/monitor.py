@@ -65,7 +65,8 @@ def disp_heartbeats(window, table):
         window.addstr("\n Id:\tDevice:\tStatus:\n")
 
         # Display raw data
-        for frame in table.table.values():
+        for id in table.ids():
+            frame = table[id]
             if(frame.is_dead()): status = "DEAD"
             elif(frame.is_stale()): status = "STALE"
             else: status = str(hex(frame.data[0]))
