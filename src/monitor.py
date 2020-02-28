@@ -49,14 +49,16 @@ def disp_banner(window, devices):
     window.clear() # Clear the banner
 
     # Display raw data
-    data = "Time: (" + time.ctime() + ") | Devices: " + str(devices)
+    data = "Time: (" + time.ctime() + ") | Devices: "
     window.addstr(data)
+
+    for dev in devices:
+        if(dev[0]): window.addstr(dev[1].ndev + " ", curses.color_pair(2))
+        else: window.addstr(dev[1].ndev + " ", curses.color_pair(1))
 
     # Reformat the printed data
     t_delims = delims(data, '(', ')', 0)
-    d_delims = delims(data, '[', ']', 0)
     window.chgat(0, t_delims[0], t_delims[1] - t_delims[0], curses.color_pair(1))
-    window.chgat(0, d_delims[0], d_delims[1] - d_delims[0], curses.color_pair(2))
 
 def disp_heartbeats(window, table):
     if(len(table) > 0):
@@ -84,11 +86,9 @@ def disp_table(window, table):
         for id in table.ids():
             frame = table[id]
             data = str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t" + str(frame.type) + "\t" + str(frame.hex_data_str())
+            d_delims = delims(data, '[', ']', 0)
             window.addstr(" " + data + "\n")
-
-            # Reformat the printed data
-            # d_delims = delims(data, '[', ']', 0)
-            # window.chgat(d_delims[0], d_delims[1] - d_delims[0], curses.color_pair(2))
+            # window.chgat(d_delims[0], d_delims[1] - d_delims[0], curses.color_pair(3)) # Reformat the printed data
 
 def main(window):
     # Init color pairs
@@ -114,18 +114,17 @@ def main(window):
     dev_config = load_config(t_data, "configs/devices.json")
     table_config = load_config(t_data, "configs/tables.json")
 
-    # Display bcanner
-    disp_banner(banner, dev_config)
-
     # Refresh the screen
     app.refresh()
     banner.refresh()
     t_data.refresh()
-    curses.doupdate()
 
     # Init the devices and tables
     devs = init_devices(t_data, dev_config)
     tables = init_tables(t_data, table_config)
+
+    # Display bcanner
+    disp_banner(banner, devs)
 
     # Event loop
     while True:
@@ -163,7 +162,7 @@ def main(window):
 
         # Display things
         t_data.clear() # Clear the table window
-        disp_banner(banner, dev_config)
+        disp_banner(banner, devs)
         disp_heartbeats(t_data, tables[0])
         disp_table(t_data, tables[1])
         t_data.box()
@@ -172,7 +171,6 @@ def main(window):
         app.refresh()
         banner.refresh()
         t_data.refresh()
-        # curses.doupdate()
 
     # Close the standard output
     stdscr.keypad(False)
