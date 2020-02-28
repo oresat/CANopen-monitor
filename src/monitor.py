@@ -81,7 +81,8 @@ def disp_table(window, table):
         window.addstr("\n Id:\tDevice:\tType:\tData:\n")
 
         # Display raw data
-        for frame in table.table.values():
+        for id in table.ids():
+            frame = table[id]
             data = str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t" + str(frame.type) + "\t" + str(frame.hex_data_str())
             window.addstr(" " + data + "\n")
 
