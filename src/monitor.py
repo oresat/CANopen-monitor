@@ -2,6 +2,7 @@ import curses, time, json
 from canard.hw import socketcan
 from frame_table import FrameTable
 from frame_data import FrameData, FrameType
+from dictionaries import node_names, heartbeat_statuses
 
 def find_n(data, delim, n=0):
     pieces = data.split(delim, n + 1)
@@ -13,6 +14,16 @@ def delims(data, start, end='\0', n=0):
              len(data) - find_n(data[::-1], end, n) - 1 ]
 
 def pad(data): return " " * (curses.COLS - len(data.expandtabs()))
+
+def get_node_name(id):
+    name = node_names.get(id)
+    if(name is None): return str(hex(id))
+    else: return name
+
+def get_hb_status(code):
+    state = heartbeat_statuses.get(code)
+    if(state is None): return str(hex(code))
+    else: return state
 
 def error(window, message):
     window.addstr(1, 1, message, curses.color_pair(1))
@@ -69,17 +80,25 @@ def disp_heartbeats(window, table):
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
 
-        data = "Id:\tDevice:\tStatus:"
+        data = "Id/Name:\t\tBus:\tStatus:"
         data += pad(data)
         window.addstr(data, curses.color_pair(6))
 
         # Display raw data
         for id in table.ids():
             frame = table[id]
-            window.addstr(str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t")
+
+            # Padding node name
+            node_name = get_node_name(frame.id)
+            if(len(node_name) <= 4): node_name += "\t\t\t"
+            elif(len(node_name) <= 8): node_name += "\t\t\t"
+            elif(len(node_name) <= 12): node_name += "\t\t"
+            else: node_name += "\t"
+
+            window.addstr(node_name + str(frame.ndev) + "\t")
             if(frame.is_dead()): window.addstr("DEAD", curses.color_pair(1))
             elif(frame.is_stale()): window.addstr("STALE", curses.color_pair(2))
-            else: status = window.addstr(str(hex(frame.data[0])), curses.color_pair(3))
+            else: status = window.addstr(get_hb_status(frame.data[0]), curses.color_pair(3))
             window.addstr("\n")
         window.addstr("\n")
 
@@ -90,14 +109,22 @@ def disp_table(window, table):
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
 
-        data = "Id:\tDevice:\tType:\tData:"
+        data = "Id/Name:\t\tBus:\tType:\tData:"
         data += pad(data)
         window.addstr(data, curses.color_pair(6))
 
         # Display raw data
         for id in table.ids():
             frame = table[id]
-            window.addstr(str(hex(frame.id)) + "\t" + str(frame.ndev) + "\t")
+
+            # Padding node name
+            node_name = get_node_name(frame.id)
+            if(len(node_name) <= 4): node_name += "\t\t\t"
+            elif(len(node_name) <= 8): node_name += "\t\t\t"
+            elif(len(node_name) <= 12): node_name += "\t\t"
+            else: node_name += "\t"
+
+            window.addstr(node_name + str(frame.ndev) + "\t")
             window.addstr(str(frame.type), curses.color_pair(frame.type.value + 1))
             window.addstr("\t[ ")
             window.addstr(str(frame.hex_data_str()) + " ", curses.color_pair(4))
@@ -168,6 +195,7 @@ def main(window):
                     tables[1].add(new_frame)
                 elif(id >= 0x601 and id <= 0x67F): # SDO rx
                     new_frame.id -= 0x600
+
                     new_frame.type = FrameType.SDO
                     tables[1].add(new_frame)
                 elif(id >= 0x181 and id <= 0x57F): # PDO
