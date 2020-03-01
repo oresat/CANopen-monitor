@@ -3,7 +3,6 @@ import re
 import os
 import pprint
 
-
 class EDSFile:
     PARAMETER_NAME = "ParameterName"
     OBJECT_TYPE = "ObjectType"

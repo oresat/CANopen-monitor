@@ -9,29 +9,22 @@ class FrameType(Enum):
     PDO = 3
     MISC = 4
 
-    def __str__(self):
-        if(self.value == 0): return "Heartbeat"
-        elif(self.value == 1): return "SDO"
-        elif(self.value == 2): return "RDO"
-        elif(self.value == 3): return "PDO"
-        else: return "N/A"
+    def __str__(self): return { 0: "Heartbeat",
+                                1: "SDO",
+                                2: "RDO",
+                                3: "PDO",
+                                4: "N/A" }[self.value]
 
-
-# Expanded frame data class
 class FrameData(Frame):
     def __init__(self, src, ndev, type=FrameType.MISC):
+        super().__init__(src.id, src.dlc, src.data, src.frame_type, src.is_extended_id)
         self.ndev = ndev
         self.type = type
         self.stale_time = 0
         self.dead_time = 0
         self.last_modified = time.time()
-        self.is_extended_id = src.is_extended_id
-        self.dlc = src.dlc
-        self.id = src.id
-        self.data = src.data
-        self.frame_type = src.frame_type
 
-    def hex_data_str(self):
+    def __str__(self):
         res = ""
         for i in self.data: res += str(hex(i)) + " "
         return res

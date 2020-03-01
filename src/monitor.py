@@ -1,5 +1,5 @@
 import curses, time, json
-from canard.hw import socketcan
+from bus import Bus
 from frame_table import FrameTable
 from frame_data import FrameData, FrameType
 from dictionaries import node_names, heartbeat_statuses
@@ -42,10 +42,9 @@ def init_devices(window, config):
     devs = []
     try:
         for name in config:
-            dev = socketcan.SocketCanDev(name)
-            dev.socket.settimeout(0.1)
+            dev = Bus(name)
             dev.start()
-            devs.append([True, dev])
+            devs.append(dev)
     except OSError as e: error(window, "Fatal error: failed to open device " + name)
     return devs
 
@@ -66,8 +65,9 @@ def disp_banner(window, devices):
     window.addstr(data)
 
     for dev in devices:
-        if(dev[0]): window.addstr(dev[1].ndev + " ", curses.color_pair(3))
-        else: window.addstr(dev[1].ndev + " ", curses.color_pair(1))
+        if(dev.is_dead()): pair = 1
+        else: pair = 3
+        window.addstr(str(dev) + " ", curses.color_pair(pair))
 
     # Reformat the printed data
     t_delims = delims(data, '(', ')', 0)
@@ -127,7 +127,7 @@ def disp_table(window, table):
             window.addstr(node_name + str(frame.ndev) + "\t")
             window.addstr(str(frame.type), curses.color_pair(frame.type.value + 1))
             window.addstr("\t[ ")
-            window.addstr(str(frame.hex_data_str()) + " ", curses.color_pair(4))
+            window.addstr(str(frame) + " ", curses.color_pair(4))
             window.addstr("]\n")
         window.addstr("\n")
 
@@ -177,12 +177,12 @@ def main(window):
         # Update the table(s) per device
         for dev in devs:
             try:
-                raw_frame = dev[1].recv()
-                dev[0] = True
+                raw_frame = dev.recv()
+                dev.reset()
 
                 new_frame = None
                 id = raw_frame.id
-                new_frame = FrameData(raw_frame, dev[1].ndev)
+                new_frame = FrameData(raw_frame, dev.ndev)
 
                 # Determine the right table, adjust the ID, and insert
                 if(id >= 0x701 and id <= 0x7FF): # Heartbeats
@@ -204,7 +204,7 @@ def main(window):
                     tables[1].add(new_frame)
                 else: tables[1].add(new_frame) # Other
             except OSError as e:
-                dev[0] = False
+                dev.incr()
                 continue
 
         # Determine if the app window needs to grow
