@@ -2,7 +2,6 @@ import curses, time, json
 from bus import Bus
 from frame_table import FrameTable
 from frame_data import FrameData, FrameType
-from dictionaries import node_names, heartbeat_statuses
 
 def find_n(data, delim, n=0):
     pieces = data.split(delim, n + 1)
@@ -13,21 +12,22 @@ def delims(data, start, end='\0', n=0):
     return [ find_n(data, start, n) + 1,
              len(data) - find_n(data[::-1], end, n) - 1 ]
 
+def app_refresh(window, scroll_pos=0):
+    window.refresh(scroll_pos, 0, 1, 0, curses.LINES - 1, curses.COLS - 1)
+
 def pad(data): return " " * (curses.COLS - len(data.expandtabs()))
 
-def get_node_name(id):
-    name = node_names.get(id)
-    if(name is None): return str(hex(id))
-    else: return name
-
-def get_hb_status(code):
-    state = heartbeat_statuses.get(code)
-    if(state is None): return str(hex(code))
-    else: return state
+def handle_interupt():
+    print("Restoring the terminal to its previous state...")
+    curses.nocbreak()
+    curses.echo()
+    curses.curs_set(1)
+    curses.endwin()
+    print("Done!")
 
 def error(window, message):
-    window.addstr(1, 1, message, curses.color_pair(1))
-    window.refresh()
+    window.addstr(1, 1, "fatal error: " + message, curses.color_pair(1))
+    app_refresh(window)
     while True: pass # Hang and never return
 
 def load_config(window, filename):
@@ -36,7 +36,16 @@ def load_config(window, filename):
         raw_data = file.read()
         file.close()
         return json.loads(raw_data)
-    except Exception as e: error(window, "Fatal error: file does not exist " + filename)
+    except Exception as e: error(window, "malformed or non-existant file: " + filename)
+
+def init_screen():
+    screen = curses.initscr()
+    screen.keypad(True)
+    screen.timeout(100)
+    curses.noecho()
+    curses.cbreak()
+    curses.curs_set(0)
+    return screen
 
 def init_devices(window, config):
     devs = []
@@ -45,16 +54,15 @@ def init_devices(window, config):
             dev = Bus(name)
             dev.start()
             devs.append(dev)
-    except OSError as e: error(window, "Fatal error: failed to open device " + name)
+    except OSError as e: error(window, "failed to start device: " + name)
     return devs
 
 def init_tables(window, config):
     tables = []
     try:
         for c in config:
-            table = FrameTable(c['name'], c['capacity'], c['stale_node_timeout'], c['dead_node_timeout'])
-            tables.append(table)
-    except OSError as e: error(window, "Fatal error: " + str(e))
+            tables.append(FrameTable(c['name'], c['capacity'], c['stale_node_timeout'], c['dead_node_timeout']))
+    except KeyError as e: error(window, "malformed config: " + str(c) + "\n\t\texpected field: " + str(e))
     return tables
 
 def disp_banner(window, devices):
@@ -75,7 +83,7 @@ def disp_banner(window, devices):
 
 def disp_heartbeats(window, table):
     if(len(table) > 0):
-        data = table.name + ":"
+        data = str(table)+ ":"
         if(table.max_table_size is not None): data += "(" + str(len(table)) + "/" + str(table.max_table_size) + ")"
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
@@ -89,22 +97,20 @@ def disp_heartbeats(window, table):
             frame = table[id]
 
             # Padding node name
-            node_name = get_node_name(frame.id)
-            if(len(node_name) <= 4): node_name += "\t\t\t"
-            elif(len(node_name) <= 8): node_name += "\t\t\t"
-            elif(len(node_name) <= 12): node_name += "\t\t"
-            else: node_name += "\t"
+            if(len(frame.name) <= 8): name_padding = "\t\t\t"
+            elif(len(frame.name) <= 12): name_padding = "\t\t"
+            else: name_padding = "\t"
 
-            window.addstr(node_name + str(frame.ndev) + "\t")
+            window.addstr(frame.name + name_padding + frame.ndev + "\t")
             if(frame.is_dead()): window.addstr("DEAD", curses.color_pair(1))
             elif(frame.is_stale()): window.addstr("STALE", curses.color_pair(2))
-            else: status = window.addstr(get_hb_status(frame.data[0]), curses.color_pair(3))
+            else: status = window.addstr(str(frame), curses.color_pair(3))
             window.addstr("\n")
         window.addstr("\n")
 
 def disp_table(window, table):
     if(len(table) > 0):
-        data = table.name + ":"
+        data = str(table) + ":"
         if(table.max_table_size is not None): data += "(" + str(len(table)) + "/" + str(table.max_table_size) + ")"
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
@@ -118,13 +124,11 @@ def disp_table(window, table):
             frame = table[id]
 
             # Padding node name
-            node_name = get_node_name(frame.id)
-            if(len(node_name) <= 4): node_name += "\t\t\t"
-            elif(len(node_name) <= 8): node_name += "\t\t\t"
-            elif(len(node_name) <= 12): node_name += "\t\t"
-            else: node_name += "\t"
+            if(len(frame.name) <= 8): name_padding = "\t\t\t"
+            elif(len(frame.name) <= 12): name_padding = "\t\t"
+            else: name_padding = "\t"
 
-            window.addstr(node_name + str(frame.ndev) + "\t")
+            window.addstr(frame.name + name_padding + frame.ndev + "\t")
             window.addstr(str(frame.type), curses.color_pair(frame.type.value + 1))
             window.addstr("\t[ ")
             window.addstr(str(frame) + " ", curses.color_pair(4))
@@ -132,11 +136,11 @@ def disp_table(window, table):
         window.addstr("\n")
 
 def main(window):
-    # Init scroll posiotion
+    # Init scroll posiotion + default app window size
     scroll_pos = 0
     app_size = curses.LINES
 
-    # Init color pairs
+    # Init curses color pairs
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -144,13 +148,7 @@ def main(window):
     curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_GREEN)
     curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_CYAN)
 
-    # Open the standard output
-    stdscr = curses.initscr()
-    stdscr.keypad(True)
-    stdscr.timeout(100)
-    curses.noecho()
-    curses.cbreak()
-    curses.curs_set(0)
+    stdscr = init_screen() # Open the standard output
 
     # UI setup
     app = curses.newwin(curses.LINES, curses.COLS)
@@ -164,7 +162,7 @@ def main(window):
     # Refresh the screen
     app.refresh()
     banner.refresh()
-    t_data.refresh(scroll_pos, 0, 1, 0, 10, 60)
+    app_refresh(t_data)
 
     # Init the devices and tables
     devs = init_devices(t_data, dev_config)
@@ -177,51 +175,32 @@ def main(window):
         # Update the table(s) per device
         for dev in devs:
             try:
-                raw_frame = dev.recv()
+                new_frame = FrameData(dev.recv(), dev.ndev)
                 dev.reset()
 
-                new_frame = None
-                id = raw_frame.id
-                new_frame = FrameData(raw_frame, dev.ndev)
-
-                # Determine the right table, adjust the ID, and insert
-                if(id >= 0x701 and id <= 0x7FF): # Heartbeats
-                    new_frame.id -= 0x700
-                    new_frame.type = FrameType.HEARBEAT
-                    tables[0].add(new_frame)
-                elif(id >= 0x581 and id <= 0x5FF): # SDO tx
-                    new_frame.id -= 0x580
-                    new_frame.type = FrameType.SDO
-                    tables[1].add(new_frame)
-                elif(id >= 0x601 and id <= 0x67F): # SDO rx
-                    new_frame.id -= 0x600
-
-                    new_frame.type = FrameType.SDO
-                    tables[1].add(new_frame)
-                elif(id >= 0x181 and id <= 0x57F): # PDO
-                    new_frame.id -= 0x181
-                    new_frame.type = FrameType.PDO
-                    tables[1].add(new_frame)
-                else: tables[1].add(new_frame) # Other
+                # Add to the correct table based on type
+                if(new_frame == FrameType.HEARBEAT): tables[0].add(new_frame)
+                elif(new_frame >= FrameType.SDO): tables[1].add(new_frame)
             except OSError as e:
                 dev.incr()
                 continue
 
         # Determine if the app window needs to grow
+        #       (if 4/5ths the app window is being used)
         table_size = 0;
         for table in tables: table_size += len(table)
 
-        if(table_size >= ((3 * app_size) / 4)):
+        if(table_size >= ((4 * app_size) / 5)):
             app_size *= 2
             t_data = curses.newpad(app_size, curses.COLS)
 
         # Display things
         disp_banner(banner, devs)
-        t_data.erase() # Clear the table window
+        t_data.erase()
         disp_heartbeats(t_data, tables[0])
         disp_table(t_data, tables[1])
 
-        # Get user input
+        # Get user input and determine new scroll position if any
         input = stdscr.getch()
         curses.flushinp()
         if(input == curses.KEY_DOWN): scroll_pos += 5
@@ -234,15 +213,10 @@ def main(window):
         # Refresh the screen
         app.refresh()
         banner.refresh()
-        t_data.refresh(scroll_pos, 0, 1, 0, curses.LINES - 1, curses.COLS - 1)
-
-    # Close the standard output
-    stdscr.keypad(False)
-    curses.nocbreak()
-    curses.echo()
-    curses.curs_set(1)
-    curses.endwin()
+        app_refresh(t_data, scroll_pos)
+    stdscr.keypad(False) # Close the standard output
 
 if __name__ == "__main__":
     try: curses.wrapper(main)
     except OSError as e: print("fatal error: " + str(e))
+    except KeyboardInterrupt as e: handle_interupt()
