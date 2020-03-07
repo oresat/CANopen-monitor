@@ -2,20 +2,10 @@ import curses, time, json
 from bus import Bus
 from frame_table import FrameTable
 from frame_data import FrameData, FrameType
-
-def find_n(data, delim, n=0):
-    pieces = data.split(delim, n + 1)
-    if(len(pieces) <= (n + 1)): return -1
-    return len(data) - len(pieces[-1]) - len(delim)
-
-def delims(data, start, end='\0', n=0):
-    return [ find_n(data, start, n) + 1,
-             len(data) - find_n(data[::-1], end, n) - 1 ]
+from utilities import *
 
 def app_refresh(window, scroll_pos=0):
     window.refresh(scroll_pos, 0, 1, 0, curses.LINES - 1, curses.COLS - 1)
-
-def pad(data): return " " * (curses.COLS - len(data.expandtabs()))
 
 def handle_interupt():
     print("Restoring the terminal to its previous state...")
@@ -25,18 +15,12 @@ def handle_interupt():
     curses.endwin()
     print("Done!")
 
+def pad(data): return " " * (curses.COLS - len(data.expandtabs()))
+
 def error(window, message):
     window.addstr(1, 1, "fatal error: " + message, curses.color_pair(1))
     app_refresh(window)
     while True: pass # Hang and never return
-
-def load_config(window, filename):
-    try:
-        file = open(filename)
-        raw_data = file.read()
-        file.close()
-        return json.loads(raw_data)
-    except Exception as e: error(window, "malformed or non-existant file: " + filename)
 
 def init_screen():
     screen = curses.initscr()
@@ -115,7 +99,7 @@ def disp_table(window, table):
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
 
-        data = "COB-Id:\tNode Name:\tBus:\tType:\tData:"
+        data = "COB-ID:\tNode Name:\tBus:\tType:\tData:"
         data += pad(data)
         window.addstr(data, curses.color_pair(6))
 
@@ -156,8 +140,17 @@ def main(window):
     t_data = curses.newpad(app_size, curses.COLS)
 
     # Init config
-    dev_config = load_config(t_data, "configs/devices.json")
-    table_config = load_config(t_data, "configs/tables.json")
+    try: dev_config = load_config(t_data, "configs/devices.json")
+    except FileNotFoundError as e:
+        config_factory(e.filename)
+        dev_config = load_config(t_data, e.filename)
+    except json.decoder.JSONDecodeError as e: error(t_data, "malformed config file: " + e.doc + "\n\t" + str(e))
+
+    try: table_config = load_config(t_data, "configs/tables.json")
+    except FileNotFoundError as e:
+        config_factory(e.filename)
+        table_config = load_config(t_data, e.filename)
+    except json.decoder.JSONDecodeError as e: error(t_data, "malformed config file: " + e.doc + "\n\t" + str(e))
 
     # Refresh the screen
     app.refresh()
