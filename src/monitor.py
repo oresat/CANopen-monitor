@@ -88,7 +88,7 @@ def disp_heartbeats(window, table):
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
 
-        data = "Id/Name:\t\tBus:\tStatus:"
+        data = "NodeID:\tNode Name:\tBus:\tStatus:"
         data += pad(data)
         window.addstr(data, curses.color_pair(6))
 
@@ -97,11 +97,11 @@ def disp_heartbeats(window, table):
             frame = table[id]
 
             # Padding node name
-            if(len(frame.name) <= 8): name_padding = "\t\t\t"
-            elif(len(frame.name) <= 12): name_padding = "\t\t"
-            else: name_padding = "\t"
+            if(len(frame.name) <= 8): name_padding = "\t\t"
+            elif(len(frame.name) <= 12): name_padding = "\t"
+            else: name_padding = ""
 
-            window.addstr(frame.name + name_padding + frame.ndev + "\t")
+            window.addstr(str(hex(frame.node_id)) + "\t" + frame.name + name_padding + frame.ndev + "\t")
             if(frame.is_dead()): window.addstr("DEAD", curses.color_pair(1))
             elif(frame.is_stale()): window.addstr("STALE", curses.color_pair(2))
             else: status = window.addstr(str(frame), curses.color_pair(3))
@@ -115,7 +115,7 @@ def disp_table(window, table):
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
 
-        data = "Id/Name:\t\tBus:\tType:\tData:"
+        data = "COB-Id:\tNode Name:\tBus:\tType:\tData:"
         data += pad(data)
         window.addstr(data, curses.color_pair(6))
 
@@ -124,12 +124,12 @@ def disp_table(window, table):
             frame = table[id]
 
             # Padding node name
-            if(len(frame.name) <= 8): name_padding = "\t\t\t"
-            elif(len(frame.name) <= 12): name_padding = "\t\t"
-            else: name_padding = "\t"
+            if(len(frame.name) <= 8): name_padding = "\t\t"
+            elif(len(frame.name) <= 12): name_padding = "\t"
+            else: name_padding = ""
 
-            window.addstr(frame.name + name_padding + frame.ndev + "\t")
-            window.addstr(str(frame.type), curses.color_pair(frame.type.value + 1))
+            window.addstr(str(hex(frame.id)) + "\t" + frame.name + name_padding + frame.ndev + "\t")
+            window.addstr(str(frame.type)) # curses.color_pair(frame.type.value + 1))
             window.addstr("\t[ ")
             window.addstr(str(frame) + " ", curses.color_pair(4))
             window.addstr("]\n")
@@ -179,8 +179,8 @@ def main(window):
                 dev.reset()
 
                 # Add to the correct table based on type
-                if(new_frame == FrameType.HEARBEAT): tables[0].add(new_frame)
-                elif(new_frame >= FrameType.SDO): tables[1].add(new_frame)
+                if(new_frame == FrameType.HEARTBEAT): tables[0].add(new_frame)
+                else: tables[1].add(new_frame)
             except OSError as e:
                 dev.incr()
                 continue
