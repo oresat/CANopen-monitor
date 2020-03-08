@@ -10,7 +10,7 @@ setuptools.setup(
     author="Dmitri McGuckin",
     author_email="dmitri.mcguckin26@gmail.com",
     packages=['canmon'],
-    scripts=[],
+    scripts=['can-monitor'],
     url="https://github.com/oresat/CANopen-monitor",
     license="GPL-3.0",
     description="A CLI-based CANopen messages monitor",

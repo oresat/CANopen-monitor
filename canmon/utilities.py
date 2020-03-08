@@ -1,7 +1,7 @@
 import os.path, json
 
 def load_config(window, filename):
-    file = open(filename)
+    file = open(os.path.expanduser(filename))
     raw_data = file.read()
     file.close()
     return json.loads(raw_data)
@@ -17,7 +17,7 @@ def delims(data, start, end='\0', n=0):
 
 # Generate the default configs
 def config_factory(filename):
-    if(not os.path.exists("configs")): os.mkdir("configs")
+    if(not os.path.exists(os.path.expanduser("~/.canmon"))): os.mkdir(os.path.expanduser("~/.canmon"))
     if("devices" in filename): data = ["can0"]
     elif("tables" in filename): data = [{ 'name': "Hearbeats",
                                           'capacity': 16,
@@ -29,6 +29,6 @@ def config_factory(filename):
                                          'dead_node_timeout': None }]
     else: data = {}
 
-    file = open(filename, "w+")
+    file = open(os.path.expanduser(filename), "w+")
     file.write(json.dumps(data, sort_keys=True, indent=4) + "\n")
     file.close()

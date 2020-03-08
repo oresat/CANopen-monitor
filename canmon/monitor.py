@@ -140,13 +140,13 @@ def app(window):
     t_data = curses.newpad(app_size, curses.COLS)
 
     # Init config
-    try: dev_config = load_config(t_data, "configs/devices.json")
+    try: dev_config = load_config(t_data, "~/.canmon/devices.json")
     except FileNotFoundError as e:
         config_factory(e.filename)
         dev_config = load_config(t_data, e.filename)
     except json.decoder.JSONDecodeError as e: error(t_data, "malformed config file: " + e.doc + "\n\t" + str(e))
 
-    try: table_config = load_config(t_data, "configs/tables.json")
+    try: table_config = load_config(t_data, "~/.canmon/tables.json")
     except FileNotFoundError as e:
         config_factory(e.filename)
         table_config = load_config(t_data, e.filename)
