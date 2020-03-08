@@ -2,27 +2,48 @@
 
 A utility for displaying and tracking activity over the CAN bus.
 
+### Installation
+
+  __Primary Installation:__
+
+  Via our [python package index](https://pypi.org/project/canmon/) page
+
+  `$` `pip install canmon`
+
+  __(Manual) Git Installation:__
+
+  Clone the repo:
+
+  `$` `git clone https://github.com/oresat/CANopen-monitor.git`
+
+  Run the local start script:
+
+  `$` `./CANopen-monitor/can-monitor`
+
+***
+
 ### Usage
 
-  To start the monitor tool:
-  * `$` `./monitor`
+  Start can-monitor tool:
+  * `$` `can-monitor`
+
+***
 
 ### Configs:
 
-  * `devices.json`: A list of can-bus interfaces
+  The config files are by default stored in `~/.canmon`
 
-    * __Example:__
+#### Defaults:
+###### `~/.canmon/devices.json`
 ```json
-[ "<device 0>", "<device 1>" ]
+[
+  "can0"
+]
 ```
 
-* `tables.json`: A list of tables the monitor will construct
-  * `name`: Name of the table [Required]
-  * `capacity`: Maximum table size [Optional]
-  * `stale_node_timeout`: Time in seconds until a node is considered stale [Optional]
-  * `dead_node_timeout`: Time in seconds until a node is considered dead [Optional]
+&nbsp;
 
-  * __Example:__
+###### `~/.canmon/tables.json`
 ```json
 [{
   "name": "Hearbeats",
@@ -32,13 +53,15 @@ A utility for displaying and tracking activity over the CAN bus.
 },
 {
   "name": "Misc",
-  "capacity": 32,
+  "capacity": 64,
   "stale_node_timeout": null,
   "dead_node_timeout": null
 }]
 ```
 
-### Node ID Ranges:
+***
+
+### Node IDs/Frame Types:
 
 ###### [Wikipedia Table](https://en.wikipedia.org/wiki/CANopen#Predefined_Connection_Set.5B7.5D)
 

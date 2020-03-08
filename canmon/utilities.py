@@ -23,7 +23,7 @@ def config_factory(filename):
                                           'capacity': 16,
                                           'stale_node_timeout': 60,
                                           'dead_node_timeout': 600 },
-                                       { 'name': "Hearbeats",
+                                       { 'name': "Misc",
                                          'capacity': 64,
                                          'stale_node_timeout': None,
                                          'dead_node_timeout': None }]
