@@ -3,6 +3,7 @@ from .bus import Bus
 from .frame_table import FrameTable
 from .frame_data import FrameData, FrameType
 from .utilities import *
+from . import VERSION
 
 def app_refresh(window, scroll_pos=0):
     window.refresh(scroll_pos, 0, 1, 0, curses.LINES - 1, curses.COLS - 1)
@@ -65,6 +66,8 @@ def disp_banner(window, devices):
     t_delims = delims(data, '(', ')', 0)
     window.chgat(0, t_delims[0], t_delims[1] - t_delims[0], curses.color_pair(1))
 
+    window.addstr(0, curses.COLS - 15, "canmon v" +  VERSION)
+
 def disp_heartbeats(window, table):
     if(len(table) > 0):
         data = str(table)+ ":"
@@ -72,7 +75,7 @@ def disp_heartbeats(window, table):
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
 
-        data = "NodeID:\tNode Name:\tBus:\tStatus:"
+        data = "NodeID:\tNode Name:\t\tBus:\tStatus:"
         data += pad(data)
         window.addstr(data, curses.color_pair(6))
 
@@ -81,9 +84,9 @@ def disp_heartbeats(window, table):
             frame = table[id]
 
             # Padding node name
-            if(len(frame.name) <= 8): name_padding = "\t\t"
-            elif(len(frame.name) <= 12): name_padding = "\t"
-            else: name_padding = ""
+            if(len(frame.name) <= 8): name_padding = "\t\t\t"
+            elif(len(frame.name) <= 12): name_padding = "\t\t"
+            else: name_padding = "\t"
 
             window.addstr(str(hex(frame.node_id)) + "\t" + frame.name + name_padding + frame.ndev + "\t")
             if(frame.is_dead()): window.addstr("DEAD", curses.color_pair(1))
@@ -99,7 +102,7 @@ def disp_table(window, table):
         data += pad(data)
         window.addstr(data, curses.color_pair(5))
 
-        data = "COB-ID:\tNode Name:\tBus:\tType:\tData:"
+        data = "COB-ID:\tNode Name:\t\tBus:\tType:\tData:"
         data += pad(data)
         window.addstr(data, curses.color_pair(6))
 
@@ -108,9 +111,9 @@ def disp_table(window, table):
             frame = table[id]
 
             # Padding node name
-            if(len(frame.name) <= 8): name_padding = "\t\t"
-            elif(len(frame.name) <= 12): name_padding = "\t"
-            else: name_padding = ""
+            if(len(frame.name) <= 8): name_padding = "\t\t\t"
+            elif(len(frame.name) <= 12): name_padding = "\t\t"
+            else: name_padding = "\t"
 
             window.addstr(str(hex(frame.id)) + "\t" + frame.name + name_padding + frame.ndev + "\t")
             window.addstr(str(frame.type)) # curses.color_pair(frame.type.value + 1))
