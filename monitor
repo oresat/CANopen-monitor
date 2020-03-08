@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python3 src/monitor.py $@
+python3 canmon/monitor.py $@

@@ -1,7 +1,7 @@
 import time
 from canard.can import Frame
 from enum import Enum
-from dictionaries import node_names, heartbeat_statuses
+from .dictionaries import node_names, heartbeat_statuses
 
 class FrameType(Enum):
     NMT = 0

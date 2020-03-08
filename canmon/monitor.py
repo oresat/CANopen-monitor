@@ -1,8 +1,8 @@
 import curses, time, json
-from bus import Bus
-from frame_table import FrameTable
-from frame_data import FrameData, FrameType
-from utilities import *
+from .bus import Bus
+from .frame_table import FrameTable
+from .frame_data import FrameData, FrameType
+from .utilities import *
 
 def app_refresh(window, scroll_pos=0):
     window.refresh(scroll_pos, 0, 1, 0, curses.LINES - 1, curses.COLS - 1)
@@ -119,7 +119,7 @@ def disp_table(window, table):
             window.addstr("]\n")
         window.addstr("\n")
 
-def main(window):
+def app(window):
     # Init scroll posiotion + default app window size
     scroll_pos = 0
     app_size = curses.LINES
@@ -209,7 +209,7 @@ def main(window):
         app_refresh(t_data, scroll_pos)
     stdscr.keypad(False) # Close the standard output
 
-if __name__ == "__main__":
-    try: curses.wrapper(main)
+def start():
+    try: curses.wrapper(app)
     except OSError as e: print("fatal error: " + str(e))
     except KeyboardInterrupt as e: handle_interupt()

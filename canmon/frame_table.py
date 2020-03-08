@@ -1,4 +1,4 @@
-from frame_data import FrameData
+from .frame_data import FrameData
 
 class FrameTable:
     def __init__(self, name="", max_table_size=None, stale_time=60, dead_time=600):
