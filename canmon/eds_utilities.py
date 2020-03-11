@@ -15,6 +15,13 @@ class EDSFile:
     def __init__(self, location):
         self._location = location
         self._nodes = {}
+        self._types = {0x00: "NULL",
+                       0x02: "DOMAIN",
+                       0x05: "DEFTYPE",
+                       0x06: "DEFSTRUCT",
+                       0x07: "VAR",
+                       0x08: "ARRAY",
+                       0x09: "RECORD"}
         self.load_files()
 
     def get_nodes(self):
@@ -95,6 +102,10 @@ class EDSFile:
                                 if index not in new_node:
                                     new_node[index] = {}
                                 new_node[index].update({value.group(1): value.group(2)})
+                                if value.group(1) == self.OBJECT_TYPE:
+                                    if int(value.group(2), 16) in self._types:
+                                        new_node[index].update({value.group(1): self._types[int(value.group(2), 16)]})
+
                                 current_line = f.readline()
 
                         current_line = f.readline()
