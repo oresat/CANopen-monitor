@@ -1,122 +1,85 @@
 """EDS File Processing Library"""
 import re
+import configparser
 import os
 import pprint
 
-from canmon.dictionaries import data_types
+PARAMETER_NAME = "ParameterName"
+OBJECT_TYPE = "ObjectType"
+DATA_TYPE = "DataType"
+DEFAULT_VALUE = "DefaultValue"
+NODE_PATTERN = r"((\d+)|(\d+sub\d+))"  # [1+digits] OR [1+digits"sub"1+digits]
+CAN_NODE_ID = "CAN node ID"
 
 
 class EDSFile:
-    PARAMETER_NAME = "ParameterName"
-    OBJECT_TYPE = "ObjectType"
-    NODE_PATTERN = r"\[((\d+)|(\d+sub\d+))\]"  # [1+digits] OR [1+digits"sub"1+digits]
-    ANY_HEADER_PATTERN = r"\[(.+)\]"  # [any characters]
-    VALUE_PATTERN = r"(.+)=(.*)\n"
-    NODE_INFO = "FileInfo"
-    NODE_DESCRIPTION = "Description"
+    """
+    EDSFile Class is used to contain data from a single .eds file
+    """
+    def __init__(self, filename):
+        self.filename = filename
+        self.node_id = None
+        self.index = {}
 
-    def __init__(self, location):
-        self._location = location
-        self._nodes = {}
-        self._types = data_types
-        self.load_files()
 
-    def get_nodes(self):
-        """Get a list of nodes loaded in to system
+class IndexData:
+    """
+    IndexData Class is used to contain data from a single section of a .eds file
+    Note: Not all possible properties are stored
+    """
+    def __init__(self):
+        self.parameter_name = None  # parameter_name
+        self.parent_name = None  # parent parameter name (for sub-indices)
+        self.object_type = None  # object_type
+        self.data_type = None  # data_type
+        self.default_value = None  # default_value
 
-        :returns list of nodes
-        """
-        return self._nodes.keys()
 
-    def get_description(self, node):
-        """Get Node Description
+def load_eds_files(filepath):
+    """
+    Load all eds files from a given root folder (Checks all subdirectories)
+    Dictionary can be accessed like: data[0x12].index[0x300000].parameter_name
+    :param filepath: the root directory from which the search starts
+    :return: a dictionary of of EDSFile objects, with the NodeID hex value as a key
+    """
+    eds_files = {}
+    eds_parser = configparser.ConfigParser()
+    for root, _, filenames in os.walk(filepath):
+        for filename in filenames:
+            if not filename.endswith(".eds"):
+                continue
+            new_node = EDSFile(filename)
+            eds_parser.read(root + "/" + filename)
+            for section_title in eds_parser.sections():
+                index = re.match(NODE_PATTERN, section_title)
+                if index is None:
+                    continue
 
-        :returns description string
-        :raises ValueError: If node does not exist"""
-        find = self.get_address(node, self.NODE_INFO)
-        return self._nodes[node][find][self.NODE_DESCRIPTION]
+                section = eds_parser[section_title]
+                section_data = IndexData()
+                section_data.parameter_name = section.get(PARAMETER_NAME)
+                section_data.data_type = section.get(DATA_TYPE)
+                section_data.default_value = section.get(DEFAULT_VALUE)
+                section_data.object_type = section.get(OBJECT_TYPE)
 
-    def get_address(self, node, index, sub_index=None):
-        """Get an string address used to find node data meant for internal use
+                if section_data.parameter_name == CAN_NODE_ID:
+                    new_node.node_id = section_data.default_value
 
-        :returns address string
-        :raises ValueError if node, index and sub_index combination cannot be found
-        """
-        if node not in self._nodes:
-            raise ValueError(f"Invalid Node '{node}'")
+                if "sub" in section_title:
+                    locations = str(section_title).split("sub")
+                    location = (int(locations[0], 16) << 8) + (int(locations[1], 16))
+                    section_data.parent_name = eds_parser[locations[0]][PARAMETER_NAME]
+                else:
+                    location = int(section_title, 16) << 8
 
-        if sub_index is not None:
-            find = f"{index}sub{sub_index}"
-        else:
-            find = str(index)
+                new_node.index[location] = section_data
+            eds_files[int(new_node.node_id, 16)] = new_node
 
-        if find not in self._nodes[node]:
-            raise ValueError(f"Invalid Index '{find}'")
-
-        return find
-
-    def get_name(self, node, index, sub_index=None):
-        """Get name of value at index
-
-        :returns name at index string
-        :raises ValueError if node, index and sub_index combination cannot be found
-        """
-        find = self.get_address(node, index, sub_index)
-        return self._nodes[node][find][self.PARAMETER_NAME]
-
-    def get_type(self, node, index, sub_index=None):
-        """Get type of value at index
-
-        :returns type at index string
-        :raises ValueError if node, index and sub_index combination cannot be found
-        """
-        find = self.get_address(node, index, sub_index)
-        return self._nodes[node][find][self.OBJECT_TYPE]
-
-    def load_files(self, filepath=None):
-        """Load all files from given folder into self._nodes
-
-        :param filepath: The folder to load .eds files from
-        """
-        if filepath is None:
-            filepath = self._location
-        for filename in os.listdir(filepath):
-            if filename.endswith(".eds"):
-                name = os.path.splitext(filename)
-                self._nodes[name[0]] = {}
-                new_node = self._nodes[name[0]]
-                with open(filename) as f:
-                    current_line = f.readline()
-                    node_regex = re.compile(self.ANY_HEADER_PATTERN)
-                    value_regex = re.compile(self.VALUE_PATTERN)
-                    while current_line:
-                        node = node_regex.search(current_line)
-                        if node is not None:
-                            index = node.group(1)
-                            current_line = f.readline()
-                            while current_line != "\n" and current_line != "":
-                                value = value_regex.search(current_line)
-                                if index not in new_node:
-                                    new_node[index] = {}
-                                new_node[index].update({value.group(1): value.group(2)})
-                                if value.group(1) == self.OBJECT_TYPE:
-                                    if int(value.group(2), 16) in self._types:
-                                        new_node[index].update({value.group(1): self._types[int(value.group(2), 16)]})
-
-                                current_line = f.readline()
-
-                        current_line = f.readline()
+    return eds_files
 
 
 if __name__ == "__main__":
-    # This is for testing the library
-    test = EDSFile(os.getcwd())
-
+    """Function for testing, requires a eds file to be in the current directory or subdirectory"""
+    data = load_eds_files(os.getcwd())
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(test._nodes)
-    for test_node in test.get_nodes():
-        print(test.get_description(test_node))
-    print(test.get_name("test", 3000))
-    print(test.get_type("test", 3000))
-    print(test.get_name("test", 3000, 0))
-    print(test.get_type("test", 3000, 0))
+    pp.pprint(vars(data[0x12].index[0x300000]))
