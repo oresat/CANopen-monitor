@@ -3,6 +3,9 @@ import re
 import os
 import pprint
 
+from canmon.dictionaries import data_types
+
+
 class EDSFile:
     PARAMETER_NAME = "ParameterName"
     OBJECT_TYPE = "ObjectType"
@@ -15,13 +18,7 @@ class EDSFile:
     def __init__(self, location):
         self._location = location
         self._nodes = {}
-        self._types = {0x00: "NULL",
-                       0x02: "DOMAIN",
-                       0x05: "DEFTYPE",
-                       0x06: "DEFSTRUCT",
-                       0x07: "VAR",
-                       0x08: "ARRAY",
-                       0x09: "RECORD"}
+        self._types = data_types
         self.load_files()
 
     def get_nodes(self):
