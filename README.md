@@ -4,12 +4,6 @@ A utility for displaying and tracking activity over the CAN bus.
 
 ### Installation
 
-  __Primary Installation:__
-
-  Via our [python package index](https://pypi.org/project/canmon/) page
-
-  `$` `pip install canmon`
-
   __(Manual) Git Installation:__
 
   Clone the repo:
