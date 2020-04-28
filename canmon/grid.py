@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-import curses, sys
-from pane import Pane
+from .pane import Pane
 from enum import Enum
 
 class Split(Enum):
@@ -11,7 +9,7 @@ class Split(Enum):
     vertical = VERTICAL
 
 class Grid:
-    def __init__(self, width, height, x_off = 0, y_off = 0, split = Split.VERTICAL):
+    def __init__(self, width = 0, height = 0, x_off = 0, y_off = 0, split = Split.VERTICAL):
         self.width = width
         self.height = height
         self.x_off = x_off
@@ -31,77 +29,29 @@ class Grid:
         for i in self.items:
             if(type(i) == Grid): i.add_item(name, item)
             else:
-                if(i.name == name): i.add(item)
+                if(i.name.lower() == name.lower()): i.add(item)
+
+    def flat_pannels(self):
+        res = []
+        for item in self.items:
+            if(type(item) is Grid): res += item.flat_pannels()
+            else: res.append(item)
+        return res
 
     def draw(self):
         if(self.split == Split.HORIZONTAL):
-            width = int(self.width / len(self.items))
-            height = self.height
-            h_off = 0
-            w_off = width
-        elif(self.split == Split.VERTICAL):
             width = self.width
             height = int(self.height / len(self.items))
             h_off = height
             w_off = 0
+        elif(self.split == Split.VERTICAL):
+            width = int(self.width / len(self.items))
+            height = self.height
+            h_off = 0
+            w_off = width
 
         for i, item in enumerate(self.items):
             if(type(item) == Pane): item.draw(width, height, i * w_off + self.x_off, i * h_off + self.y_off)
             else:
                 item.resize(width, height, i * w_off + self.x_off, i * h_off + self.y_off)
                 item.draw()
-
-def construct_screen():
-    # Init color pairs
-    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-    curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_GREEN)
-    curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_CYAN)
-
-    # Init screen
-    screen = curses.initscr()
-    screen.keypad(True)
-    screen.timeout(100)
-    curses.noecho()
-    curses.cbreak()
-    curses.curs_set(0)
-    return screen
-
-def destruct_screen():
-    curses.nocbreak()
-    curses.echo()
-    curses.curs_set(1)
-    curses.endwin()
-
-def main(window):
-    stdscr = construct_screen()
-    height, width = stdscr.getmaxyx()
-    fields = ["PID", "Name", "Data"]
-
-    g1 = Grid(width, height)
-    g2 = Grid(0, 0, split = Split.HORIZONTAL)
-    g3 = Grid(0, 0)
-
-    g1.add_pannel(g2)
-    g1.add_pannel(Pane("D", fields))
-
-    g2.add_pannel(g3)
-    g2.add_pannel(Pane("C", fields))
-
-    g3.add_pannel(Pane("A", fields))
-    g3.add_pannel(Pane("B", fields))
-
-    g1.add_item("D", True)
-    g1.add_item("B", 420)
-    g1.add_item("C", "Blaze it!")
-
-    while True:
-        height, width = stdscr.getmaxyx()
-        g1.resize(width, height, 0, 1)
-        g1.draw()
-
-    destruct_screen()
-
-if __name__ == '__main__': curses.wrapper(main)
