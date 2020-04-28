@@ -31,7 +31,7 @@ class Pane(FrameTable):
 
         self.window.addstr(2, 1, "")
         for field in self.fields:
-            self.window.addstr(str(field) + "\t")
+            self.window.addstr(str(field + ": "))
         self.window.chgat(2, 1, -1, curses.color_pair(6))
 
         for i, id in enumerate(self.ids()):

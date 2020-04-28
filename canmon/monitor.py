@@ -1,4 +1,4 @@
-import curses, time, re
+import curses, time
 from .bus import Bus
 from .frame_data import FrameData
 from .frame_table import FrameTable
@@ -61,7 +61,7 @@ def draw_banner(window, devices, selected):
     window.addstr(" | devices: [ ")
 
     for dev in devices:
-        if(dev.is_dead()): color = 1
+        if(dev.running): color = 1
         else: color = 3
         window.addstr(dev.ndev + " ", curses.color_pair(color))
 
@@ -72,7 +72,8 @@ def start(window):
     stdscr = construct_screen()
     height, width = stdscr.getmaxyx()
     banner = curses.newwin(1, width, 0, 0)
-    fields = ["COB ID", "Node Name", "Bus", "Type", "Data"]
+    # fields = ["COB ID", "Node Name", "Bus", "Type", "Data"]
+    fields = ["Data"]
 
     # Init configs
     try: dev_config = load_config("~/.canmon/devices.json")

@@ -1,7 +1,7 @@
 from canard.hw import socketcan
 
 class Bus(socketcan.SocketCanDev):
-    def __init__(self, dev_name, timeout=0.1, dead_time=3):
+    def __init__(self, dev_name, timeout=0.01, dead_time=3):
         super().__init__(dev_name)
         self.socket.settimeout(timeout)
         self.dead_count = 0
