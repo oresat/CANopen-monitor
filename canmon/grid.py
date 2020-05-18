@@ -1,12 +1,14 @@
 from .pane import Pane
 from enum import Enum
 
+
 class Split(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
 
     horizontal = HORIZONTAL
     vertical = VERTICAL
+
 
 class Grid:
     def __init__(self, width = 0, height = 0, x_off = 0, y_off = 0, split = Split.VERTICAL):

@@ -1,9 +1,18 @@
 import curses
 from .frame_table import FrameTable
 
+
 class Pane(FrameTable):
-    def __init__(self, name, fields = []):
-        super().__init__(name, max_table_size = 24)
+    def __init__(self,
+                 name,
+                 fields=[],
+                 capacity=None,
+                 stale_time=60,
+                 dead_time=600):
+        super().__init__(name=name,
+                         capacity=capacity,
+                         stale_time=stale_time,
+                         dead_time=dead_time)
         self.window = curses.newwin(0, 0, 0, 0)
         self.name = name
         self.fields = fields
@@ -34,10 +43,11 @@ class Pane(FrameTable):
             self.window.addstr(str(field + ": "))
         self.window.chgat(2, 1, -1, curses.color_pair(6))
 
-        for i, id in enumerate(self.ids()):
+        for i, frame in enumerate(list(map(lambda x: self.table[x], self.ids()))):
             if(self.selected and i == self.scroll_pos): color = 7
             else: color = 0
-            self.window.addstr(3 + i, 1, str(self.table[id]), curses.color_pair(color))
+            self.window.addstr(3 + i, 1, str(hex(frame.node_id)).ljust(6, ' ') + "\t" + frame.name.ljust(20, ' ') + frame.ndev.ljust(6, ' ') + "\t" + str(frame), curses.color_pair(color))
+
             self.window.chgat(3 + i, 1, -1, curses.color_pair(color))
 
         self.window.box()

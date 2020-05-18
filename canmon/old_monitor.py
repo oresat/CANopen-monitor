@@ -1,36 +1,15 @@
-import curses, time, json
+import curses
+import time
+import json
 from .bus import Bus
+from .frame_data import FrameData
 from .frame_table import FrameTable
-from .frame_data import FrameData, FrameType
-from .utilities import *
-from . import VERSION
+from .grid import Grid, Split
+from .pane import Pane
+from .utilities import load_config, config_factory
 
-def app_refresh(window, scroll_pos=0):
-    window.refresh(scroll_pos, 0, 1, 0, curses.LINES - 1, curses.COLS - 1)
+SCROLL_RATE = 5
 
-def handle_interupt():
-    print("Restoring the terminal to its previous state...")
-    curses.nocbreak()
-    curses.echo()
-    curses.curs_set(1)
-    curses.endwin()
-    print("Done!")
-
-def pad(data): return " " * (curses.COLS - len(data.expandtabs()))
-
-def error(window, message):
-    window.addstr(1, 1, "fatal error: " + message, curses.color_pair(1))
-    app_refresh(window)
-    while True: pass # Hang and never return
-
-def init_screen():
-    screen = curses.initscr()
-    screen.keypad(True)
-    screen.timeout(100)
-    curses.noecho()
-    curses.cbreak()
-    curses.curs_set(0)
-    return screen
 
 def init_devices(window, config):
     devs = []
@@ -39,95 +18,37 @@ def init_devices(window, config):
             dev = Bus(name)
             dev.start()
             devs.append(dev)
-    except OSError as e: error(window, "failed to start device: " + name)
+    except OSError:
+        error(window, "failed to start device: " + name)
     return devs
 
+
 def init_tables(window, config):
+    '''Initialize all of the '''
     tables = []
     try:
         for c in config:
-            tables.append(FrameTable(c['name'], c['capacity'], c['stale_node_timeout'], c['dead_node_timeout']))
-    except KeyError as e: error(window, "malformed config: " + str(c) + "\n\t\texpected field: " + str(e))
+            tables.append(FrameTable(c['name'],
+                                     c['capacity'],
+                                     c['stale_node_timeout'],
+                                     c['dead_node_timeout']))
+    except KeyError as e:
+        error(window, "malformed config: "
+              + str(c)
+              + "\n\t\texpected field: " + str(e))
     return tables
 
-def disp_banner(window, devices):
-    window.erase() # Clear the banner
 
-    # Display raw data
-    data = "Time: (" + time.ctime() + ") | Devices: "
-    window.addstr(data)
+def error(window, message):
+    '''Displays an error message via ncurses then hangs and never returns.'''
+    window.addstr(1, 1, "fatal error: " + message, curses.color_pair(1))
+    window.refresh()
+    while True:
+        pass
 
-    for dev in devices:
-        if(dev.is_dead()): pair = 1
-        else: pair = 3
-        window.addstr(str(dev) + " ", curses.color_pair(pair))
 
-    # Reformat the printed data
-    t_delims = delims(data, '(', ')', 0)
-    window.chgat(0, t_delims[0], t_delims[1] - t_delims[0], curses.color_pair(1))
-
-    window.addstr(0, curses.COLS - 15, "canmon v" +  VERSION)
-
-def disp_heartbeats(window, table):
-    if(len(table) > 0):
-        data = str(table)+ ":"
-        if(table.max_table_size is not None): data += "(" + str(len(table)) + "/" + str(table.max_table_size) + ")"
-        data += pad(data)
-        window.addstr(data, curses.color_pair(5))
-
-        data = "NodeID:\tNode Name:\t\tBus:\tStatus:"
-        data += pad(data)
-        window.addstr(data, curses.color_pair(6))
-
-        # Display raw data
-        for id in table.ids():
-            frame = table[id]
-
-            # Padding node name
-            if(len(frame.name) <= 8): name_padding = "\t\t\t"
-            elif(len(frame.name) <= 12): name_padding = "\t\t"
-            else: name_padding = "\t"
-
-            window.addstr(str(hex(frame.node_id)) + "\t" + frame.name + name_padding + frame.ndev + "\t")
-            if(frame.is_dead()): window.addstr("DEAD", curses.color_pair(1))
-            elif(frame.is_stale()): window.addstr("STALE", curses.color_pair(2))
-            else: status = window.addstr(str(frame), curses.color_pair(3))
-            window.addstr("\n")
-        window.addstr("\n")
-
-def disp_table(window, table):
-    if(len(table) > 0):
-        data = str(table) + ":"
-        if(table.max_table_size is not None): data += "(" + str(len(table)) + "/" + str(table.max_table_size) + ")"
-        data += pad(data)
-        window.addstr(data, curses.color_pair(5))
-
-        data = "COB-ID:\tNode Name:\t\tBus:\tType:\tData:"
-        data += pad(data)
-        window.addstr(data, curses.color_pair(6))
-
-        # Display raw data
-        for id in table.ids():
-            frame = table[id]
-
-            # Padding node name
-            if(len(frame.name) <= 8): name_padding = "\t\t\t"
-            elif(len(frame.name) <= 12): name_padding = "\t\t"
-            else: name_padding = "\t"
-
-            window.addstr(str(hex(frame.id)) + "\t" + frame.name + name_padding + frame.ndev + "\t")
-            window.addstr(str(frame.type)) # curses.color_pair(frame.type.value + 1))
-            window.addstr("\t[ ")
-            window.addstr(str(frame) + " ", curses.color_pair(4))
-            window.addstr("]\n")
-        window.addstr("\n")
-
-def app(window):
-    # Init scroll posiotion + default app window size
-    scroll_pos = 0
-    app_size = curses.LINES
-
-    # Init curses color pairs
+def construct_screen():
+    '''Construct the virtual screen and initialize global color pairs.'''
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -136,84 +57,127 @@ def app(window):
     curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_CYAN)
     curses.init_pair(7, curses.COLOR_BLACK, curses.COLOR_YELLOW)
 
-    stdscr = init_screen() # Open the standard output
+    screen = curses.initscr()  # Construct the virtual screen
+    screen.keypad(True)  # Enable keypad
+    screen.timeout(1)  # Set user-input timeout (ms)
+    curses.noecho()  # Disable user-input echo
+    curses.cbreak()  # Disable line buffering
+    curses.curs_set(0)  # Disable cursor
+    return screen
 
-    # UI setup
-    app = curses.newwin(curses.LINES, curses.COLS)
-    banner = app.subwin(1, curses.COLS, 0, 0)
-    t_data = curses.newpad(app_size, curses.COLS)
 
-    # Init config
-    try: dev_config = load_config(t_data, "~/.canmon/devices.json")
+def destruct_screen():
+    '''Destroy the virtual screen and restore original display settings.'''
+    curses.nocbreak()  # Enable line buffering
+    curses.echo()  # Enable user-input echo
+    curses.curs_set(1)  # Enable the cursor
+    curses.endwin()  # Destroy the virtual screen
+
+
+def draw_banner(window, devices, selected):
+    window.addstr(0, 1, "")
+    window.addstr(time.ctime(), curses.color_pair(1))
+    window.addstr(" | devices: [ ")
+
+    for dev in devices:
+        if(dev.is_dead()):
+            color = 2
+        else:
+            color = 3
+        window.addstr(dev.ndev + " ", curses.color_pair(color))
+
+    window.addstr("] | " + selected.name + "\t\t")
+    window.refresh()
+
+
+def start(window):
+    stdscr = construct_screen()
+    height, width = stdscr.getmaxyx()
+    banner = curses.newwin(1, width, 0, 0)
+    # fields = ["COB ID", "Node Name", "Bus", "Type", "Data"]
+    fields = ["Data"]
+
+    # Init configs
+    try:
+        dev_config = load_config("~/.canmon/devices.json")
     except FileNotFoundError as e:
         config_factory(e.filename)
-        dev_config = load_config(t_data, e.filename)
-    except json.decoder.JSONDecodeError as e: error(t_data, "malformed config file: " + e.doc + "\n\t" + str(e))
+        dev_config = load_config(e.filename)
+    except json.decoder.JSONDecodeError as e:
+        error(dev_config, "malformed config file: " + e.doc + "\n\t" + str(e))
 
-    try: table_config = load_config(t_data, "~/.canmon/tables.json")
+    try: table_config = load_config("~/.canmon/tables.json")
     except FileNotFoundError as e:
         config_factory(e.filename)
-        table_config = load_config(t_data, e.filename)
+        table_config = load_config(e.filename)
     except json.decoder.JSONDecodeError as e: error(t_data, "malformed config file: " + e.doc + "\n\t" + str(e))
-
-    # Refresh the screen
-    app.refresh()
-    banner.refresh()
-    app_refresh(t_data)
 
     # Init the devices and tables
-    devs = init_devices(t_data, dev_config)
-    tables = init_tables(t_data, table_config)
+    devs = init_devices(stdscr, dev_config)
+    tables = init_tables(stdscr, table_config)
 
-    disp_banner(banner, devs) # Display banner
+    # Init the grid(s)
+    g1 = Grid(split = Split.HORIZONTAL)
+    g2 = Grid()
+
+    g1.add_pannel(g2)
+    g1.add_pannel(Pane("Misc", fields))
+
+    g2.add_pannel(Pane("Hearbeat", fields))
+    g2.add_pannel(Pane("PDO", fields))
+
+    panes = g1.flat_pannels()
+    pane_index = 0
+    selected = panes[pane_index]
+    selected.selected = True
+
+    n = [
+        "Misc",
+        "Hearbeat",
+        "PDO"
+    ]
+    i = 0
 
     # Event loop
     while True:
-        # Update the table(s) per device
-        for dev in devs:
+        # Update bus status(es)
+        for d in devs:
             try:
-                new_frame = FrameData(dev.recv(), dev.ndev)
-                dev.reset()
+                new_frame = FrameData(d.recv(), d.ndev)
+                d.reset()
 
-                # Add to the correct table based on type
-                if(new_frame == FrameType.HEARTBEAT): tables[0].add(new_frame)
-                else: tables[1].add(new_frame)
-            except OSError as e:
-                dev.incr()
+                g1.add_item(n[i], new_frame)
+                i += 1
+                if(i > 2): i = 0
+            except OSError:
+                d.incr()
                 continue
 
-        # Determine if the app window needs to grow
-        #       (if 4/5ths the app window is being used)
-        table_size = 0;
-        for table in tables: table_size += len(table)
-
-        if(table_size >= ((4 * app_size) / 5)):
-            app_size *= 2
-            t_data = curses.newpad(app_size, curses.COLS)
-
-        # Display things
-        disp_banner(banner, devs)
-        t_data.erase()
-        disp_heartbeats(t_data, tables[0])
-        disp_table(t_data, tables[1])
+        # Display stuff
+        height, width = stdscr.getmaxyx()
+        g1.resize(width, height, 0, 1)
+        draw_banner(banner, devs, selected)
+        g1.draw()
 
         # Get user input and determine new scroll position if any
         input = stdscr.getch()
         curses.flushinp()
-        if(input == curses.KEY_DOWN): scroll_pos += 5
-        elif(input ==  curses.KEY_UP): scroll_pos -= 5
 
-        # Check scroll overflow/underflow
-        if(scroll_pos < 0): scroll_pos = 0
-        elif(scroll_pos > app_size): scroll_pos = app_size
+        if(input == curses.KEY_DOWN):
+            selected.scroll()
+        elif(input ==  curses.KEY_UP):
+            selected.scroll(-1)
+        elif(input == curses.KEY_SR or input == curses.KEY_SLEFT):
+            pane_index -= 1
+        elif(input == curses.KEY_SF or input == curses.KEY_SRIGHT):
+            pane_index += 1
 
-        # Refresh the screen
-        app.refresh()
-        banner.refresh()
-        app_refresh(t_data, scroll_pos)
-    stdscr.keypad(False) # Close the standard output
+        if(pane_index < 0): pane_index = 0
+        elif(pane_index >= len(panes)): pane_index = len(panes) - 1
 
-def start():
-    try: curses.wrapper(app)
-    except OSError as e: print("fatal error: " + str(e))
-    except KeyboardInterrupt as e: handle_interupt()
+        selected.selected = False
+        selected = panes[pane_index]
+        selected.selected = True
+
+    # Restore the terminal
+    destruct_screen()

@@ -3,6 +3,7 @@ from canard.can import Frame
 from enum import Enum
 from .dictionaries import node_names, heartbeat_statuses
 
+
 class FrameType(Enum):
     NMT = 0
     SYNC = 1
@@ -39,6 +40,7 @@ class FrameType(Enum):
             14: "HB",
             15: "UKOWN"
             }[self.value]
+
 
 class FrameData(Frame):
     def __init__(self, src, ndev, type=FrameType.UKNOWN):
