@@ -6,12 +6,14 @@ class Split(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
 
-    horizontal = HORIZONTAL
-    vertical = VERTICAL
-
 
 class Grid:
-    def __init__(self, width = 0, height = 0, x_off = 0, y_off = 0, split = Split.VERTICAL):
+    def __init__(self,
+                 width=0,
+                 height=0,
+                 x_off=0,
+                 y_off=0,
+                 split=Split.VERTICAL):
         self.width = width
         self.height = height
         self.x_off = x_off
@@ -27,17 +29,21 @@ class Grid:
 
     def add_pannel(self, pannel): self.items.append(pannel)
 
-    def add_item(self, name, item):
+    def add_item(self, item):
         for i in self.items:
-            if(type(i) == Grid): i.add_item(name, item)
+            if(type(i) == Grid):
+                i.add_item(item)
             else:
-                if(i.name.lower() == name.lower()): i.add(item)
+                if(i.has_frame_type(item)):
+                    i.add(item)
 
     def flat_pannels(self):
         res = []
         for item in self.items:
-            if(type(item) is Grid): res += item.flat_pannels()
-            else: res.append(item)
+            if(type(item) is Grid):
+                res += item.flat_pannels()
+            else:
+                res.append(item)
         return res
 
     def draw(self):
@@ -53,7 +59,8 @@ class Grid:
             w_off = width
 
         for i, item in enumerate(self.items):
-            if(type(item) == Pane): item.draw(width, height, i * w_off + self.x_off, i * h_off + self.y_off)
+            if(type(item) == Pane):
+                item.draw(width, height, i * w_off + self.x_off, i * h_off + self.y_off)
             else:
                 item.resize(width, height, i * w_off + self.x_off, i * h_off + self.y_off)
                 item.draw()

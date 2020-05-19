@@ -1,33 +1,40 @@
 #!/usr/bin/env python3
-import sys
+from json.decoder import JSONDecodeError
 from curses import wrapper
 from canmon import CanMonitor
-from canmon.common import tables_path, dev_names_path
-from canmon.utilities import load_config
+from canmon.common import layout_path, dev_names_path
+from canmon.utilities import prime_config_dir, load_config, config_factory
 
 
-def main(args):
+def main(window):
+    # Guarentee the config directory exists
+    prime_config_dir()
+
     # Attempt to load the devices config
     try:
         dev_names = load_config(dev_names_path)
     except FileNotFoundError:
-        print('fatal: failed to open devices config!')
-        sys.exit(-1)
+        config_factory(dev_names_path)
+        dev_names = load_config(dev_names_path)
+    except JSONDecodeError:
+        print('fatal: malformed config file: ' + dev_names_path)
 
     # Attemt to open the tables config
     try:
-        table_schema = load_config(tables_path)
+        table_schema = load_config(layout_path)
     except FileNotFoundError:
-        print('fatal: failed to open devices config!')
-        sys.exit(-1)
+        config_factory(layout_path)
+        table_schema = load_config(layout_path)
+    except JSONDecodeError:
+        print('fatal: malformed config file: ' + layout_path)
 
     try:
-        canmonitor = CanMonitor(dev_names, table_schema)
-        wrapper(canmonitor.start)
+        canmonitor = CanMonitor(window, dev_names, table_schema)
+        canmonitor.start()
     finally:
         canmonitor.stop()
         print('Goodbye!')
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    wrapper(main)
