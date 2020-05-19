@@ -31,9 +31,10 @@ def main(window):
     try:
         canmonitor = CanMonitor(window, dev_names, table_schema)
         canmonitor.start()
+    except KeyboardInterrupt:
+        print('Requesting application stop...')
     finally:
         canmonitor.stop()
-        print('Goodbye!')
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 import curses
-import os
 import time
 from .bus import TheMagicCanBus
 from .grid import Grid, Split
@@ -8,26 +7,26 @@ import threading
 
 
 class CanMonitor:
-    def __init__(self, screen, devices, table_schema, block=True, timeout=0.01):
+    def __init__(self, screen, devices, table_schema, timeout=0.1):
         # Monitor setup
         self.scroll_rate = 5
         self.screen = screen
         self.screen.keypad(True)  # Enable keypad
-        self.screen.timeout(100)  # Set user-input timeout (ms)
+        self.screen.timeout(int(timeout * 1000))  # Set user-input timeout (ms)
+
+        # Bus things
         self.devices = devices
-        self.bus = TheMagicCanBus(devices)
-        self.block = block
-        self.timeout = timeout
-        self.screen_lock = threading.Lock()
-        self.pid = os.getpid()
+        self.bus = TheMagicCanBus(devices, timeout=timeout)
 
         # Stuff to be setup at a later time
         self.parent = None
         self.panes = None
         self.selected = None
         self.pane_i = -1
-        self.mutex = threading.Condition()
-        self.kill_threads = False
+
+        # Threading things
+        self.screen_lock = threading.Lock()
+        self.stop_listening = threading.Event()
 
         # Curses configuration
         curses.noecho()  # Disable user-input echo
@@ -49,14 +48,14 @@ class CanMonitor:
 
     def start(self):
         try:
-            # Start the user input thread
-            threading.Thread(target=self.read_input, name='input-thread').start()
-
-            while True:
+            while not self.stop_listening.is_set():
                 # Get CanBus input
                 data = self.bus.receive()
                 if(data is not None):
                     self.parent.add_item(data)
+
+                # Get user input
+                self.read_input()
 
                 # Draw the screen
                 height, width = self.screen.getmaxyx()
@@ -66,32 +65,10 @@ class CanMonitor:
                 self.parent.draw()
                 self.screen.refresh()
                 self.screen_lock.release()
-
-                # Check if thread needs to end
-                self.mutex.acquire()
-                self.mutex.wait_for(lambda: self.kill_threads,
-                                    timeout=self.timeout)
-                if(self.kill_threads):
-                    break
-                self.mutex.release()
-        except KeyboardInterrupt:
-            # Incredibly hacky workaround to the fact that
-            #    threading.Condition() has no locked() function
-            #
-            #   Kids, don't try this at home.
-            try:
-                self.mutex.release()
-            except RuntimeError:
-                pass
-
-            if(self.screen_lock.locked()):
-                self.screen_lock.release()
         finally:
             self.stop()
 
     def stop(self):
-        self.bus.stop_all()
-
         self.screen_lock.acquire()
         curses.nocbreak()  # Enable line buffering
         curses.echo()  # Enable user-input echo
@@ -99,47 +76,44 @@ class CanMonitor:
         curses.endwin()  # Destroy the virtual screen
         self.screen_lock.release()
 
-        self.mutex.acquire()
-        self.kill_thread = True
-        self.mutex.notifyAll()
-        self.mutex.release()
+        self.stop_listening.set()
+
+        print('stopping bus from the top-layer!')
+        self.bus.stop_all()
+        print('Stopped the bus!')
+
+        threads = threading.enumerate().remove(threading.current_thread())
+        print('waiting for all app threads to close.')
+        if(threads is not None):
+            for thread in threads:
+                thread.join()
+            print('all app threads closed gracefully!')
+        else:
+            print('no child app threads were spawned!')
 
     def read_input(self):
-        while True:
-            try:
-                # flush the input buffer then grab new user input
-                self.screen_lock.acquire()
-                input = self.screen.getch()
-                curses.flushinp()
+        # Grab new user input then flush the buffer
+        input = self.screen.getch()
+        curses.flushinp()
 
-                # While locked, check what screen states need the change
-                #   based in user input
-                if(input == curses.KEY_DOWN):
-                    self.selected.scroll()
-                elif(input == curses.KEY_UP):
-                    self.selected.scroll(-1)
-                elif(input == curses.KEY_SR or input == curses.KEY_SLEFT):
-                    self.pane_i -= 1
-                elif(input == curses.KEY_SF or input == curses.KEY_SRIGHT):
-                    self.pane_i += 1
+        # Determine the changes needed on screen
+        if(input == curses.KEY_DOWN):
+            self.selected.scroll()
+        elif(input == curses.KEY_UP):
+            self.selected.scroll(-1)
+        elif(input == curses.KEY_SR or input == curses.KEY_SLEFT):
+            self.pane_i -= 1
+        elif(input == curses.KEY_SF or input == curses.KEY_SRIGHT):
+            self.pane_i += 1
+        elif(input == curses.KEY_END):
+            self.stop()
 
-                if(self.pane_i < 0):
-                    self.pane_i = 0
-                elif(self.pane_i >= len(self.panes)):
-                    self.pane_i = len(self.panes) - 1
-                self.select()
-                self.screen_lock.release()
-
-                # Check if the user input thread needs to end
-                self.mutex.acquire()
-                self.mutex.wait_for(lambda: self.kill_threads, timeout=self.timeout)
-                if(self.kill_threads):
-                    self.mutex.release()
-                    break
-                else:
-                    self.mutex.release()
-            except KeyboardInterrupt:
-                pass
+        # Enforce pannel select bounds
+        if(self.pane_i < 0):
+            self.pane_i = 0
+        elif(self.pane_i >= len(self.panes)):
+            self.pane_i = len(self.panes) - 1
+        self.select()
 
     def draw_banner(self):
         self.screen.addstr(0, 0, time.ctime(), curses.color_pair(1))
