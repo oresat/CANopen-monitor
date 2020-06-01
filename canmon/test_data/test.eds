@@ -1,0 +1,62 @@
+[FileInfo]
+FileName=CFC_OD.eds
+FileVersion=0
+FileRevision=0
+LastEDS=
+EDSVersion=4.0
+Description=OreSat CFC Object Dictionary
+CreationTime=11:32AM
+CreationDate=11-07-2019
+CreatedBy=Ryan Medick
+ModificationTime=11:32AM
+ModificationDate=11-07-2019
+ModifiedBy=
+
+[DeviceInfo]
+VendorName=Portland State Aerospace Society
+VendorNumber=0
+ProductName=Cirrus Flux Camera
+ProductNumber=0
+RevisionNumber=0
+BaudRate_10=1
+BaudRate_20=1
+BaudRate_50=1
+BaudRate_125=1
+BaudRate_250=1
+BaudRate_500=1
+BaudRate_800=1
+BaudRate_1000=1
+SimpleBootUpMaster=0
+SimpleBootUpSlave=1
+Granularity=8
+DynamicChannelsSupported=0
+CompactPDO=0
+GroupMessaging=0
+NrOfRXPDO=4
+NrOfTXPDO=4
+LSS_Supported=0
+;LSS_Type=Server
+
+[2101]
+ParameterName=CAN node ID
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0x12
+PDOMapping=0
+
+[3000]
+ParameterName=Systemd Control
+ObjectType=0x9
+;StorageLocation=RAM
+SubNumber=0x3
+
+[3000sub0]
+ParameterName=max sub-index
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=ro
+DefaultValue=2
+PDOMapping=0

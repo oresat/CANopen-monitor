@@ -6,56 +6,53 @@ from queue import Queue, Full, Empty
 
 class TheMagicCanBus:
     def __init__(self, device_names=[], block=True, timeout=0.1):
-        self.block = block
-        self.timeout = timeout
+        # Bus things
         self.devs = []
         self.frames = Queue()
-        self.mutex = threading.Condition()
-        self.kill_threads = False
+
+        # Threading things
+        self.stop_listening = threading.Event()
+        self.block = block
+        self.timeout = timeout
+        self.threads = []
 
         for name in device_names:
             self.start(name)
 
     def start(self, dev_name):
         dev = SocketCanDev(dev_name)
-        try:
-            dev.start()
-        except OSError:
-            return
+        dev.start()
         self.devs.append(dev)
         dev_listener = threading.Thread(target=self.listen,
-                                        name='dev-listener-'
-                                        + str(len(self.devs)),
                                         args=[dev])
         dev_listener.setDaemon(True)
         dev_listener.start()
+        self.threads.append(dev_listener)
 
     def stop(self, dev):
         self.devs.remove(dev)
 
     def stop_all(self):
-        self.mutex.acquire()
         # Remove all devices from the device table
         for dev in self.devs:
             self.stop(dev)
 
-        # Alert all children to kill themselves
-        self.kill_threads = True
-        self.mutex.notifyAll()
-        self.mutex.release()
+        self.stop_listening.set()
+
+        print('waiting for '
+              + str(len(self.threads))
+              + ' bus-threads to close.')
+        if(len(self.threads) > 0):
+            for thread in self.threads:
+                thread.join()
+            print('all bus threads closed gracefully!')
+        else:
+            print('no child bus threads were spawned!')
 
     def listen(self, dev):
         try:
-            while True:
-                res = dev.recv()
-                self.frames.put([res, dev.ndev], block=self.block)
-
-                # Check if the thread needs to end
-                self.mutex.acquire()
-                self.mutex.wait_for(lambda: self.kill_threads, timeout=self.timeout)
-                if(self.kill_threads):
-                    break
-                self.mutex.release()
+            while not self.stop_listening.is_set():
+                self.frames.put([dev.recv(), dev.ndev], block=self.block)
         except Full:
             pass
         except OSError:
