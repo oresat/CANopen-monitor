@@ -53,7 +53,11 @@ class TheMagicCanBus:
                   + ' bus-threads to close.')
         if(len(self.threads) > 0):
             for thread in self.threads:
-                thread.join()
+                try:
+                    thread.join(timeout=10)
+                except TimeoutError:
+                    if(self.debug):
+                        print('a bus thread took too long to close, forcefully closing it now!')
             if(self.debug):
                 print('all bus threads closed gracefully!')
         else:

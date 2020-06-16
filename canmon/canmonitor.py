@@ -6,26 +6,28 @@ from .pane import Pane
 import threading
 
 
-class ErrorWindow:
-    def __init__(self, parent, error, banner='fatal', color_pair=3):
+class PopupWindow:
+    def __init__(self, parent, message, banner='fatal', color_pair=3):
         height, width = parent.getmaxyx()
         style = curses.color_pair(color_pair) | curses.A_REVERSE
-        msg = error.split('\n')
+        message = message.split('\n')
         long = 0
 
-        for m in msg:
+        for m in message:
             if(len(m) > long):
                 long = len(m)
+        if(long < len(banner)):
+            long = len(banner)
 
-        window = curses.newwin(len(msg) + 2,
+        window = curses.newwin(len(message) + 2,
                                long + 2,
-                               int((height - len(msg) + 2) / 2),
+                               int((height - len(message) + 2) / 2),
                                int((width - long + 2) / 2))
         window.attron(style)
-        window.box()
         window.addstr(0, 1, banner + ":", curses.A_UNDERLINE | style)
-        for i, m in enumerate(msg):
-            window.addstr(1 + i, 1, m)
+        for i, m in enumerate(message):
+            window.addstr(1 + i, 1, m.ljust(long, ' '))
+        window.box()
         window.attroff(style)
 
         window.refresh()
@@ -52,9 +54,9 @@ class CanMonitor:
         self.devices = devices
         self.bus = TheMagicCanBus(self.devices, timeout=timeout, debug=self.debug)
 
-        # Pannel selection things
-        self.pannel_index = 0       # Index to get to selected pannel
-        self.pannel_flatlist = []   # List of all Panes contained in parent
+        # panel selection things
+        self.panel_index = 0       # Index to get to selected panel
+        self.panel_flatlist = []   # List of all Panes contained in parent
         self.selected = None        # Reference to currently selected pane
 
         # Threading things
@@ -97,7 +99,7 @@ class CanMonitor:
                     self.parent.draw()
                     self.screen_lock.release()
                 except Exception as e:
-                    ErrorWindow(self.screen, e)
+                    PopupWindow(self.screen, str(e))
                     self.screen_lock.release()
         except KeyboardInterrupt:
             pass
@@ -146,18 +148,42 @@ class CanMonitor:
             self.screen.clear()
             self.parent.clear()
             self.parent.resize(self.screen)
+        elif(key == curses.KEY_F1):
+            PopupWindow(self.screen, "Portland State Aerospace Society\
+                                      \nhttps://psas.pdx.edu\
+                                      \n\nLicensed Under: GPL v3",
+                        banner='About',
+                        color_pair=1)
+        elif(key == curses.KEY_F2):
+            PopupWindow(self.screen, "<Ctrl+C>: Exit program\
+                                     \n\nInfo:\
+                                     \n\t<F1>: About\
+                                     \n\t<F2>: Controls\
+                                     \n\nMovement:\
+                                     \n\t<UP>: Scroll up\
+                                     \n\t<DOWN>: Scroll down\
+                                     \n\t<Ctrl+UP>: Fast scroll up\
+                                     \n\t<Ctrl+DOWN>: Fast scroll down\
+                                     \n\t<Shift+UP>: Select previous pane\
+                                     \n\t<Shift+DOWN>: Select next pane",
+                        banner='Controls',
+                        color_pair=1)
         elif((key == curses.KEY_SR or key == curses.KEY_SLEFT)
-                and self.pannel_index > 0):
-            self.pannel_index -= 1
-            self.update_selected_pannel()
+                and self.panel_index > 0):
+            self.panel_index -= 1
+            self.update_selected_panel()
         elif((key == curses.KEY_SF or key == curses.KEY_SRIGHT)
-                and self.pannel_index < len(self.pannel_flatlist) - 1):
-            self.pannel_index += 1
-            self.update_selected_pannel()
+                and self.panel_index < len(self.panel_flatlist) - 1):
+            self.panel_index += 1
+            self.update_selected_panel()
         elif(key == curses.KEY_UP):
             self.selected.scroll_up()
         elif(key == curses.KEY_DOWN):
             self.selected.scroll_down()
+        elif(key == 567 or key == 546):  # Ctrl+Up or Ctrl+Left
+            self.selected.scroll_up(rate=10)
+        elif(key == 526 or key == 561):  # Ctrl+Down or Ctrl+Right
+            self.selected.scroll_down(rate=10)
 
     def draw_banner(self):
         _, width = self.screen.getmaxyx()
@@ -173,13 +199,13 @@ class CanMonitor:
 
             self.screen.addstr(dev + " ", curses.color_pair(color))
 
-        hottip = '<Ctrl+C> to quit'
+        hottip = '<F2>: Controls'
         self.screen.addstr(0, width - len(hottip), hottip)
 
-    def update_selected_pannel(self):
+    def update_selected_panel(self):
         if(self.selected is not None):
             self.selected.selected = False
-        self.selected = self.pannel_flatlist[self.pannel_index]
+        self.selected = self.panel_flatlist[self.panel_index]
         self.selected.selected = True
 
     def construct_grid(self, schema, parent=None):
@@ -194,8 +220,8 @@ class CanMonitor:
 
             for entry in data:
                 self.construct_grid(entry, self.parent)
-            self.pannel_flatlist = self.parent.flatten()
-            self.update_selected_pannel()
+            self.panel_flatlist = self.parent.flatten()
+            self.update_selected_panel()
         else:
             if(type == 'grid'):
                 component = Grid(split=split)
@@ -215,4 +241,4 @@ class CanMonitor:
                                  dead_time=dead_time,
                                  fields=fields,
                                  frame_types=frame_types)
-            parent.add_pannel(component)
+            parent.add_panel(component)

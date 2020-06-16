@@ -16,37 +16,37 @@ class Grid:
             self.parent = curses.newwin(height - 1, width, 1, 0)
 
         self.split = split
-        self.pannels = []
+        self.panels = []
 
     def flatten(self):
         flat = []
-        for pannel in self.pannels:
-            if(type(pannel) is Grid):
-                flat += pannel.flatten()
+        for panel in self.panels:
+            if(type(panel) is Grid):
+                flat += panel.flatten()
             else:
-                flat += [pannel]
+                flat += [panel]
         return flat
 
     def draw(self):
-        for pannel in self.pannels:
-            pannel.draw()
+        for panel in self.panels:
+            panel.draw()
 
     def clear(self):
-        for pannel in self.pannels:
-            pannel.clear()
+        for panel in self.panels:
+            panel.clear()
         self.parent.clear()
 
-    def add_pannel(self, pannel):
-        self.pannels.append(pannel)
+    def add_panel(self, panel):
+        self.panels.append(panel)
         self.resize()
 
     def add_frame(self, frame):
-        for pannel in self.pannels:
-            if(type(pannel) is Grid):
-                pannel.add_frame(frame)
+        for panel in self.panels:
+            if(type(panel) is Grid):
+                panel.add_frame(frame)
             else:
-                if(pannel.has_frame_type(frame)):
-                    pannel.add(frame)
+                if(panel.has_frame_type(frame)):
+                    panel.add(frame)
 
     def resize(self, parent=None):
         if(parent is not None):
@@ -55,9 +55,9 @@ class Grid:
 
         p_height, p_width = self.parent.getmaxyx()
         py_offset, px_offset = self.parent.getbegyx()
-        p_count = len(self.pannels)
+        p_count = len(self.panels)
 
-        for i, pannel in enumerate(self.pannels):
+        for i, panel in enumerate(self.panels):
             if(self.split == Split.VERTICAL):
                 width = int(p_width / p_count)
                 height = p_height
@@ -68,8 +68,8 @@ class Grid:
                 height = int(p_height / p_count)
                 x_offset = 0 + px_offset
                 y_offset = i * height + py_offset
-            pannel.parent.resize(height, width)
-            pannel.parent.mvwin(y_offset, x_offset)
+            panel.parent.resize(height, width)
+            panel.parent.mvwin(y_offset, x_offset)
 
-            if(type(pannel) is Grid):
-                pannel.resize()
+            if(type(panel) is Grid):
+                panel.resize()

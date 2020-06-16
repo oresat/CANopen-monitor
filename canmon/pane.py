@@ -33,13 +33,15 @@ class Pane(FrameTable):
     def has_frame_type(self, frame):
         return str(frame.type) in self.frame_types
 
-    def scroll_up(self):
-        if(self.scroll_position > 0):
-            self.scroll_position -= 1
+    def scroll_up(self, rate=1):
+        self.scroll_position -= rate
+        if(self.scroll_position < 0):
+            self.scroll_position = 0
 
-    def scroll_down(self):
-        if(self.scroll_position < (len(self.table) - 1)):
-            self.scroll_position += 1
+    def scroll_down(self, rate=1):
+        self.scroll_position += rate
+        if(self.scroll_position > (len(self.table) - 1)):
+            self.scroll_position = (len(self.table) - 1)
 
     def draw(self):
         style = curses.color_pair(4)
