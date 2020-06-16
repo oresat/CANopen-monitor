@@ -37,20 +37,57 @@ A utility for displaying and tracking activity over the CAN bus.
 
 &nbsp;
 
-###### `~/.canmon/tables.json`
+###### `~/.canmon/layout.json`
 ```json
-[{
-  "name": "Hearbeats",
-  "capacity": 16,
-  "stale_node_timeout": 60,
-  "dead_node_timeout": 600
-},
-{
-  "name": "Misc",
-  "capacity": 64,
-  "stale_node_timeout": null,
-  "dead_node_timeout": null
-}]
+  {
+    "type": "grid",
+    "split": "horizontal",
+    "data": [{
+      "type": "grid",
+      "split": "vertical",
+      "data": [{
+      "type": "table",
+      "capacity": 16,
+      "dead_node_timeout": 600,
+      "name": "Hearbeats",
+      "stale_node_timeout": 60,
+      "fields": [],
+      "frame_types": ["HB"]
+      }, {
+      "type": "table",
+      "capacity": 16,
+      "dead_node_timeout": 600,
+      "name": "Info",
+      "stale_node_timeout": 60,
+      "fields": [],
+      "frame_types": []
+      }]
+    }, {
+      "type": "table",
+      "capacity": 16,
+      "dead_node_timeout": 60,
+      "name": "Misc",
+      "stale_node_timeout": 600,
+      "fields": [],
+      "frame_types": [
+      "NMT",
+      "SYNC",
+      "EMCY",
+      "TIME",
+      "TPDO1",
+      "RPDO1",
+      "TPDO2",
+      "RPDO2",
+      "TPDO3",
+      "RPDO3",
+      "TPDO4",
+      "RPDO4",
+      "TSDO",
+      "RSDO",
+      "UKOWN"
+      ]
+    }]
+  }
 ```
 
 ***

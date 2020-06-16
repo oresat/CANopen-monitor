@@ -1,4 +1,4 @@
-from .pane import Pane
+import curses
 from enum import Enum
 
 
@@ -8,59 +8,68 @@ class Split(Enum):
 
 
 class Grid:
-    def __init__(self,
-                 width=0,
-                 height=0,
-                 x_off=0,
-                 y_off=0,
-                 split=Split.VERTICAL):
-        self.width = width
-        self.height = height
-        self.x_off = x_off
-        self.y_off = y_off
+    def __init__(self, parent=None, split=Split.VERTICAL):
+        if(parent is None):
+            self.parent = curses.newwin(0, 0, 0, 0)
+        else:
+            height, width = parent.getmaxyx()
+            self.parent = curses.newwin(height - 1, width, 1, 0)
+
         self.split = split
-        self.items = []
+        self.pannels = []
 
-    def resize(self, width, height, x_off, y_off):
-        self.width = width
-        self.height = height
-        self.x_off = x_off
-        self.y_off = y_off
-
-    def add_pannel(self, pannel): self.items.append(pannel)
-
-    def add_item(self, item):
-        for i in self.items:
-            if(type(i) == Grid):
-                i.add_item(item)
+    def flatten(self):
+        flat = []
+        for pannel in self.pannels:
+            if(type(pannel) is Grid):
+                flat += pannel.flatten()
             else:
-                if(i.has_frame_type(item)):
-                    i.add(item)
-
-    def flat_pannels(self):
-        res = []
-        for item in self.items:
-            if(type(item) is Grid):
-                res += item.flat_pannels()
-            else:
-                res.append(item)
-        return res
+                flat += [pannel]
+        return flat
 
     def draw(self):
-        if(self.split == Split.HORIZONTAL):
-            width = self.width
-            height = int(self.height / len(self.items))
-            h_off = height
-            w_off = 0
-        elif(self.split == Split.VERTICAL):
-            width = int(self.width / len(self.items))
-            height = self.height
-            h_off = 0
-            w_off = width
+        for pannel in self.pannels:
+            pannel.draw()
 
-        for i, item in enumerate(self.items):
-            if(type(item) == Pane):
-                item.draw(width, height, i * w_off + self.x_off, i * h_off + self.y_off)
+    def clear(self):
+        for pannel in self.pannels:
+            pannel.clear()
+        self.parent.clear()
+
+    def add_pannel(self, pannel):
+        self.pannels.append(pannel)
+        self.resize()
+
+    def add_frame(self, frame):
+        for pannel in self.pannels:
+            if(type(pannel) is Grid):
+                pannel.add_frame(frame)
             else:
-                item.resize(width, height, i * w_off + self.x_off, i * h_off + self.y_off)
-                item.draw()
+                if(pannel.has_frame_type(frame)):
+                    pannel.add(frame)
+
+    def resize(self, parent=None):
+        if(parent is not None):
+            height, width = parent.getmaxyx()
+            self.parent = curses.newwin(height - 1, width, 1, 0)
+
+        p_height, p_width = self.parent.getmaxyx()
+        py_offset, px_offset = self.parent.getbegyx()
+        p_count = len(self.pannels)
+
+        for i, pannel in enumerate(self.pannels):
+            if(self.split == Split.VERTICAL):
+                width = int(p_width / p_count)
+                height = p_height
+                x_offset = i * width + px_offset
+                y_offset = 0 + py_offset
+            else:
+                width = p_width
+                height = int(p_height / p_count)
+                x_offset = 0 + px_offset
+                y_offset = i * height + py_offset
+            pannel.parent.resize(height, width)
+            pannel.parent.mvwin(y_offset, x_offset)
+
+            if(type(pannel) is Grid):
+                pannel.resize()
