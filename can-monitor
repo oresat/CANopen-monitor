@@ -1,41 +1,80 @@
 #!/usr/bin/env python3
+import sys
+import argparse
 from json.decoder import JSONDecodeError
-from curses import wrapper
-from canmon import CanMonitor
-from canmon.common import layout_path, dev_names_path
-from canmon.utilities import prime_config_dir, load_config, config_factory
+from canmon import CanMonitor, \
+                   layout_path, \
+                   dev_names_path, \
+                   prime_config_dir, \
+                   load_config, \
+                   config_factory
 
 
-def main(window):
+def main(args):
+    # Setup program arguments and options
+    parser = argparse.ArgumentParser(prog='Can Monitor',
+                                     description='A utility for displaying and\
+                                     tracking activity over the CAN bus.',
+                                     allow_abbrev=False)
+    parser.add_argument('-v', '--verbose',
+                        dest='debug',
+                        action='store_true',
+                        default=False,
+                        help='enable additional debug info')
+    parser.add_argument('-d', '--devices',
+                         dest='devices',
+                         type=str,
+                         nargs=1,
+                         default="",
+                         help='specify additional busses to listen on')
+    args = parser.parse_args(args)
+
     # Guarentee the config directory exists
     prime_config_dir()
 
-    # Attempt to load the devices config
+    # Attempt to load devices config from file (path defined in ./common.py)
     try:
         dev_names = load_config(dev_names_path)
+    # If not found generate a new config file from the config factory
     except FileNotFoundError:
         config_factory(dev_names_path)
         dev_names = load_config(dev_names_path)
+    # If the config is malformed stop the program
+    #   and ask the user to fix the configs or destroy them
     except JSONDecodeError:
-        print('fatal: malformed config file: ' + dev_names_path)
+        raise JSONDecodeError('fatal: malformed config file: '
+                              + dev_names_path
+                              + "\n\tPlease either fix the given config or \
+                            destroy it so that Can Monitor can regenerate it!")
 
-    # Attemt to open the tables config
+    # Append the command-line specified devices to the config specified devices
+    if(len(args.devices) > 0):
+        dev_names += args.devices[0].split(' ')
+
+    # Attemt to open tables config from file (path defined in ./common.py)
     try:
         table_schema = load_config(layout_path)
+    # If not found generate a new config file from the config factory
     except FileNotFoundError:
         config_factory(layout_path)
         table_schema = load_config(layout_path)
+    # If the config is malformed stop the program
+    #   and ask the user to fix the configs or destroy them
     except JSONDecodeError:
-        print('fatal: malformed config file: ' + layout_path)
+        raise JSONDecodeError('fatal: malformed config file: '
+                              + layout_path
+                              + "\n\tPlease either fix the given config or \
+                            destroy it so that Can Monitor can regenerate it!")
 
+    # Attempt to start the application
     try:
-        canmonitor = CanMonitor(window, dev_names, table_schema)
+        canmonitor = CanMonitor(dev_names, table_schema, debug=args.debug)
         canmonitor.start()
-    except KeyboardInterrupt:
-        print('Requesting application stop...')
     finally:
+        # Ensure that the application is properly stopped
+        #   and that all of its threads are gracefully closed out
         canmonitor.stop()
 
 
 if __name__ == "__main__":
-    wrapper(main)
+    main(sys.argv[1:])

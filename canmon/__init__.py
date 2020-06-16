@@ -1,3 +1,3 @@
-VERSION="1.5.2"
-BRANCH="master"
-from .canmonitor import CanMonitor
+from .canmonitor import *
+from .common import *
+from .utilities import *

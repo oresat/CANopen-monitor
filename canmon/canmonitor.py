@@ -6,42 +6,77 @@ from .pane import Pane
 import threading
 
 
+class PopupWindow:
+    def __init__(self, parent, message, banner='fatal', color_pair=3):
+        height, width = parent.getmaxyx()
+        style = curses.color_pair(color_pair) | curses.A_REVERSE
+        message = message.split('\n')
+        long = 0
+
+        for m in message:
+            if(len(m) > long):
+                long = len(m)
+        if(long < len(banner)):
+            long = len(banner)
+
+        window = curses.newwin(len(message) + 2,
+                               long + 2,
+                               int((height - len(message) + 2) / 2),
+                               int((width - long + 2) / 2))
+        window.attron(style)
+        window.addstr(0, 1, banner + ":", curses.A_UNDERLINE | style)
+        for i, m in enumerate(message):
+            window.addstr(1 + i, 1, m.ljust(long, ' '))
+        window.box()
+        window.attroff(style)
+
+        window.refresh()
+        parent.refresh()
+
+        window.getch()
+        curses.flushinp()
+        window.clear()
+        parent.clear()
+
+
 class CanMonitor:
-    def __init__(self, screen, devices, table_schema, timeout=0.1):
+    def __init__(self, devices, table_schema, timeout=0.1, debug=False):
         # Monitor setup
-        self.scroll_rate = 5
-        self.screen = screen
-        self.screen.keypad(True)  # Enable keypad
-        self.screen.timeout(int(timeout * 1000))  # Set user-input timeout (ms)
+        self.screen = curses.initscr()  # Initialize standard out
+        self.screen.scrollok(True)      # Enable window scroll
+        self.screen.keypad(True)        # Enable special key input
+        self.screen.nodelay(True)       # Disable user-input blocking
+
+        # App state things
+        self.debug = debug
 
         # Bus things
         self.devices = devices
-        self.bus = TheMagicCanBus(devices, timeout=timeout)
+        self.bus = TheMagicCanBus(self.devices, timeout=timeout, debug=self.debug)
 
-        # Stuff to be setup at a later time
-        self.parent = None
-        self.panes = None
-        self.selected = None
-        self.pane_i = -1
+        # panel selection things
+        self.panel_index = 0       # Index to get to selected panel
+        self.panel_flatlist = []   # List of all Panes contained in parent
+        self.selected = None        # Reference to currently selected pane
 
         # Threading things
         self.screen_lock = threading.Lock()
         self.stop_listening = threading.Event()
 
         # Curses configuration
-        curses.noecho()  # Disable user-input echo
-        curses.cbreak()  # Disable line buffering
-        curses.curs_set(0)  # Disable cursor
+        curses.savetty()        # Save the terminal state
+        # curses.raw()            # Enable raw input (DISABLES SIGNALS)
+        curses.noecho()         # Disable user-input echo
+        curses.cbreak()         # Disable line-buffering (less input delay)
+        curses.curs_set(False)  # Disable the cursor display
 
-        # Curses color pairs
+        # Curses colors
         curses.start_color()
-        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-        curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_GREEN)
-        curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_CYAN)
-        curses.init_pair(7, curses.COLOR_BLACK, curses.COLOR_YELLOW)
+        curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
 
         # Construct the grid(s)
         self.construct_grid(table_schema)
@@ -52,108 +87,141 @@ class CanMonitor:
                 # Get CanBus input
                 data = self.bus.receive()
                 if(data is not None):
-                    self.parent.add_item(data)
+                    self.parent.add_frame(data)
 
                 # Get user input
                 self.read_input()
 
                 # Draw the screen
-                height, width = self.screen.getmaxyx()
-                self.screen_lock.acquire()
-                self.parent.resize(width, height, 0, 1)
-                self.draw_banner()
-                self.parent.draw()
-                self.screen.refresh()
-                self.screen_lock.release()
+                try:
+                    self.screen_lock.acquire()
+                    self.draw_banner()
+                    self.parent.draw()
+                    self.screen_lock.release()
+                except Exception as e:
+                    PopupWindow(self.screen, str(e))
+                    self.screen_lock.release()
+        except KeyboardInterrupt:
+            pass
         finally:
             self.stop()
 
     def stop(self):
-        self.screen_lock.acquire()
-        curses.nocbreak()  # Enable line buffering
-        curses.echo()  # Enable user-input echo
-        curses.curs_set(1)  # Enable the cursor
-        curses.endwin()  # Destroy the virtual screen
-        self.screen_lock.release()
+        # self.screen_lock.acquire()  # Acquire the screen lock
+        curses.nocbreak()           # Re-enable line-buffering
+        curses.echo()               # Enable user-input echo
+        curses.curs_set(True)       # Enable the cursor
+        curses.resetty()            # Restore the terminal state
+        curses.endwin()             # Destroy the virtual screen
+        # self.screen_lock.release()  # Release the screen lock
+        self.stop_listening.set()   # Signal the bus threads to stop
 
-        self.stop_listening.set()
+        if(self.debug):  # Extra debug info
+            print('stopping bus-listeners from the app-layer...')
 
-        print('stopping bus from the top-layer!')
-        self.bus.stop_all()
-        print('Stopped the bus!')
+        self.bus.stop_all()         # Wait for all CanBus threads to stop
+
+        if(self.debug):  # Extra debug info
+            print('stopped all bus-listeners!')
 
         threads = threading.enumerate().remove(threading.current_thread())
-        print('waiting for all app threads to close.')
+        if(self.debug):  # Extra debug info
+            print('waiting for all app-threads to close...')
+
+        # If app-layer threads exist wait for them to close
         if(threads is not None):
             for thread in threads:
                 thread.join()
-            print('all app threads closed gracefully!')
-        else:
-            print('no child app threads were spawned!')
+            if(self.debug):  # Extra debug info
+                print('stopped all app-threads gracefully!')
+
+        elif(self.debug):  # Extra debug info
+            print('no child app-threads were spawned!')
 
     def read_input(self):
-        # Grab new user input then flush the buffer
-        input = self.screen.getch()
+        # Grab new user input and immediately flush the buffer
+        key = self.screen.getch()
         curses.flushinp()
 
-        # Determine the changes needed on screen
-        if(input == curses.KEY_DOWN):
-            self.selected.scroll()
-        elif(input == curses.KEY_UP):
-            self.selected.scroll(-1)
-        elif(input == curses.KEY_SR or input == curses.KEY_SLEFT):
-            self.pane_i -= 1
-        elif(input == curses.KEY_SF or input == curses.KEY_SRIGHT):
-            self.pane_i += 1
-        elif(input == curses.KEY_END):
-            self.stop()
-
-        # Enforce pannel select bounds
-        if(self.pane_i < 0):
-            self.pane_i = 0
-        elif(self.pane_i >= len(self.panes)):
-            self.pane_i = len(self.panes) - 1
-        self.select()
+        # Determine the key input
+        if(key == curses.KEY_RESIZE):
+            self.screen.clear()
+            self.parent.clear()
+            self.parent.resize(self.screen)
+        elif(key == curses.KEY_F1):
+            PopupWindow(self.screen, "Portland State Aerospace Society\
+                                      \nhttps://psas.pdx.edu\
+                                      \n\nLicensed Under: GPL v3",
+                        banner='About',
+                        color_pair=1)
+        elif(key == curses.KEY_F2):
+            PopupWindow(self.screen, "<Ctrl+C>: Exit program\
+                                     \n\nInfo:\
+                                     \n\t<F1>: About\
+                                     \n\t<F2>: Controls\
+                                     \n\nMovement:\
+                                     \n\t<UP>: Scroll up\
+                                     \n\t<DOWN>: Scroll down\
+                                     \n\t<Ctrl+UP>: Fast scroll up\
+                                     \n\t<Ctrl+DOWN>: Fast scroll down\
+                                     \n\t<Shift+UP>: Select previous pane\
+                                     \n\t<Shift+DOWN>: Select next pane",
+                        banner='Controls',
+                        color_pair=1)
+        elif((key == curses.KEY_SR or key == curses.KEY_SLEFT)
+                and self.panel_index > 0):
+            self.panel_index -= 1
+            self.update_selected_panel()
+        elif((key == curses.KEY_SF or key == curses.KEY_SRIGHT)
+                and self.panel_index < len(self.panel_flatlist) - 1):
+            self.panel_index += 1
+            self.update_selected_panel()
+        elif(key == curses.KEY_UP):
+            self.selected.scroll_up()
+        elif(key == curses.KEY_DOWN):
+            self.selected.scroll_down()
+        elif(key == 567 or key == 546):  # Ctrl+Up or Ctrl+Left
+            self.selected.scroll_up(rate=10)
+        elif(key == 526 or key == 561):  # Ctrl+Down or Ctrl+Right
+            self.selected.scroll_down(rate=10)
 
     def draw_banner(self):
-        self.screen.addstr(0, 0, time.ctime(), curses.color_pair(1))
+        _, width = self.screen.getmaxyx()
+        self.screen.addstr(0, 0, time.ctime(), curses.color_pair(0))
         self.screen.addstr(" | ")
 
         running = list(map(lambda x: x.ndev, self.bus.running()))
         for dev in self.devices:
             if(dev in running):
-                color = 3
-            else:
                 color = 1
+            else:
+                color = 3
 
             self.screen.addstr(dev + " ", curses.color_pair(color))
 
-    def select(self):
+        hottip = '<F2>: Controls'
+        self.screen.addstr(0, width - len(hottip), hottip)
+
+    def update_selected_panel(self):
         if(self.selected is not None):
             self.selected.selected = False
-        self.selected = self.panes[self.pane_i]
+        self.selected = self.panel_flatlist[self.panel_index]
         self.selected.selected = True
 
     def construct_grid(self, schema, parent=None):
         type = schema.get('type')
         split = schema.get('split')
         data = schema.get('data')
-
-        if(split == 'horizontal'):
-            split = Split.HORIZONTAL
-        elif(split == 'vertical'):
-            split = Split.VERTICAL
+        split = {'horizontal': Split.HORIZONTAL,
+                 'vertical': Split.VERTICAL}.get(split)
 
         if(parent is None):
-            self.parent = Grid(split=split)
+            self.parent = Grid(parent=self.screen, split=split)
 
             for entry in data:
                 self.construct_grid(entry, self.parent)
-
-            self.panes = self.parent.flat_pannels()
-            self.pane_i = 0
-            self.select()
-
+            self.panel_flatlist = self.parent.flatten()
+            self.update_selected_panel()
         else:
             if(type == 'grid'):
                 component = Grid(split=split)
@@ -168,9 +236,9 @@ class CanMonitor:
                 dead_time = schema.get('dead_node_timeout')
                 frame_types = schema.get('frame_types')
                 component = Pane(name,
-                                 fields=fields,
                                  capacity=capacity,
                                  stale_time=stale_time,
                                  dead_time=dead_time,
+                                 fields=fields,
                                  frame_types=frame_types)
-            parent.add_pannel(component)
+            parent.add_panel(component)
