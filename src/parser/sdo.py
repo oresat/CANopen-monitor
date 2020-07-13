@@ -1,5 +1,5 @@
-"""CanOpen Object Parser Library"""
 from canmon.eds_utilities import *
+"""CanOpen Object Parser Library"""
 
 
 class SDODownloadInitiate:

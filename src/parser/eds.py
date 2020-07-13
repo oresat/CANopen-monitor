@@ -1,4 +1,4 @@
-"""EDS Parser Interface"""
+"""EDS File Parser Interface"""
 from re import finditer
 from dateutil.parser import parse as dtparse
 
