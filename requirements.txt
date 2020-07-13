@@ -1,0 +1,5 @@
+CANard==0.2.2
+python-dateutil==2.8.1
+ConfigArgParse==1.2.3
+flake8==3.7.9
+pytest==5.4.3

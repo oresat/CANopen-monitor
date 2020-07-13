@@ -2,12 +2,8 @@
 import sys
 import argparse
 from json.decoder import JSONDecodeError
-from canmon import CanMonitor, \
-                   layout_path, \
-                   dev_names_path, \
-                   prime_config_dir, \
-                   load_config, \
-                   config_factory
+from src import CanMonitor, layout_path, dev_names_path, prime_config_dir, \
+                load_config, config_factory
 
 
 def main(args):
@@ -22,11 +18,11 @@ def main(args):
                         default=False,
                         help='enable additional debug info')
     parser.add_argument('-d', '--devices',
-                         dest='devices',
-                         type=str,
-                         nargs=1,
-                         default="",
-                         help='specify additional busses to listen on')
+                        dest='devices',
+                        type=str,
+                        nargs=1,
+                        default="",
+                        help='specify additional busses to listen on')
     args = parser.parse_args(args)
 
     # Guarentee the config directory exists

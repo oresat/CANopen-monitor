@@ -1,5 +1,7 @@
 # CANopen-monitor
 
+![CANmonitor](https://github.com/oresat/CANopen-monitor/workflows/CANmonitor/badge.svg)
+
 A utility for displaying and tracking activity over the CAN bus.
 
 ### Installation
