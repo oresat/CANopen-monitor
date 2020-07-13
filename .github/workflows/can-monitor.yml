@@ -2,9 +2,9 @@ name: CANmonitor
 
 on:
   push:
-    branches: [ master, dmitri-dev ]
+    branches: [ master, parser ]
   pull_request:
-    branches: [ master, dmitri-dev ]
+    branches: [ master ]
 
 jobs:
   build:
