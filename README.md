@@ -1,6 +1,9 @@
 # CANopen-monitor
 
-![CANmonitor](https://github.com/oresat/CANopen-monitor/workflows/CANmonitor/badge.svg)
+[![License](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
+[![Trello](https://img.shields.io/badge/Trello-Backlog-blue)](https://trello.com/b/PWuRFBh1/canopen-monitor)
+[![Git Actions](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/CANmonitor)](https://github.com/oresat/CANopen-monitor/actions)
+[![Issues](https://img.shields.io/github/issues/oresat/CANopen-monitor)](https://github.com/oresat/CANopen-monitor/issues)
 
 A utility for displaying and tracking activity over the CAN bus.
 
