@@ -42,7 +42,7 @@ class FrameType(Enum):
             }[self.value]
 
 
-class FrameData(Frame):
+class CANMsg(Frame):
     def __init__(self, src, ndev, type=FrameType.UKNOWN):
         super().__init__(src.id, src.dlc, src.data, src.frame_type, src.is_extended_id)
         self.node_id = src.id

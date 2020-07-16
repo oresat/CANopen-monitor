@@ -1,13 +1,13 @@
 import os.path
 import json
-from .common import base_dir, dev_names_path, layout_path
+import monitor
 
 
-def prime_config_dir():
-    os.makedirs(base_dir, exist_ok=True)
+def prime_config_dir(exist_ok: bool = True):
+    os.makedirs(monitor.CANMONITOR_CONFIG_DIR, exist_ok=exist_ok)
 
 
-def load_config(filename):
+def load_config(filename: str):
     '''Load a pre-existing json config'''
     file = open(os.path.expanduser(filename))
     raw_data = file.read()
@@ -15,11 +15,11 @@ def load_config(filename):
     return json.loads(raw_data)
 
 
-def config_factory(path):
+def config_factory(filepath: str):
     '''Generate the default configs'''
-    if(path == dev_names_path):
+    if(filepath == monitor.CANMONITOR_DEVICES_CONFIG):
         data = ['can0']
-    elif(path == layout_path):
+    elif(filepath == monitor.CANMONITOR_LAYOUT_CONFIG):
         data = {
             'type': 'grid',
             'split': 'horizontal',
@@ -71,6 +71,6 @@ def config_factory(path):
     else:
         data = {}
 
-    file = open(os.path.expanduser(path), 'w+')
+    file = open(os.filepath.expanduser(filepath), 'w+')
     file.write(json.dumps(data, sort_keys=True, indent=4) + '\n')
     file.close()

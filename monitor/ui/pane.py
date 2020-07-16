@@ -1,8 +1,8 @@
 import curses
-from .frame_table import FrameTable
+import monitor.canmsgs.canmsg as canmsg
 
 
-class Pane(FrameTable):
+class Pane(canmsg.CANMsgTable):
     def __init__(self,
                  name,
                  capacity=None,

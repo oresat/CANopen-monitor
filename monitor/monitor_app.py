@@ -1,8 +1,7 @@
 import curses
 import time
-from .bus import TheMagicCanBus
-from .grid import Grid, Split
-from .pane import Pane
+import canmsgs.magic_can_bus as mcb
+import ui
 import threading
 
 
@@ -39,7 +38,14 @@ class PopupWindow:
         parent.clear()
 
 
-class CanMonitor:
+class MonitorApp:
+    """The top-level application of Can Monitor that manages the middleware
+    resoruces and the UI elements.
+
+    Attributes
+    ---------
+    """
+
     def __init__(self, devices, table_schema, timeout=0.1, debug=False):
         # Monitor setup
         self.screen = curses.initscr()  # Initialize standard out
@@ -52,7 +58,9 @@ class CanMonitor:
 
         # Bus things
         self.devices = devices
-        self.bus = TheMagicCanBus(self.devices, timeout=timeout, debug=self.debug)
+        self.bus = mcb.MagicCANBus(self.devices,
+                                   timeout=timeout,
+                                   debug=self.debug)
 
         # panel selection things
         self.panel_index = 0       # Index to get to selected panel
@@ -212,11 +220,11 @@ class CanMonitor:
         type = schema.get('type')
         split = schema.get('split')
         data = schema.get('data')
-        split = {'horizontal': Split.HORIZONTAL,
-                 'vertical': Split.VERTICAL}.get(split)
+        split = {'horizontal': ui.Split.HORIZONTAL,
+                 'vertical': ui.Split.VERTICAL}.get(split)
 
         if(parent is None):
-            self.parent = Grid(parent=self.screen, split=split)
+            self.parent = ui.Grid(parent=self.screen, split=split)
 
             for entry in data:
                 self.construct_grid(entry, self.parent)
@@ -224,7 +232,7 @@ class CanMonitor:
             self.update_selected_panel()
         else:
             if(type == 'grid'):
-                component = Grid(split=split)
+                component = ui.Grid(split=split)
 
                 for entry in data:
                     self.construct_grid(entry, component)
@@ -235,10 +243,10 @@ class CanMonitor:
                 stale_time = schema.get('stale_node_timeout')
                 dead_time = schema.get('dead_node_timeout')
                 frame_types = schema.get('frame_types')
-                component = Pane(name,
-                                 capacity=capacity,
-                                 stale_time=stale_time,
-                                 dead_time=dead_time,
-                                 fields=fields,
-                                 frame_types=frame_types)
+                component = ui.Pane(name,
+                                    capacity=capacity,
+                                    stale_time=stale_time,
+                                    dead_time=dead_time,
+                                    fields=fields,
+                                    frame_types=frame_types)
             parent.add_panel(component)

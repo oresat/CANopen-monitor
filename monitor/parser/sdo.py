@@ -106,6 +106,10 @@ class SDODownloadSegment:
 
 
 class SDOParser:
+    """Sub-Parser for SDO messages
+
+    TODO: Insert more details.
+    """
 
     def __init__(self, nodes):
         self.nodes = nodes
@@ -117,7 +121,7 @@ class SDOParser:
         self.data = []
         self.initiateComplete = False
 
-    def parse_sdo_download(self, node_id, sdo: bytes):
+    def parse(self, node_id, sdo: bytes):
         if not self.initiateComplete:
             self.downloadInitiate = SDODownloadInitiate(sdo)
             if self.downloadInitiate.isClient:
