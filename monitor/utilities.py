@@ -3,12 +3,16 @@ import json
 import monitor
 
 
-def prime_config_dir(exist_ok: bool = True):
+def generate_config_dirs(exist_ok: bool = True):
     os.makedirs(monitor.CANMONITOR_CONFIG_DIR, exist_ok=exist_ok)
 
 
 def load_config(filename: str):
-    '''Load a pre-existing json config'''
+    """Loads a pre-existing json file
+
+    Returns
+    -----
+    """
     file = open(os.path.expanduser(filename))
     raw_data = file.read()
     file.close()
@@ -19,6 +23,8 @@ def config_factory(filepath: str):
     '''Generate the default configs'''
     if(filepath == monitor.CANMONITOR_DEVICES_CONFIG):
         data = ['can0']
+    elif(filepath == monitor.CANMONITOR_NODES_CONFIG):
+        data = {0x40: "MDC"}
     elif(filepath == monitor.CANMONITOR_LAYOUT_CONFIG):
         data = {
             'type': 'grid',
@@ -71,6 +77,6 @@ def config_factory(filepath: str):
     else:
         data = {}
 
-    file = open(os.filepath.expanduser(filepath), 'w+')
+    file = open(os.path.expanduser(filepath), 'w+')
     file.write(json.dumps(data, sort_keys=True, indent=4) + '\n')
     file.close()

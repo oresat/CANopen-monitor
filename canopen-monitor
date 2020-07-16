@@ -3,6 +3,7 @@ import sys
 import argparse
 import monitor
 import monitor.utilities as utils
+from monitor.monitor_app import MonitorApp
 from json.decoder import JSONDecodeError
 
 
@@ -26,7 +27,7 @@ def main(args):
     args = parser.parse_args(args)
 
     # Guarentee the config directory exists
-    utils.prime_config_dir()
+    utils.generate_config_dirs()
 
     # Attempt to load devices config from file (path defined in ./common.py)
     try:
@@ -40,6 +41,21 @@ def main(args):
     except JSONDecodeError:
         raise JSONDecodeError('fatal: malformed config file: '
                               + monitor.CANMONITOR_DEVICES_CONFIG
+                              + "\n\tPlease either fix the given config or \
+                            destroy it so that Can Monitor can regenerate it!")
+
+    # Attempt to load devices config from file (path defined in ./common.py)
+    try:
+        _node_names = utils.load_config(monitor.CANMONITOR_NODES_CONFIG)
+    # If not found generate a new config file from the config factory
+    except FileNotFoundError:
+        utils.config_factory(monitor.CANMONITOR_NODES_CONFIG)
+        _node_names = utils.load_config(monitor.CANMONITOR_NODES_CONFIG)
+    # If the config is malformed stop the program
+    #   and ask the user to fix the configs or destroy them
+    except JSONDecodeError:
+        raise JSONDecodeError('fatal: malformed config file: '
+                              + monitor.CANMONITOR_NODES_CONFIG
                               + "\n\tPlease either fix the given config or \
                             destroy it so that Can Monitor can regenerate it!")
 
@@ -64,9 +80,7 @@ def main(args):
 
     # Attempt to start the application
     try:
-        canmonitor = monitor.MonitorApp(dev_names,
-                                        table_schema,
-                                        debug=args.debug)
+        canmonitor = MonitorApp(dev_names, table_schema, debug=args.debug)
         canmonitor.start()
     finally:
         # Ensure that the application is properly stopped

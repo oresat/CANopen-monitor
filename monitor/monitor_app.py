@@ -1,16 +1,19 @@
 import curses
 import time
-import canmsgs.magic_can_bus as mcb
-import ui
+import monitor
+import monitor.canmsgs.magic_can_bus as mcb
 import threading
+from monitor.ui.grid import Grid, Split
+from monitor.ui.pane import Pane
 
 
 class PopupWindow:
     def __init__(self, parent, message, banner='fatal', color_pair=3):
         height, width = parent.getmaxyx()
         style = curses.color_pair(color_pair) | curses.A_REVERSE
+        any_key_message = "Press any key to continue..."
         message = message.split('\n')
-        long = 0
+        long = len(any_key_message)
 
         for m in message:
             if(len(m) > long):
@@ -23,10 +26,12 @@ class PopupWindow:
                                int((height - len(message) + 2) / 2),
                                int((width - long + 2) / 2))
         window.attron(style)
-        window.addstr(0, 1, banner + ":", curses.A_UNDERLINE | style)
         for i, m in enumerate(message):
             window.addstr(1 + i, 1, m.ljust(long, ' '))
         window.box()
+        window.addstr(0, 1, banner + ":", curses.A_UNDERLINE | style)
+        window.addstr(len(message) + 1, long - len(any_key_message), any_key_message)
+
         window.attroff(style)
 
         window.refresh()
@@ -157,9 +162,13 @@ class MonitorApp:
             self.parent.clear()
             self.parent.resize(self.screen)
         elif(key == curses.KEY_F1):
-            PopupWindow(self.screen, "Portland State Aerospace Society\
-                                      \nhttps://psas.pdx.edu\
-                                      \n\nLicensed Under: GPL v3",
+            window_message = '\n'.join([monitor.CANMONITOR_NAME,
+                                        monitor.CANMONITOR_AUTHOR,
+                                        monitor.CANMONITOR_WEBSITE,
+                                        'License: ' + monitor.CANMONITOR_LICENSE,
+                                        'Version: ' + monitor.CANMONITOR_VERSION])
+            PopupWindow(self.screen,
+                        window_message,
                         banner='About',
                         color_pair=1)
         elif(key == curses.KEY_F2):
@@ -220,11 +229,11 @@ class MonitorApp:
         type = schema.get('type')
         split = schema.get('split')
         data = schema.get('data')
-        split = {'horizontal': ui.Split.HORIZONTAL,
-                 'vertical': ui.Split.VERTICAL}.get(split)
+        split = {'horizontal': Split.HORIZONTAL,
+                 'vertical': Split.VERTICAL}.get(split)
 
         if(parent is None):
-            self.parent = ui.Grid(parent=self.screen, split=split)
+            self.parent = Grid(parent=self.screen, split=split)
 
             for entry in data:
                 self.construct_grid(entry, self.parent)
@@ -232,7 +241,7 @@ class MonitorApp:
             self.update_selected_panel()
         else:
             if(type == 'grid'):
-                component = ui.Grid(split=split)
+                component = Grid(split=split)
 
                 for entry in data:
                     self.construct_grid(entry, component)
@@ -243,10 +252,10 @@ class MonitorApp:
                 stale_time = schema.get('stale_node_timeout')
                 dead_time = schema.get('dead_node_timeout')
                 frame_types = schema.get('frame_types')
-                component = ui.Pane(name,
-                                    capacity=capacity,
-                                    stale_time=stale_time,
-                                    dead_time=dead_time,
-                                    fields=fields,
-                                    frame_types=frame_types)
+                component = Pane(name,
+                                 capacity=capacity,
+                                 stale_time=stale_time,
+                                 dead_time=dead_time,
+                                 fields=fields,
+                                 frame_types=frame_types)
             parent.add_panel(component)

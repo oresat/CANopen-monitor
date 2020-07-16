@@ -1,5 +1,5 @@
 import threading
-from src.frame_data import CANMsg
+from monitor.canmsgs.canmsg import CANMsg
 from canard.hw.socketcan import SocketCanDev
 from queue import Queue, Full, Empty
 
