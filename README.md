@@ -9,102 +9,146 @@ A utility for displaying and tracking activity over the CAN bus.
 
 ### Installation
 
-  __(Manual) Git Installation:__
+  __Git Installation (Manual):__
 
-  Clone the repo:
+Clone the repository:
 
-  `$` `git clone https://github.com/oresat/CANopen-monitor.git`
+`$` `git clone https://github.com/oresat/CANopen-monitor.git`
 
-  Run the local start script:
+Install dependencies:
 
-  `$` `./CANopen-monitor/can-monitor`
+`$` `pip install -r requirements.txt`
 
 ***
 
 ### Usage
 
-  Start can-monitor tool:
-  * `$` `canopen-monitor`
+Run the application:
+
+`$` `./CANopen-monitor/canopen-monitor`
+
+***
+
+### Contribution/Development:
+
+Install development dependencies:
+
+`$` `pip install -r dev-requirements.txt`
+
+Lint Code:
+
+`$` `flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics`
+
+Run Unit Tests:
+
+`$` `pytest tests/*`
 
 ***
 
 ### Configs:
 
-  The config files are by default stored in `~/.canmon`
+  The config files are stored in `~/.cache/canmonitor`
 
-#### Defaults:
-###### `~/.canmon/devices.json`
+  So all subsequent files are stored relative to this path.
+
+#### Default Generated Config Files:
+###### `devices.json:`
 ```json
 [
   "can0"
 ]
 ```
 
+A list of CAN Buses that CAN Monitor will try to bind to on launch.
+
 &nbsp;
 
-###### `~/.canmon/layout.json`
+###### `layout.json`
 ```json
-  {
+{
+  "type": "grid",
+  "split": "horizontal",
+  "data": [{
     "type": "grid",
-    "split": "horizontal",
+    "split": "vertical",
     "data": [{
-      "type": "grid",
-      "split": "vertical",
-      "data": [{
-      "type": "table",
-      "capacity": 16,
-      "dead_node_timeout": 600,
-      "name": "Hearbeats",
-      "stale_node_timeout": 60,
-      "fields": [],
-      "frame_types": ["HB"]
-      }, {
-      "type": "table",
-      "capacity": 16,
-      "dead_node_timeout": 600,
-      "name": "Info",
-      "stale_node_timeout": 60,
-      "fields": [],
-      "frame_types": []
-      }]
+    "type": "table",
+    "capacity": 16,
+    "dead_node_timeout": 600,
+    "name": "Hearbeats",
+    "stale_node_timeout": 60,
+    "fields": [],
+    "frame_types": ["HB"]
     }, {
-      "type": "table",
-      "capacity": 16,
-      "dead_node_timeout": 60,
-      "name": "Misc",
-      "stale_node_timeout": 600,
-      "fields": [],
-      "frame_types": [
-      "NMT",
-      "SYNC",
-      "EMCY",
-      "TIME",
-      "TPDO1",
-      "RPDO1",
-      "TPDO2",
-      "RPDO2",
-      "TPDO3",
-      "RPDO3",
-      "TPDO4",
-      "RPDO4",
-      "TSDO",
-      "RSDO",
-      "UKOWN"
-      ]
+    "type": "table",
+    "capacity": 16,
+    "dead_node_timeout": 600,
+    "name": "Info",
+    "stale_node_timeout": 60,
+    "fields": [],
+    "frame_types": []
     }]
-  }
+  }, {
+    "type": "table",
+    "capacity": 16,
+    "dead_node_timeout": 60,
+    "name": "Misc",
+    "stale_node_timeout": 600,
+    "fields": [],
+    "frame_types": [
+    "NMT",
+    "SYNC",
+    "EMCY",
+    "TIME",
+    "TPDO1",
+    "RPDO1",
+    "TPDO2",
+    "RPDO2",
+    "TPDO3",
+    "RPDO3",
+    "TPDO4",
+    "RPDO4",
+    "TSDO",
+    "RSDO",
+    "UKOWN"
+    ]
+  }]
+}
 ```
+
+A recursive set of dictionaries that define how CAN Monitor constructs the UI layout as well as some other properties of each table.
+
+&nbsp;
+
+###### `nodes.json`
+```json
+{
+  "64": "MDC"
+}
+```
+
+A list of COB ID's in decimal notation that have a paired name which will override the default display name of that node in CAN Monitor.
 
 ***
 
-### Node IDs/Frame Types:
+### Message Types + COB ID Ranges:
 
 ###### [Wikipedia Table](https://en.wikipedia.org/wiki/CANopen#Predefined_Connection_Set.5B7.5D)
 
 ###### Abridged Table:
 
-  * **Hearbeat:** `0x701 - 0x7FF`
-  * **PDO:** `0x181 - 0x57F`
-  * **SDO:**
-    * _tx:_ `0x581 - 0x5FF`
-    * _rx:_ `0x601 - 0x67F`
+| Name            | COB ID Range |
+|-----------------|--------------|
+| SYNC            | 080          |
+| EMCY            | 080 + NodeID |
+| TPDO1           | 180 + NodeID |
+| RPDO1           | 200 + NodeID |
+| TPDO2           | 280 + NodeID |
+| RPDO2           | 300 + NodeID |
+| TPDO3           | 380 + NodeID |
+| RPDO3           | 400 + NodeID |
+| TPDO4           | 480 + NodeID |
+| RPDO4           | 500 + NodeID |
+| TSDO            | 580 + NodeID |
+| RSDO            | 600 + NodeID |
+| NMT (Heartbeat) | 700 + NodeID |
