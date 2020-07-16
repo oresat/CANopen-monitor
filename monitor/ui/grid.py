@@ -1,8 +1,8 @@
 import curses
-from enum import Enum
+import enum
 
 
-class Split(Enum):
+class Split(enum.Enum):
     HORIZONTAL = 0
     VERTICAL = 1
 

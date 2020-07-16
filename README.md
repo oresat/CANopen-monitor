@@ -24,7 +24,7 @@ A utility for displaying and tracking activity over the CAN bus.
 ### Usage
 
   Start can-monitor tool:
-  * `$` `can-monitor`
+  * `$` `canopen-monitor`
 
 ***
 

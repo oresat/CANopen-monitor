@@ -1,4 +1,4 @@
-class FrameTable:
+class CANMsgTable:
     def __init__(self,
                  name="",
                  capacity=None,

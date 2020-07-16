@@ -1,17 +1,19 @@
 import curses
 import time
-from .bus import TheMagicCanBus
-from .grid import Grid, Split
-from .pane import Pane
+import monitor
+import monitor.canmsgs.magic_can_bus as mcb
 import threading
+from monitor.ui.grid import Grid, Split
+from monitor.ui.pane import Pane
 
 
 class PopupWindow:
     def __init__(self, parent, message, banner='fatal', color_pair=3):
         height, width = parent.getmaxyx()
         style = curses.color_pair(color_pair) | curses.A_REVERSE
+        any_key_message = "Press any key to continue..."
         message = message.split('\n')
-        long = 0
+        long = len(any_key_message)
 
         for m in message:
             if(len(m) > long):
@@ -24,10 +26,12 @@ class PopupWindow:
                                int((height - len(message) + 2) / 2),
                                int((width - long + 2) / 2))
         window.attron(style)
-        window.addstr(0, 1, banner + ":", curses.A_UNDERLINE | style)
         for i, m in enumerate(message):
             window.addstr(1 + i, 1, m.ljust(long, ' '))
         window.box()
+        window.addstr(0, 1, banner + ":", curses.A_UNDERLINE | style)
+        window.addstr(len(message) + 1, long - len(any_key_message), any_key_message)
+
         window.attroff(style)
 
         window.refresh()
@@ -39,7 +43,14 @@ class PopupWindow:
         parent.clear()
 
 
-class CanMonitor:
+class MonitorApp:
+    """The top-level application of Can Monitor that manages the middleware
+    resoruces and the UI elements.
+
+    Attributes
+    ---------
+    """
+
     def __init__(self, devices, table_schema, timeout=0.1, debug=False):
         # Monitor setup
         self.screen = curses.initscr()  # Initialize standard out
@@ -52,7 +63,9 @@ class CanMonitor:
 
         # Bus things
         self.devices = devices
-        self.bus = TheMagicCanBus(self.devices, timeout=timeout, debug=self.debug)
+        self.bus = mcb.MagicCANBus(self.devices,
+                                   timeout=timeout,
+                                   debug=self.debug)
 
         # panel selection things
         self.panel_index = 0       # Index to get to selected panel
@@ -149,9 +162,13 @@ class CanMonitor:
             self.parent.clear()
             self.parent.resize(self.screen)
         elif(key == curses.KEY_F1):
-            PopupWindow(self.screen, "Portland State Aerospace Society\
-                                      \nhttps://psas.pdx.edu\
-                                      \n\nLicensed Under: GPL v3",
+            window_message = '\n'.join([monitor.CANMONITOR_NAME,
+                                        monitor.CANMONITOR_AUTHOR,
+                                        monitor.CANMONITOR_WEBSITE,
+                                        'License: ' + monitor.CANMONITOR_LICENSE,
+                                        'Version: ' + monitor.CANMONITOR_VERSION])
+            PopupWindow(self.screen,
+                        window_message,
                         banner='About',
                         color_pair=1)
         elif(key == curses.KEY_F2):

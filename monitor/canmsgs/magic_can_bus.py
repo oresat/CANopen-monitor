@@ -1,10 +1,10 @@
 import threading
-from .frame_data import FrameData
+from monitor.canmsgs.canmsg import CANMsg
 from canard.hw.socketcan import SocketCanDev
 from queue import Queue, Full, Empty
 
 
-class TheMagicCanBus:
+class MagicCANBus:
     def __init__(self, device_names=[], block=True, timeout=0.1, debug=False):
         # Bus things
         self.devs = []
@@ -17,7 +17,7 @@ class TheMagicCanBus:
         self.timeout = timeout
         self.threads = []
 
-        # TheMagicCanBus state things
+        # MagicCANBus state things
         self.debug = debug
 
         # Start all of the devices specified
@@ -76,7 +76,7 @@ class TheMagicCanBus:
     def receive(self):
         try:
             res = self.frames.get(block=self.block, timeout=self.timeout)
-            return FrameData(res[0], res[1])
+            return CANMsg(res[0], res[1])
         except Empty:
             return None
 

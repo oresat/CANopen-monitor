@@ -1,7 +1,3 @@
-from canmon.eds_utilities import *
-"""CanOpen Object Parser Library"""
-
-
 class SDODownloadInitiate:
     def __init__(self, raw_sdo: bytes):
         self.isClient = None
@@ -109,7 +105,11 @@ class SDODownloadSegment:
                     raise ValueError(f"Data value larger than size: '{byte_value}'")
 
 
-class ObjectParser:
+class SDOParser:
+    """Sub-Parser for SDO messages
+
+    TODO: Insert more details.
+    """
 
     def __init__(self, nodes):
         self.nodes = nodes
@@ -121,11 +121,11 @@ class ObjectParser:
         self.data = []
         self.initiateComplete = False
 
-    def parse_sdo_download(self, node_id, sdo: bytes):
+    def parse(self, node_id, sdo: bytes):
         if not self.initiateComplete:
             self.downloadInitiate = SDODownloadInitiate(sdo)
             if self.downloadInitiate.isClient:
-                self.inProgressName = self.get_name(node_id, self.downloadInitiate.index)
+                self.inProgressName = self.__get_name(self.downloadInitiate.index)
                 if self.downloadInitiate.isExpedited:
                     return self.inProgressName + "DATA GOES HERE"
                 else:
@@ -155,44 +155,18 @@ class ObjectParser:
                     self.serverToggle = download_segment.toggleBit
                     return self.inProgressName + "Segment Confirmed"
 
-    def get_name(self, node_id, index: bytes):
+    def __get_name(self, index: bytes):
         """
         :param index:
         :param node_id
         :return:
         """
-        node = self.nodes[node_id]
-        if not isinstance(node, EDSFile):
-            raise ValueError(f"Type {type(node)} is not of type EDSFile")
-        index_data = node.index[int.from_bytes(index, "big")]
-        result = ""
-        if index_data.parent_name is not None:
-            result += index_data.parent_name + " "
-        if index_data.parameter_name is not None:
-            result += index_data.parameter_name + " "
+        key = int(index[:2].hex())
+        subindex_key = int(index[2:3].hex())
+        index_data = self.nodes[key]
+        result = index_data.parameter_name
+
+        if index_data.sub_indices is not None:
+            result += index_data.sub_indices[subindex_key].parameter_name + " "
+
         return result
-
-
-if __name__ == "__main__":
-    parser = ObjectParser(load_eds_files(os.getcwd()))
-
-    # Initiate Client Download Message
-    clientInitiateMessage = b'\x21\x30\x00\x00\x00\x00\x00\x0C'
-    print(parser.parse_sdo_download(0x12, clientInitiateMessage))
-    serverInitiateResponse = b'\x60\x30\x00\x00\x00\x00\x00\x00'
-    print(parser.parse_sdo_download(0x12, serverInitiateResponse))
-    clientDownloadSegment = b'\x11\x00\x00\x00\x00\x00\x00\x0A'
-    print(parser.parse_sdo_download(0x12, clientDownloadSegment))
-    serverDownloadResponse = b'\x20\x00\x00\x00\x00\x00\x00\x00'
-    print(parser.parse_sdo_download(0x12, serverDownloadResponse))
-
-
-    # SDO Parser test
-    initiateSDO = SDODownloadInitiate(clientInitiateMessage)
-    assert initiateSDO.isExpedited is False
-    assert initiateSDO.isClient is True
-    assert initiateSDO.sizeIndicator is True
-    assert initiateSDO.index == b'\x30\x00\x00'
-    assert initiateSDO.data == b'\x00\x00\x00\x0C'
-
-    # TODO: May get multiple messages from multiple nodes, store in progress by Node-ID maybe? Until translation
