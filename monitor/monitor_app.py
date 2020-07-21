@@ -162,14 +162,13 @@ class MonitorApp:
             self.parent.clear()
             self.parent.resize(self.screen)
         elif(key == curses.KEY_F1):
-            window_message = '\n'.join([monitor.CANMONITOR_NAME,
-                                        monitor.CANMONITOR_AUTHOR,
-                                        monitor.CANMONITOR_WEBSITE,
+            window_message = '\n'.join(['Author: ' + monitor.CANMONITOR_AUTHOR,
+                                        'Website: ' + monitor.CANMONITOR_WEBSITE,
                                         'License: ' + monitor.CANMONITOR_LICENSE,
                                         'Version: ' + monitor.CANMONITOR_VERSION])
             PopupWindow(self.screen,
                         window_message,
-                        banner='About',
+                        banner='About ' + monitor.CANMONITOR_NAME,
                         color_pair=1)
         elif(key == curses.KEY_F2):
             PopupWindow(self.screen, "<Ctrl+C>: Exit program\

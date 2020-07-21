@@ -21,5 +21,9 @@ while [[ 1 ]]; do
     done
 
     exit 0
+  elif [[ $input =~ 'kill' ]]; then
+    ID=$(echo $input | cut -d' ' -f2 | xargs)
+    echo "Killing PID $ID..."
+    kill -9 $ID
   fi
 done
