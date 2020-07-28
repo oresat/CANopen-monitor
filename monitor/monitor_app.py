@@ -51,21 +51,16 @@ class MonitorApp:
     ---------
     """
 
-    def __init__(self, devices, table_schema, timeout=0.1, debug=False):
+    def __init__(self, devices, table_schema):
         # Monitor setup
         self.screen = curses.initscr()  # Initialize standard out
         self.screen.scrollok(True)      # Enable window scroll
         self.screen.keypad(True)        # Enable special key input
         self.screen.nodelay(True)       # Disable user-input blocking
 
-        # App state things
-        self.debug = debug
-
         # Bus things
         self.devices = devices
-        self.bus = mcb.MagicCANBus(self.devices,
-                                   timeout=timeout,
-                                   debug=self.debug)
+        self.bus = mcb.MagicCANBus(self.devices)
 
         # panel selection things
         self.panel_index = 0       # Index to get to selected panel
@@ -129,26 +124,26 @@ class MonitorApp:
         # self.screen_lock.release()  # Release the screen lock
         self.stop_listening.set()   # Signal the bus threads to stop
 
-        if(self.debug):  # Extra debug info
+        if(monitor.DEBUG):  # Extra monitor.DEBUG info
             print('stopping bus-listeners from the app-layer...')
 
         self.bus.stop_all()         # Wait for all CanBus threads to stop
 
-        if(self.debug):  # Extra debug info
+        if(monitor.DEBUG):  # Extra monitor.DEBUG info
             print('stopped all bus-listeners!')
 
         threads = threading.enumerate().remove(threading.current_thread())
-        if(self.debug):  # Extra debug info
+        if(monitor.DEBUG):  # Extra monitor.DEBUG info
             print('waiting for all app-threads to close...')
 
         # If app-layer threads exist wait for them to close
         if(threads is not None):
             for thread in threads:
                 thread.join()
-            if(self.debug):  # Extra debug info
+            if(monitor.DEBUG):  # Extra monitor.DEBUG info
                 print('stopped all app-threads gracefully!')
 
-        elif(self.debug):  # Extra debug info
+        elif(monitor.DEBUG):  # Extra monitor.DEBUG info
             print('no child app-threads were spawned!')
 
     def read_input(self):

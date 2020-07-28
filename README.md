@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
 [![Trello](https://img.shields.io/badge/Trello-Backlog-blue)](https://trello.com/b/PWuRFBh1/canopen-monitor)
-[![Git Actions](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/CANmonitor)](https://github.com/oresat/CANopen-monitor/actions)
+[![Git Actions](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/CAN%20Monitor%20Unit%20Tests)](https://github.com/oresat/CANopen-monitor/actions)
 [![Issues](https://img.shields.io/github/issues/oresat/CANopen-monitor)](https://github.com/oresat/CANopen-monitor/issues)
 
 A utility for displaying and tracking activity over the CAN bus.
@@ -27,6 +27,14 @@ Run the application:
 
 `$` `./CANopen-monitor/canopen-monitor`
 
+&nbsp;
+
+Autogenerate Sphinx Documentation:
+
+`$` `sphinx-apidoc -o docs/source monitor`
+
+`$` `make -C docs clean html`
+
 ***
 
 ### Contribution/Development:
@@ -41,7 +49,7 @@ Lint Code:
 
 Run Unit Tests:
 
-`$` `pytest tests/*`
+`$` `python -m unittest -f --locals tests/*.py`
 
 ***
 

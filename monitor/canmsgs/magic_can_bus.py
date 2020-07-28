@@ -1,11 +1,13 @@
 import threading
+import monitor
+from typing import Union
 from monitor.canmsgs.canmsg import CANMsg
 from canard.hw.socketcan import SocketCanDev
 from queue import Queue, Full, Empty
 
 
 class MagicCANBus:
-    def __init__(self, device_names=[], block=True, timeout=0.1, debug=False):
+    def __init__(self, device_names=[], block=True):
         # Bus things
         self.devs = []
         self.frames = Queue()
@@ -14,11 +16,7 @@ class MagicCANBus:
         # Threading things
         self.stop_listening = threading.Event()
         self.block = block
-        self.timeout = timeout
         self.threads = []
-
-        # MagicCANBus state things
-        self.debug = debug
 
         # Start all of the devices specified
         for name in device_names:
@@ -29,7 +27,7 @@ class MagicCANBus:
             dev = SocketCanDev(dev_name)
             dev.start()
             self.devs.append(dev)
-            dev_listener = threading.Thread(target=self.listen,
+            dev_listener = threading.Thread(target=self._listen,
                                             args=[dev])
             dev_listener.setDaemon(True)
             dev_listener.start()
@@ -37,48 +35,52 @@ class MagicCANBus:
         except OSError:
             self.failed_devs.append(dev_name)
 
-    def stop(self, dev):
+    def _stop(self, dev):
         self.devs.remove(dev)
 
-    def stop_all(self):
-        # Remove all devices from the device table
+    def stop_all(self) -> None:
+        """
+        Remove all devices from the device table
+        """
         for dev in self.devs:
-            self.stop(dev)
+            self._stop(dev)
 
         self.stop_listening.set()
 
-        if(self.debug):
+        if(monitor.DEBUG):
             print('waiting for '
                   + str(len(self.threads))
                   + ' bus-threads to close.')
         if(len(self.threads) > 0):
             for thread in self.threads:
-                try:
-                    thread.join(timeout=10)
-                except TimeoutError:
-                    if(self.debug):
-                        print('a bus thread took too long to close, forcefully closing it now!')
-            if(self.debug):
+                thread.join(monitor.TIMEOUT)
+                if(thread.is_alive() and monitor.DEBUG):
+                    print('the bus thread listener with pid ({}) took too long to close, will try again in {}s!'.format(thread.native_id, round(monitor.TIMEOUT * len(self.threads), 3)))
+            if(monitor.DEBUG):
                 print('all bus threads closed gracefully!')
         else:
-            if(self.debug):
+            if(monitor.DEBUG):
                 print('no child bus threads were spawned!')
 
-    def listen(self, dev):
+    def _listen(self, dev: SocketCanDev) -> None:
         try:
             while not self.stop_listening.is_set():
                 self.frames.put([dev.recv(), dev.ndev], block=self.block)
         except Full:
             pass
         except OSError:
-            self.stop(dev)
+            self._stop(dev)
 
-    def receive(self):
+    def receive(self) -> Union[CANMsg, None]:
+        """
+        Returns the first available CANMsg retrieved from the bus if any.
+        If no messages are available on the bus, None is returned
+        """
         try:
-            res = self.frames.get(block=self.block, timeout=self.timeout)
+            res = self.frames.get(block=self.block, timeout=monitor.TIMEOUT)
             return CANMsg(res[0], res[1])
         except Empty:
             return None
 
-    def running(self):
+    def running(self) -> [str]:
         return list(filter(lambda x: x.running, self.devs))

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BUS_LIST_PATH=~/.cache/canmonitor/devices.json
+BUS_LIST_PATH=~/.config/canmonitor/devices.json
 BUS_LIST=$(cat $BUS_LIST_PATH | cut -d'[' -f1 | cut -d']' -f1 | sed 's/,//g' | xargs)
 PID_LIST=()
 
@@ -9,7 +9,7 @@ for bus in ${BUS_LIST[@]}; do
   PID_LIST+=($!)
 done
 
-echo -e "Spawned test devices: (${BUS_LIST[@]}):(${PID_LIST[@]})"
+echo -e "Spawned test device generators: (${BUS_LIST[@]}):(${PID_LIST[@]})"
 
 while [[ 1 ]]; do
   read -p '> ' input

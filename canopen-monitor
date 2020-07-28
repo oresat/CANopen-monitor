@@ -80,7 +80,8 @@ def main(args):
 
     # Attempt to start the application
     try:
-        canmonitor = MonitorApp(dev_names, table_schema, debug=args.debug)
+        monitor.DEBUG = args.debug
+        canmonitor = MonitorApp(dev_names, table_schema)
         canmonitor.start()
     finally:
         # Ensure that the application is properly stopped
