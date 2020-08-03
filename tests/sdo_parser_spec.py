@@ -263,6 +263,66 @@ class TestSDO(unittest.TestCase):
                          "Error on Server End Message")
         self.assertEqual(True, parser.is_complete, "Parser should be complete")
 
+    def test_normal_transfer_multiple_segments_with_size_upload(self):
+        """
+        Test Normal SDO transfer with size indicated (Data not returned)
+        This test is using the upload order (data from client not server)
+        """
+        parser = SDOParser()
+
+        client_initiate_message = b'\x40\x10\x18\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 0%",
+                         parser.parse(0x600, self.eds_data, client_initiate_message),
+                         "Error on Client Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_initiate_response = b'\x41\x10\x18\x00\x00\x00\x00\x10'
+        self.assertEqual("Initiating block download - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_initiate_response),
+                         "Error on Server Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        client_download_segment = b'\x70\x00\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 50.0%",
+                         parser.parse(0x600, self.eds_data, client_download_segment),
+                         "Error on Client End Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_download_response = b'\x10\x00\x00\x00\x00\x00\x00\x0A'
+        self.assertEqual("Block downloading - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_download_response),
+                         "Error on Server End Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        client_download_segment = b'\x60\x00\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 50.0%",
+                         parser.parse(0x600, self.eds_data, client_download_segment),
+                         "Error on Client End Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_download_response = b'\x01\x00\x00\x00\x00\x00\x00\x0A'
+        self.assertEqual("Block download done - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_download_response),
+                         "Error on Server End Message")
+        self.assertEqual(True, parser.is_complete, "Parser should be complete")
+
+    def test_expedited_unsigned_int_upload(self):
+        """
+        Text expedited SDO transfer with an unsigned int data type
+        """
+        parser = SDOParser()
+        client_initiate_message = b'\x40\x10\x18\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 0%",
+                         parser.parse(0x600, self.eds_data, client_initiate_message),
+                         "Error on Client Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_initiate_response = b'\x47\x10\x18\x00\x00\x00\x00\x0A'
+        self.assertEqual("Downloaded - Identity unsigned8: 10",
+                         parser.parse(0x580, self.eds_data, server_initiate_response),
+                         "Error on Server Initiate Response")
+        self.assertEqual(True, parser.is_complete, "Parser should be complete")
+
 
 if __name__ == '__main__':
     unittest.main()
