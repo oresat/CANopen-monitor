@@ -8,6 +8,7 @@ class TestSDO(unittest.TestCase):
     """
     Tests for the SDO parser
     """
+
     def setUp(self):
         """
         Generate Mocked eds file
@@ -41,7 +42,7 @@ class TestSDO(unittest.TestCase):
             if index == 1018:
                 return self.index
             else:
-                raise KeyError
+                raise KeyError(f"Incorrect index retrieved from EDS {index} provided")
 
         self.eds_data = MagicMock()
         self.eds_data.__getitem__.side_effect = get_index
@@ -308,7 +309,7 @@ class TestSDO(unittest.TestCase):
 
     def test_expedited_unsigned_int_upload(self):
         """
-        Text expedited SDO transfer with an unsigned int data type
+        Test expedited SDO transfer with an unsigned int data type
         """
         parser = SDOParser()
         client_initiate_message = b'\x40\x10\x18\x00\x00\x00\x00\x00'
@@ -321,6 +322,110 @@ class TestSDO(unittest.TestCase):
         self.assertEqual("Downloaded - Identity unsigned8: 10",
                          parser.parse(0x580, self.eds_data, server_initiate_response),
                          "Error on Server Initiate Response")
+        self.assertEqual(True, parser.is_complete, "Parser should be complete")
+
+    def test_sdo_block_download(self):
+        """
+        Test SDO Block Upload
+
+        Upload 8byte unsigned integer with value 10
+        """
+        parser = SDOParser()
+        client_initiate_message = b'\xE6\x10\x18\x00\x00\x00\x00\x08'
+        self.assertEqual("Initiating block download - Identity unsigned8",
+                         parser.parse(0x600, self.eds_data, client_initiate_message),
+                         "Error on Client Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_initiate_response = b'\xC4\x10\x18\x00\x02\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 0%",
+                         parser.parse(0x580, self.eds_data, server_initiate_response),
+                         "Error on Server Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        client_block1_message = b'\x01\x00\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Block downloading - Identity unsigned8",
+                         parser.parse(0x600, self.eds_data, client_block1_message),
+                         "Error on Client Block1 Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        client_block2_message = b'\x82\x0A\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Block downloading - Identity unsigned8",
+                         parser.parse(0x600, self.eds_data, client_block2_message),
+                         "Error on Client Block1 Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_block_confirm_message = b'\xA2\x02\x08\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 100.0%",
+                         parser.parse(0x580, self.eds_data, server_block_confirm_message),
+                         "Error on Server End Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        client_block_end_message = b'\xDD\xA1\x4A\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 100%",
+                         parser.parse(0x600, self.eds_data, client_block_end_message),
+                         "Error on Client End Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_block_end_confirm_message = b'\xA1\x00\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Block download done - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_block_end_confirm_message),
+                         "Error on Server End Message")
+        self.assertEqual(True, parser.is_complete, "Parser should be complete")
+
+    def test_sdo_block_upload(self):
+        """
+        Test SDO Block Download
+
+        Download 8byte unsigned integer with value 10
+        """
+        parser = SDOParser()
+        client_initiate_message = b'\xA4\x10\x18\x00\x02\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 0%",
+                         parser.parse(0x600, self.eds_data, client_initiate_message),
+                         "Error on Client Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_initiate_response = b'\xE6\x10\x18\x00\x00\x00\x00\x08'
+        self.assertEqual("Initiating block download - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_initiate_response),
+                         "Error on Server Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete#")
+
+        server_initiate_response = b'\xA3\x00\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Initiating block download - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_initiate_response),
+                         "Error on Server Initiate Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete#")
+
+        server_block1_message = b'\x01\x00\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Block downloading - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_block1_message),
+                         "Error on Server Block1 Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_block2_message = b'\x82\x0A\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Block downloading - Identity unsigned8",
+                         parser.parse(0x580, self.eds_data, server_block2_message),
+                         "Error on Server Block2 Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        client_block_confirm_message = b'\xA2\x02\x08\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 100.0%",
+                         parser.parse(0x600, self.eds_data, client_block_confirm_message),
+                         "Error on Client Confirm Block Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        server_block_end_message = b'\xDD\xA1\x4A\x00\x00\x00\x00\x00'
+        self.assertEqual("Identity unsigned8 100%",
+                         parser.parse(0x580, self.eds_data, server_block_end_message),
+                         "Error on Server End Message")
+        self.assertEqual(False, parser.is_complete, "Parser should be incomplete")
+
+        client_block_end_confirm_message = b'\xA1\x00\x00\x00\x00\x00\x00\x00'
+        self.assertEqual("Block download done - Identity unsigned8",
+                         parser.parse(0x600, self.eds_data, client_block_end_confirm_message),
+                         "Error on Server End Message")
         self.assertEqual(True, parser.is_complete, "Parser should be complete")
 
 
