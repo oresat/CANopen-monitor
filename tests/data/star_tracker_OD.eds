@@ -4612,7 +4612,7 @@ DefaultValue=0
 PDOMapping=0
 
 [3101]
-ParameterName=Orienation
+ParameterName=Orientation
 ObjectType=0x9
 ;StorageLocation=RAM
 SubNumber=0x5
@@ -4645,7 +4645,7 @@ DefaultValue=0
 PDOMapping=1
 
 [3101sub3]
-ParameterName=orienation
+ParameterName=orientation
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0008
