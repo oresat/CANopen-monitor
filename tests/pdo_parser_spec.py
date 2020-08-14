@@ -93,30 +93,27 @@ class TestPDO(unittest.TestCase):
         """
         Test PDO transmit
         """
-        parser = PDOParser()
         pdo_message = b'\x3F\x80\x00\x00'
         self.assertEqual("Orientation orientation - 1.0",
-                         parser.parse(0x180, self.eds_data, pdo_message),
+                         parse(0x180, self.eds_data, pdo_message),
                          "Error on PDO Message parse")
 
     def test_pdo_with_multiple_elements(self):
         """
         Test PDO transmit with multiple elements in message
         """
-        parser = PDOParser()
         pdo_message = b'\x3F\x80\x00\x00\x3F\xC0\x00\x00'
         self.assertEqual("Orientation orientation - 1.0\nOrientation timestamp - 1.5",
-                         parser.parse(0x280, self.eds_data, pdo_message),
+                         parse(0x280, self.eds_data, pdo_message),
                          "Error on PDO Message parse (multiple)")
 
     def test_mpdo_with_SAM(self):
         """
         Test MPDO transmit with source addressing mode
         """
-        parser = PDOParser()
         pdo_message = b'\x00\x31\x01\x03\x3F\x80\x00\x00'
         self.assertEqual("Orientation orientation - 1.0",
-                         parser.parse(0x380, self.eds_data, pdo_message),
+                         parse(0x380, self.eds_data, pdo_message),
                          "Error on MPDO SAM Message parse")
 
 

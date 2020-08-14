@@ -1,10 +1,5 @@
 from struct import unpack
 
-# PDO
-
-# PDO mappings come from the eds file and is dependent on the type (Reciving/transmission PDO).
-# mapping value is made up of index subindex and size. For Example 0x31010120 Means 3101sub01 size 32bit
-
 PDO1_TX = '1A00'
 PDO1_RX = '1600'
 PDO2_TX = '1A01'
@@ -15,61 +10,66 @@ PDO4_TX = '1A03'
 PDO4_RX = '1603'
 
 
-class PDOParser:
-    def parse(self, cob_id, eds, data: bytes):
-        pdo_type = None
-        if 0x180 <= cob_id < 0x200:  # PDO1 tx
-            pdo_type = PDO1_TX
-            node_id = cob_id - 0x180
-        elif 0x200 <= cob_id < 0x280:  # PDO1 rx
-            pdo_type = PDO1_RX
-            cob_id = cob_id - 0x200
-        elif 0x280 <= cob_id < 0x300:  # PDO2 tx
-            pdo_type = PDO2_TX
-            cob_id = cob_id - 0x280
-        elif 0x300 <= cob_id < 0x380:  # PDO2 rx
-            pdo_type = PDO2_RX
-            cob_id = cob_id - 0x300
-        elif 0x380 <= cob_id < 0x400:  # PDO3 tx
-            pdo_type = PDO3_TX
-            cob_id = cob_id - 0x380
-        elif 0x400 <= cob_id < 0x480:  # PDO3 rx
-            pdo_type = PDO3_RX
-            cob_id = cob_id - 0x400
-        elif 0x480 <= cob_id < 0x500:  # PDO4 tx
-            pdo_type = PDO4_TX
-            cob_id = cob_id - 0x480
-        elif 0x500 <= cob_id < 0x580:  # PDO4 rx
-            pdo_type = PDO4_RX
-            cob_id = cob_id - 0x500
-        else:
-            raise ValueError(f"Unable to determine pdo type with given cob_id {hex(cob_id)}")
+def parse(cob_id, eds, data: bytes):
+    """
+    PDO mappings come from the eds file and is dependent on the type (Reciving/transmission PDO).
+    mapping value is made up of index subindex and size. For Example 0x31010120 Means 3101sub01 size 32bit
 
-        num_elements = int(eds[pdo_type].sub_indices[0].default_value)
-        if 0x40 < num_elements < 0xFE:
-            raise ValueError(f"Invalid pdo mapping detected in eds file at [{pdo_type}sub0]")
+    The eds mapping is determined by the cob_id passed ot this function. That indicated which PDO record to look up
+    in the EDS file.
+    """
+    if 0x180 <= cob_id < 0x200:  # PDO1 tx
+        pdo_type = PDO1_TX
+    elif 0x200 <= cob_id < 0x280:  # PDO1 rx
+        pdo_type = PDO1_RX
+    elif 0x280 <= cob_id < 0x300:  # PDO2 tx
+        pdo_type = PDO2_TX
+    elif 0x300 <= cob_id < 0x380:  # PDO2 rx
+        pdo_type = PDO2_RX
+    elif 0x380 <= cob_id < 0x400:  # PDO3 tx
+        pdo_type = PDO3_TX
+    elif 0x400 <= cob_id < 0x480:  # PDO3 rx
+        pdo_type = PDO3_RX
+    elif 0x480 <= cob_id < 0x500:  # PDO4 tx
+        pdo_type = PDO4_TX
+    elif 0x500 <= cob_id < 0x580:  # PDO4 rx
+        pdo_type = PDO4_RX
+    else:
+        raise ValueError(f"Unable to determine pdo type with given cob_id {hex(cob_id)}")
 
-        if num_elements in (0xFE, 0xFF):
-            mpdo = MPDO(data)
-            if mpdo.is_source_addressing and num_elements != 0xFE:
-                raise ValueError(f"MPDO type and definition do not match. Check [{pdo_type}sub0]")
+    num_elements = int(eds[pdo_type].sub_indices[0].default_value)
+    if num_elements < 0x40:
+        return parse_pdo(num_elements, pdo_type, eds, data)
 
-            eds_details = get_name(eds, mpdo.index)
-            return f"{eds_details[1]} - {decode(eds_details[0], mpdo.data)}"
+    if num_elements in (0xFE, 0xFF):
+        return parse_mpdo(num_elements, pdo_type, eds, data)
 
-        output_string = ""
-        data_start = 0
-        for i in range(1, num_elements + 1):
-            value = int(eds[pdo_type].sub_indices[i].default_value).to_bytes(4, "big")
-            index = value[0:3]
-            size = int(value[3] / 8)
-            eds_details = get_name(eds, index)
-            if i > 1:
-                output_string += "\n"
-            output_string += f"{eds_details[1]} - {decode(eds_details[0], data[data_start:data_start + size])}"
-            data_start += size
+    raise ValueError(f"Invalid pdo mapping detected in eds file at [{pdo_type}sub0]")
 
-        return output_string
+
+def parse_pdo(num_elements, pdo_type, eds, data):
+    output_string = ""
+    data_start = 0
+    for i in range(1, num_elements + 1):
+        value = int(eds[pdo_type].sub_indices[i].default_value).to_bytes(4, "big")
+        index = value[0:3]
+        size = int(value[3] / 8)
+        eds_details = get_name(eds, index)
+        if i > 1:
+            output_string += "\n"
+        output_string += f"{eds_details[1]} - {decode(eds_details[0], data[data_start:data_start + size])}"
+        data_start += size
+
+    return output_string
+
+
+def parse_mpdo(num_elements, pdo_type, eds, data):
+    mpdo = MPDO(data)
+    if mpdo.is_source_addressing and num_elements != 0xFE:
+        raise ValueError(f"MPDO type and definition do not match. Check [{pdo_type}sub0]")
+
+    eds_details = get_name(eds, mpdo.index)
+    return f"{eds_details[1]} - {decode(eds_details[0], mpdo.data)}"
 
 
 class MPDO:
