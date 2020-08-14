@@ -46,6 +46,17 @@ class PDOParser:
             raise ValueError(f"Unable to determine pdo type with given cob_id {hex(cob_id)}")
 
         num_elements = int(eds[pdo_type].sub_indices[0].default_value)
+        if 0x40 < num_elements < 0xFE:
+            raise ValueError(f"Invalid pdo mapping detected in eds file at [{pdo_type}sub0]")
+
+        if num_elements in (0xFE, 0xFF):
+            mpdo = MPDO(data)
+            if mpdo.is_source_addressing and num_elements != 0xFE:
+                raise ValueError(f"MPDO type and definition do not match. Check [{pdo_type}sub0]")
+
+            eds_details = get_name(eds, mpdo.index)
+            return f"{eds_details[1]} - {decode(eds_details[0], mpdo.data)}"
+
         output_string = ""
         data_start = 0
         for i in range(1, num_elements + 1):
@@ -61,7 +72,7 @@ class PDOParser:
         return output_string
 
 
-class MPDOProducer:
+class MPDO:
     """
 
 
@@ -98,7 +109,7 @@ class MPDOProducer:
         self.__is_destination_addressing = not self.__is_source_addressing
         self.__addr = raw_sdo[0] & 0x7F
         self.__index = raw_sdo[1:4]
-        data = raw_sdo[4:8]
+        self.__data = raw_sdo[4:8]
 
     @property
     def is_source_addressing(self):
@@ -118,7 +129,7 @@ class MPDOProducer:
 
     @property
     def data(self):
-        return data
+        return self.__data
 
 
 # TODO: Below are functions from the SDO that need to be consolidated somewhere
