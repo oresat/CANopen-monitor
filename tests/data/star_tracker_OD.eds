@@ -2092,7 +2092,7 @@ DefaultValue=
 PDOMapping=0
 
 [3002subA]
-ParameterName=
+ParameterName=This is for testing
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x000F

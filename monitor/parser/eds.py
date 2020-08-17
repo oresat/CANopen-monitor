@@ -1,15 +1,16 @@
 """EDS File Parser Interface"""
 from re import finditer
 from dateutil.parser import parse as dtparse
+import string
 
 
 def camel_to_snake(string):
     res = ""
 
-    if(string[0] != ';'):
+    if (string[0] != ';'):
         for i in finditer('[A-Z0-9][a-z0-9]*', string):
             span = i.span()
-            if(span[0] != 0):
+            if (span[0] != 0):
                 res += '_'
             res += string[span[0]:span[1]].lower()
     return res
@@ -22,9 +23,9 @@ class Metadata:
         for e in data:
             key, value = e.split('=')
             key = camel_to_snake(key)
-            if('time' in key):
+            if ('time' in key):
                 value = dtparse(value).time()
-            elif('date' in key):
+            elif ('date' in key):
                 value = dtparse(value).date()
             self.__setattr__(key, value)
 
@@ -44,14 +45,14 @@ class Index:
     def __init__(self, id, data, sub_id=None):
         self.id = id
 
-        if(sub_id is None):
+        if (sub_id is None):
             self.sub_indices = []
         else:
             self.sub_id = sub_id
 
         for e in data:
             key, value = e.split('=')
-            if(value.isnumeric()):
+            if (value.isnumeric()):
                 value = int(value)
             self.__setattr__(camel_to_snake(key), value)
 
@@ -63,7 +64,7 @@ class Index:
 
     def __str__(self):
         res = str(self.id)
-        if(self.sub_indices is not None):
+        if (self.sub_indices is not None):
             res += "(sub-indicies: " + str(len(self.sub_indices)) + "):\n"
         for key, value in self.__dict__.items():
             res += "\t" + str(key) + ': ' + str(value) + '\n'
@@ -78,17 +79,17 @@ def parse(eds_data):
 
     prev = 0
     for i, line in enumerate(eds_data):
-        if(line == ''):
+        if line == '':
             section = eds_data[prev:i]
             id = section[0][1:-1].split('sub')
 
-            if(id[0].isnumeric()):
-                if(len(id) == 1):
-                    indices[int(id[0])] = Index(int(id[0]), section[1:])
+            if all(c in string.hexdigits for c in id[0]):
+                if len(id) == 1:
+                    indices[int(id[0], 16)] = Index(int(id[0], 16), section[1:])
                 else:
-                    indices[int(id[0])].add_subindex(Index(int(id[0]),
-                                                           section[1:],
-                                                           sub_id=int(id[1])))
+                    indices[int(id[0], 16)].add_subindex(Index(int(id[0], 16),
+                                                               section[1:],
+                                                               sub_id=int(id[1], 16)))
             else:
                 name = section[0][1:-1]
                 indices[name] = Metadata(name, section[1:])
