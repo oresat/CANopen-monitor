@@ -1039,8 +1039,8 @@ class SDOParser:
         return "Block download done - " + self.__inProgressName
 
     def __set_name(self, eds, index: bytes):
-        key = int(index[:2].hex())
-        subindex_key = int(index[2:3].hex())
+        key = int(index[:2].hex(), 16)
+        subindex_key = int(index[2:3].hex(), 16)
         result = eds[key].parameter_name
 
         if eds[key].sub_indices is not None:

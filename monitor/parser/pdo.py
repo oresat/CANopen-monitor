@@ -1,13 +1,13 @@
 from struct import unpack
 
-PDO1_TX = '1A00'
-PDO1_RX = '1600'
-PDO2_TX = '1A01'
-PDO2_RX = '1601'
-PDO3_TX = '1A02'
-PDO3_RX = '1602'
-PDO4_TX = '1A03'
-PDO4_RX = '1603'
+PDO1_TX = 0x1A00
+PDO1_RX = 0x1600
+PDO2_TX = 0x1A01
+PDO2_RX = 0x1601
+PDO3_TX = 0x1A02
+PDO3_RX = 0x1602
+PDO4_TX = 0x1A03
+PDO4_RX = 0x1603
 
 
 def parse(cob_id, eds, data: bytes):
@@ -134,8 +134,8 @@ class MPDO:
 
 # TODO: Below are functions from the SDO that need to be consolidated somewhere
 def get_name(eds, index: bytes):
-    key = int(index[:2].hex())
-    subindex_key = int(index[2:3].hex())
+    key = int(index[:2].hex(), 16)
+    subindex_key = int(index[2:3].hex(), 16)
     result = eds[key].parameter_name
 
     if eds[key].sub_indices is not None:

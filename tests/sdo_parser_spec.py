@@ -16,30 +16,30 @@ class TestSDO(unittest.TestCase):
         self.subindex0 = MagicMock(access_type='ro', data_type='0x0005', default_type=4, id=1018, object_type='0x7',
                                    parameter_name='unsigned8', sub_id=0)
 
-        self.subindex1 = MagicMock(access_type='ro', data_type='0x0002', default_type=4, id=1018, object_type='0x7',
+        self.subindex1 = MagicMock(access_type='ro', data_type='0x0002', default_type=4, id=0x1018, object_type='0x7',
                                    parameter_name='integer8', sub_id=0)
 
-        self.subindex2 = MagicMock(access_type='ro', data_type='0x0001', default_type=4, id=1018, object_type='0x7',
+        self.subindex2 = MagicMock(access_type='ro', data_type='0x0001', default_type=4, id=0x1018, object_type='0x7',
                                    parameter_name='boolean', sub_id=0)
 
-        self.subindex3 = MagicMock(access_type='ro', data_type='0x0008', default_type=4, id=1018, object_type='0x7',
+        self.subindex3 = MagicMock(access_type='ro', data_type='0x0008', default_type=4, id=0x1018, object_type='0x7',
                                    parameter_name='real32', sub_id=0)
 
-        self.subindex4 = MagicMock(access_type='ro', data_type='0x0009', default_type=4, id=1018, object_type='0x7',
+        self.subindex4 = MagicMock(access_type='ro', data_type='0x0009', default_type=4, id=0x1018, object_type='0x7',
                                    parameter_name='visible string', sub_id=0)
 
-        self.subindex5 = MagicMock(access_type='ro', data_type='0x000A', default_type=4, id=1018, object_type='0x7',
+        self.subindex5 = MagicMock(access_type='ro', data_type='0x000A', default_type=4, id=0x1018, object_type='0x7',
                                    parameter_name='octet string', sub_id=0)
 
-        self.subindex6 = MagicMock(access_type='ro', data_type='0x000B', default_type=4, id=1018, object_type='0x7',
+        self.subindex6 = MagicMock(access_type='ro', data_type='0x000B', default_type=4, id=0x1018, object_type='0x7',
                                    parameter_name='unicode string', sub_id=0)
 
-        self.index = MagicMock(id=1018, parameter_name='Identity', object_type='0x9', sub_number='0x5',
+        self.index = MagicMock(id=0x1018, parameter_name='Identity', object_type='0x9', sub_number='0x5',
                                sub_indices=[self.subindex0, self.subindex1, self.subindex2, self.subindex3,
                                             self.subindex4, self.subindex5, self.subindex6])
 
         def get_index(index):
-            if index == 1018:
+            if index == 0x1018:
                 return self.index
             else:
                 raise KeyError(f"Incorrect index retrieved from EDS {index} provided")
