@@ -32,7 +32,7 @@ class TestPDO(unittest.TestCase):
                                       parameter_name='mapped object 1', sub_id=0, default_value=0x31010320)
 
         self.index_1A01_2 = MagicMock(access_type='rw', data_type='0x0007', id=0x1A00, object_type='0x7',
-                                      parameter_name='mapped object 1', sub_id=0, default_value=0x31010420)
+                                      parameter_name='mapped object 2', sub_id=0, default_value=0x31010420)
 
         self.index_1A01 = MagicMock(id=0x1A01, parameter_name='TPDO mapping parameter', object_type='0x9',
                                     sub_number='0x5',
@@ -54,6 +54,34 @@ class TestPDO(unittest.TestCase):
                                     sub_number='0x5',
                                     sub_indices=[self.index_1A03_0])
 
+        # 1A04 - TPDO Complex Mapping
+        self.index_1600_0 = MagicMock(access_type='ro', data_type='0x0005', default_type=1, id=0x1600, object_type='0x7'
+                                      , parameter_name='Number of mapped objects', sub_id=0, default_value=0x02)
+
+        self.index_1600_1 = MagicMock(access_type='rw', data_type='0x0007', id=0x1600, object_type='0x7',
+                                      parameter_name='mapped object 1', sub_id=0, default_value=0x31010501)
+
+        self.index_1600_2 = MagicMock(access_type='rw', data_type='0x0007', id=0x1600, object_type='0x7',
+                                      parameter_name='mapped object 2', sub_id=0, default_value=0x31010420)
+
+        self.index_1600 = MagicMock(id=0x1600, parameter_name='RPDO mapping parameter', object_type='0x9',
+                                    sub_number='0x5',
+                                    sub_indices=[self.index_1600_0, self.index_1600_1, self.index_1600_2])
+
+        # 1A04 - TPDO Complex Mapping Reversed
+        self.index_1601_0 = MagicMock(access_type='ro', data_type='0x0005', default_type=1, id=0x1601, object_type='0x7'
+                                      , parameter_name='Number of mapped objects', sub_id=0, default_value=0x02)
+
+        self.index_1601_2 = MagicMock(access_type='rw', data_type='0x0007', id=0x1601, object_type='0x7',
+                                      parameter_name='mapped object 2', sub_id=0, default_value=0x31010501)
+
+        self.index_1601_1 = MagicMock(access_type='rw', data_type='0x0007', id=0x1601, object_type='0x7',
+                                      parameter_name='mapped object 1', sub_id=0, default_value=0x31010420)
+
+        self.index_1601 = MagicMock(id=0x1600, parameter_name='RPDO mapping parameter', object_type='0x9',
+                                    sub_number='0x5',
+                                    sub_indices=[self.index_1601_0, self.index_1601_1, self.index_1601_2])
+
         # 3101 orientation
         self.index_3101_0 = MagicMock(access_type='ro', data_type='0x0005', default_type=1, id=0x3101, object_type='0x7',
                                       parameter_name='max sub-index', sub_id=0, default_value=4)
@@ -70,9 +98,13 @@ class TestPDO(unittest.TestCase):
         self.index_3101_4 = MagicMock(access_type='ro', data_type='0x0008', default_type=4, id=0x3101, object_type='0x7',
                                       parameter_name='timestamp', sub_id=0, default_value=0)
 
+        self.index_3101_5 = MagicMock(access_type='ro', data_type='0x0001', default_type=4, id=0x3101,
+                                      object_type='0x7',
+                                      parameter_name='boolean', sub_id=0, default_value=0)
+
         self.index_3101 = MagicMock(id=0x3101, parameter_name='Orientation', object_type='0x9', sub_number='0x5',
                                     sub_indices=[self.index_3101_0, self.index_3101_1, self.index_3101_2,
-                                                 self.index_3101_3, self.index_3101_4])
+                                                 self.index_3101_3, self.index_3101_4, self.index_3101_5])
 
         def get_index(index):
             if index == 0x1A00:
@@ -81,6 +113,12 @@ class TestPDO(unittest.TestCase):
                 return self.index_1A01
             elif index == 0x1A02:
                 return self.index_1A02
+            elif index == 0x1A03:
+                return self.index_1A03
+            elif index == 0x1600:
+                return self.index_1600
+            elif index == 0x1601:
+                return  self.index_1601
             elif index == 0x3101:
                 return self.index_3101
             else:
@@ -106,6 +144,20 @@ class TestPDO(unittest.TestCase):
         self.assertEqual("Orientation orientation - 1.0\nOrientation timestamp - 1.5",
                          parse(0x280, self.eds_data, pdo_message),
                          "Error on PDO Message parse (multiple)")
+
+    def test_pdo_with_multiple_elements_complex(self):
+        """
+        Test PDO transmit with multiple elements in message
+        """
+        pdo_message = b'\x01\x3F\xC0\x00\x00'
+        self.assertEqual("Orientation boolean - True\nOrientation timestamp - 1.5",
+                         parse(0x200, self.eds_data, pdo_message),
+                         "Error on PDO Message parse (multiple & complex)")
+
+        pdo_message = b'\x7F\x80\x00\x01'
+        self.assertEqual("Orientation timestamp - 1.5\nOrientation boolean - True",
+                         parse(0x300, self.eds_data, pdo_message),
+                         "Error on PDO Message parse (multiple & complex - reverse)")
 
     def test_mpdo_with_SAM(self):
         """

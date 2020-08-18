@@ -1,3 +1,4 @@
+from math import ceil, floor
 from struct import unpack
 
 PDO1_TX = 0x1A00
@@ -48,16 +49,29 @@ def parse(cob_id, eds, data: bytes):
 
 
 def parse_pdo(num_elements, pdo_type, eds, data):
+    """
+    Parse pdo message. Message will include num_elements elements. Elements are processed in reverse order, from
+    rightmost to leftmost
+    """
     output_string = ""
     data_start = 0
-    for i in range(1, num_elements + 1):
-        value = int(eds[pdo_type].sub_indices[i].default_value).to_bytes(4, "big")
-        index = value[0:3]
-        size = int(value[3] / 8)
+    for i in range(num_elements, 0, -1):
+        pdo_definition = int(eds[pdo_type].sub_indices[i].default_value).to_bytes(4, "big")
+        index = pdo_definition[0:3]
+        size = pdo_definition[3]
+        mask = 1
+        for j in range(1, size):
+            mask = mask << 1
+            mask += 1
         eds_details = get_name(eds, index)
+        num_bytes = ceil(size / 8)
+        masked_data = int.from_bytes(data[len(data) - num_bytes - floor(data_start / 8):len(data) -
+                                          floor(data_start / 8)], "big") & mask
+        masked_data = masked_data >> data_start % 8
+        masked_data = masked_data.to_bytes(num_bytes, "big")
+        output_string = f"{eds_details[1]} - {decode(eds_details[0], masked_data)}" + output_string
         if i > 1:
-            output_string += "\n"
-        output_string += f"{eds_details[1]} - {decode(eds_details[0], data[data_start:data_start + size])}"
+            output_string = "\n" + output_string
         data_start += size
 
     return output_string
