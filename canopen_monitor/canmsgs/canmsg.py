@@ -1,5 +1,5 @@
 import time
-import monitor.parser as dictionaries
+import canopen_monitor.parser as dictionaries
 from canard.can import Frame
 from enum import Enum
 

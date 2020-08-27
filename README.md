@@ -1,77 +1,98 @@
-# CANopen-monitor
+# CANOpen Monitor
 
 [![License](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
+[![PyPi](https://img.shields.io/pypi/pyversions/canopen-monitor?label=pypi)](https://pypi.org/project/canopen-monitor)
 [![Trello](https://img.shields.io/badge/Trello-Backlog-blue)](https://trello.com/b/PWuRFBh1/canopen-monitor)
-[![Git Actions](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/CAN%20Monitor%20Unit%20Tests)](https://github.com/oresat/CANopen-monitor/actions)
+[![Unit Tests](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/CAN%20Monitor%20Unit%20Tests?label=unit%20tests)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22CAN+Monitor+Unit+Tests)
+[![Build](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Upload%20Python%20Package)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Upload+Python+Package)
 [![Issues](https://img.shields.io/github/issues/oresat/CANopen-monitor)](https://github.com/oresat/CANopen-monitor/issues)
 
 A utility for displaying and tracking activity over the CAN bus.
 
-### Installation
+***
 
-  __Git Installation (Manual):__
+# Run App
 
-Clone the repository:
+`$` `canopen-monitor`
 
-`$` `git clone https://github.com/oresat/CANopen-monitor.git`
+***
 
-Install dependencies:
+# Install via PyPi
+
+`$` `pip3 install canopen-monitor`
+
+***
+
+# Install Locally
+
+**Build the CANOpen Monitor module:**
+
+`$` `python3 setup.py sdist bdist_wheel`
+
+**Install for current user only:**
+
+`$` `python -m pip install dist/*.whl`
+
+**Install for all users:**
+
+`$` `sudo python -m pip install dist/*.whl`
+
+**Clean up build artifacts:**
+
+`$` `rm -rf build dist *.egg-info`
+
+***
+
+# Development and Contribution:
+
+**Install dependencies:**
 
 `$` `pip install -r requirements.txt`
 
-***
 
-### Usage
-
-Run the application:
-
-`$` `./CANopen-monitor/canopen-monitor`
-
-&nbsp;
-
-Autogenerate Sphinx Documentation:
-
-`$` `sphinx-apidoc -o docs/source monitor`
-
-`$` `make -C docs clean html`
-
-***
-
-### Contribution/Development:
-
-Install development dependencies:
+**Install development dependencies:**
 
 `$` `pip install -r dev-requirements.txt`
 
-Lint Code:
+**Lint Code:**
 
 `$` `flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics`
 
-Run Unit Tests:
+**Run unit tests:**
 
 `$` `python -m unittest -f --locals tests/*.py`
 
+**Auto generate Sphinx documentation:**
+
+`$` `sphinx-apidoc -o docs/source canopen_monitor`
+
+`$` `make -C docs clean html`
+
+**Deploy manually to PyPi:**
+
+`$` `python -m twine upload dist/*`
+
+*(This assumes that you have the correct PyPi credentials and tokens set up according to the instructions [outlined here](https://packaging.python.org/guides/distributing-packages-using-setuptools/#id79))*
+
 ***
 
-### Configs:
+# Configs:
 
-  The config files are stored in `~/.cache/canmonitor`
+  These are the auto-generated configs that are stored in `~/.config/canopen-monitor`
 
-  So all subsequent files are stored relative to this path.
-
-#### Default Generated Config Files:
-###### `devices.json:`
+`devices.json:`
 ```json
 [
   "can0"
 ]
 ```
-
 A list of CAN Buses that CAN Monitor will try to bind to on launch.
+
+*(note: additional buses can be added via cmd-line arguments, see `canopen-monitor --help`)*
 
 &nbsp;
 
-###### `layout.json`
+`layout.json`
 ```json
 {
   "type": "grid",
@@ -123,18 +144,16 @@ A list of CAN Buses that CAN Monitor will try to bind to on launch.
   }]
 }
 ```
-
 A recursive set of dictionaries that define how CAN Monitor constructs the UI layout as well as some other properties of each table.
 
 &nbsp;
 
-###### `nodes.json`
+`nodes.json`
 ```json
 {
   "64": "MDC"
 }
 ```
-
 A list of COB ID's in decimal notation that have a paired name which will override the default display name of that node in CAN Monitor.
 
 ***

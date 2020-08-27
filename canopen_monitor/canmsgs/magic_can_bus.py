@@ -1,7 +1,7 @@
 import threading
-import monitor
+import canopen_monitor
 from typing import Union
-from monitor.canmsgs.canmsg import CANMsg
+from canopen_monitor.canmsgs.canmsg import CANMsg
 from canard.hw.socketcan import SocketCanDev
 from queue import Queue, Full, Empty
 
@@ -47,19 +47,19 @@ class MagicCANBus:
 
         self.stop_listening.set()
 
-        if(monitor.DEBUG):
+        if(canopen_monitor.DEBUG):
             print('waiting for '
                   + str(len(self.threads))
                   + ' bus-threads to close.')
         if(len(self.threads) > 0):
             for thread in self.threads:
-                thread.join(monitor.TIMEOUT)
-                if(thread.is_alive() and monitor.DEBUG):
-                    print('the bus thread listener with pid ({}) took too long to close, will try again in {}s!'.format(thread.native_id, round(monitor.TIMEOUT * len(self.threads), 3)))
-            if(monitor.DEBUG):
+                thread.join(canopen_monitor.TIMEOUT)
+                if(thread.is_alive() and canopen_monitor.DEBUG):
+                    print('the bus thread listener with pid ({}) took too long to close, will try again in {}s!'.format(thread.native_id, round(canopen_monitor.TIMEOUT * len(self.threads), 3)))
+            if(canopen_monitor.DEBUG):
                 print('all bus threads closed gracefully!')
         else:
-            if(monitor.DEBUG):
+            if(canopen_monitor.DEBUG):
                 print('no child bus threads were spawned!')
 
     def _listen(self, dev: SocketCanDev) -> None:
@@ -77,7 +77,7 @@ class MagicCANBus:
         If no messages are available on the bus, None is returned
         """
         try:
-            res = self.frames.get(block=self.block, timeout=monitor.TIMEOUT)
+            res = self.frames.get(block=self.block, timeout=canopen_monitor.TIMEOUT)
             return CANMsg(res[0], res[1])
         except Empty:
             return None

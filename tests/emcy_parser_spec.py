@@ -1,6 +1,6 @@
 import unittest
 
-from monitor.parser.emcy import *
+from canopen_monitor.parser.emcy import *
 
 
 class TestEMCY(unittest.TestCase):

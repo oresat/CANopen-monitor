@@ -1,4 +1,4 @@
-monitor package
+canopen_monitor package
 ===============
 
 Subpackages
@@ -7,25 +7,25 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   monitor.canmsgs
-   monitor.parser
-   monitor.ui
+   canopen_monitor.canmsgs
+   canopen_monitor.parser
+   canopen_monitor.ui
 
 Submodules
 ----------
 
-monitor.monitor\_app module
+canopen_monitor.canopen_monitor\_app module
 ---------------------------
 
-.. automodule:: monitor.monitor_app
+.. automodule:: canopen_monitor.monitor_app
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.utilities module
+canopen_monitor.utilities module
 ------------------------
 
-.. automodule:: monitor.utilities
+.. automodule:: canopen_monitor.utilities
    :members:
    :undoc-members:
    :show-inheritance:
@@ -34,7 +34,7 @@ monitor.utilities module
 Module contents
 ---------------
 
-.. automodule:: monitor
+.. automodule:: canopen_monitor
    :members:
    :undoc-members:
    :show-inheritance:

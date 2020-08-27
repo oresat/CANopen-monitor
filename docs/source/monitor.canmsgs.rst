@@ -1,29 +1,29 @@
-monitor.canmsgs package
+canopen_monitor.canmsgs package
 =======================
 
 Submodules
 ----------
 
-monitor.canmsgs.canmsg module
+canopen_monitor.canmsgs.canmsg module
 -----------------------------
 
-.. automodule:: monitor.canmsgs.canmsg
+.. automodule:: canopen_monitor.canmsgs.canmsg
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.canmsgs.canmsg\_table module
+canopen_monitor.canmsgs.canmsg\_table module
 ------------------------------------
 
-.. automodule:: monitor.canmsgs.canmsg_table
+.. automodule:: canopen_monitor.canmsgs.canmsg_table
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.canmsgs.magic\_can\_bus module
+canopen_monitor.canmsgs.magic\_can\_bus module
 --------------------------------------
 
-.. automodule:: monitor.canmsgs.magic_can_bus
+.. automodule:: canopen_monitor.canmsgs.magic_can_bus
    :members:
    :undoc-members:
    :show-inheritance:
@@ -32,7 +32,7 @@ monitor.canmsgs.magic\_can\_bus module
 Module contents
 ---------------
 
-.. automodule:: monitor.canmsgs
+.. automodule:: canopen_monitor.canmsgs
    :members:
    :undoc-members:
    :show-inheritance:

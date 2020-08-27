@@ -1,10 +1,10 @@
 import os.path
 import json
-import monitor
+import canopen_monitor
 
 
 def generate_config_dirs(exist_ok: bool = True):
-    os.makedirs(monitor.CANMONITOR_CONFIG_DIR, exist_ok=exist_ok)
+    os.makedirs(canopen_monitor.CONFIG_DIR, exist_ok=exist_ok)
 
 
 def load_config(filename: str):
@@ -21,11 +21,11 @@ def load_config(filename: str):
 
 def config_factory(filepath: str):
     '''Generate the default configs'''
-    if(filepath == monitor.CANMONITOR_DEVICES_CONFIG):
+    if(filepath == canopen_monitor.DEVICES_CONFIG):
         data = ['can0']
-    elif(filepath == monitor.CANMONITOR_NODES_CONFIG):
+    elif(filepath == canopen_monitor.NODES_CONFIG):
         data = {0x40: "MDC"}
-    elif(filepath == monitor.CANMONITOR_LAYOUT_CONFIG):
+    elif(filepath == canopen_monitor.LAYOUT_CONFIG):
         data = {
             'type': 'grid',
             'split': 'horizontal',

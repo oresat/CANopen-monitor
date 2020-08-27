@@ -1,5 +1,5 @@
-monitor
+canopen_monitor
 =======
 =======
-CANopen-monitor
+CANopen-canopen_monitor
 ===============

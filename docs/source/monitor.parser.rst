@@ -1,45 +1,45 @@
-monitor.parser package
+canopen_monitor.parser package
 ======================
 
 Submodules
 ----------
 
-monitor.parser.canopen module
+canopen_monitor.parser.canopen module
 -----------------------------
 
-.. automodule:: monitor.parser.canopen
+.. automodule:: canopen_monitor.parser.canopen
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.parser.eds module
+canopen_monitor.parser.eds module
 -------------------------
 
-.. automodule:: monitor.parser.eds
+.. automodule:: canopen_monitor.parser.eds
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.parser.emcy module
+canopen_monitor.parser.emcy module
 --------------------------
 
-.. automodule:: monitor.parser.emcy
+.. automodule:: canopen_monitor.parser.emcy
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.parser.pdo module
+canopen_monitor.parser.pdo module
 -------------------------
 
-.. automodule:: monitor.parser.pdo
+.. automodule:: canopen_monitor.parser.pdo
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.parser.sdo module
+canopen_monitor.parser.sdo module
 -------------------------
 
-.. automodule:: monitor.parser.sdo
+.. automodule:: canopen_monitor.parser.sdo
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,7 +48,7 @@ monitor.parser.sdo module
 Module contents
 ---------------
 
-.. automodule:: monitor.parser
+.. automodule:: canopen_monitor.parser
    :members:
    :undoc-members:
    :show-inheritance:

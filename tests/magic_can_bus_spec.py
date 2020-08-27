@@ -1,5 +1,5 @@
 import unittest
-import monitor.canmsgs.magic_can_bus as mcb
+import canopen_monitor.canmsgs.magic_can_bus as mcb
 
 
 class TestMagicCanBus(unittest.TestCase):

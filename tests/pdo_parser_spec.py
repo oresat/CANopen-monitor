@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from monitor.parser.pdo import *
+from canopen_monitor.parser.pdo import *
 
 
 class TestPDO(unittest.TestCase):

@@ -1,10 +1,10 @@
 import curses
 import time
-import monitor
-import monitor.canmsgs.magic_can_bus as mcb
+import canopen_monitor
+import canopen_monitor.canmsgs.magic_can_bus as mcb
 import threading
-from monitor.ui.grid import Grid, Split
-from monitor.ui.pane import Pane
+from canopen_monitor.ui.grid import Grid, Split
+from canopen_monitor.ui.pane import Pane
 
 
 class PopupWindow:
@@ -20,6 +20,7 @@ class PopupWindow:
                 long = len(m)
         if(long < len(banner)):
             long = len(banner)
+        long += 1
 
         window = curses.newwin(len(message) + 2,
                                long + 2,
@@ -124,26 +125,26 @@ class MonitorApp:
         # self.screen_lock.release()  # Release the screen lock
         self.stop_listening.set()   # Signal the bus threads to stop
 
-        if(monitor.DEBUG):  # Extra monitor.DEBUG info
+        if(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
             print('stopping bus-listeners from the app-layer...')
 
         self.bus.stop_all()         # Wait for all CanBus threads to stop
 
-        if(monitor.DEBUG):  # Extra monitor.DEBUG info
+        if(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
             print('stopped all bus-listeners!')
 
         threads = threading.enumerate().remove(threading.current_thread())
-        if(monitor.DEBUG):  # Extra monitor.DEBUG info
+        if(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
             print('waiting for all app-threads to close...')
 
         # If app-layer threads exist wait for them to close
         if(threads is not None):
             for thread in threads:
                 thread.join()
-            if(monitor.DEBUG):  # Extra monitor.DEBUG info
+            if(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
                 print('stopped all app-threads gracefully!')
 
-        elif(monitor.DEBUG):  # Extra monitor.DEBUG info
+        elif(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
             print('no child app-threads were spawned!')
 
     def read_input(self):
@@ -157,13 +158,14 @@ class MonitorApp:
             self.parent.clear()
             self.parent.resize(self.screen)
         elif(key == curses.KEY_F1):
-            window_message = '\n'.join(['Author: ' + monitor.CANMONITOR_AUTHOR,
-                                        'Website: ' + monitor.CANMONITOR_WEBSITE,
-                                        'License: ' + monitor.CANMONITOR_LICENSE,
-                                        'Version: ' + monitor.CANMONITOR_VERSION])
+            window_message = '\n'.join([canopen_monitor.APP_DESCRIPTION,
+                                        'Author: ' + canopen_monitor.APP_AUTHOR,
+                                        'Website: ' + canopen_monitor.APP_URL,
+                                        'License: ' + canopen_monitor.APP_LICENSE,
+                                        'Version: ' + canopen_monitor.APP_VERSION])
             PopupWindow(self.screen,
                         window_message,
-                        banner='About ' + monitor.CANMONITOR_NAME,
+                        banner='About ' + canopen_monitor.APP_NAME,
                         color_pair=1)
         elif(key == curses.KEY_F2):
             PopupWindow(self.screen, "<Ctrl+C>: Exit program\

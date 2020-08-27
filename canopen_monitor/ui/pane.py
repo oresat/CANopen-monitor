@@ -1,5 +1,5 @@
 import curses
-import monitor.canmsgs.canmsg_table as cmt
+import canopen_monitor.canmsgs.canmsg_table as cmt
 
 
 class Pane(cmt.CANMsgTable):

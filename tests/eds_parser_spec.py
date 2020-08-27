@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from monitor.parser.eds import *
+from canopen_monitor.parser.eds import *
 
 TEST_FILENAME = os.path.join(os.path.dirname(__file__), 'data/star_tracker_OD.eds')
 

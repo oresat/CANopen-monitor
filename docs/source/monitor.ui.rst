@@ -1,21 +1,21 @@
-monitor.ui package
+canopen_monitor.ui package
 ==================
 
 Submodules
 ----------
 
-monitor.ui.grid module
+canopen_monitor.ui.grid module
 ----------------------
 
-.. automodule:: monitor.ui.grid
+.. automodule:: canopen_monitor.ui.grid
    :members:
    :undoc-members:
    :show-inheritance:
 
-monitor.ui.pane module
+canopen_monitor.ui.pane module
 ----------------------
 
-.. automodule:: monitor.ui.pane
+.. automodule:: canopen_monitor.ui.pane
    :members:
    :undoc-members:
    :show-inheritance:
@@ -24,7 +24,7 @@ monitor.ui.pane module
 Module contents
 ---------------
 
-.. automodule:: monitor.ui
+.. automodule:: canopen_monitor.ui
    :members:
    :undoc-members:
    :show-inheritance:

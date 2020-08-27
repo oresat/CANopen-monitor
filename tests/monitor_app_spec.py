@@ -1,6 +1,6 @@
 import unittest
-# import monitor
-# import monitor.monitor_app as monitor_app
+# import canopen_monitor
+# import canopen_monitor.monitor_app as monitor_app
 
 
 class TestMonitorApp(unittest.TestCase):

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from monitor.parser.sdo import *
+from canopen_monitor.parser.sdo import *
 
 
 class TestSDO(unittest.TestCase):
