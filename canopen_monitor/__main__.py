@@ -1,6 +1,8 @@
+import os
 import argparse
 import canopen_monitor
 import canopen_monitor.utilities as utils
+from canopen_monitor.parser.eds import load_eds_file
 from canopen_monitor.monitor_app import MonitorApp
 from json.decoder import JSONDecodeError
 
@@ -24,7 +26,7 @@ def main():
     args = parser.parse_args()
 
     # Guarentee the config directory exists
-    utils.generate_config_dirs()
+    utils.generate_dirs()
 
     # Attempt to load devices config from file (path defined in ./common.py)
     try:
@@ -75,15 +77,26 @@ def main():
                               + "\n\tPlease either fix the given config or \
                             destroy it so that Can Monitor can regenerate it!")
 
+    # Fetch all of the EDS files that exist
+    eds_configs = []
+    files = os.listdir(canopen_monitor.EDS_DIR)
+    for file in files:
+        eds_configs.append(load_eds_file(file))
+
+    # Create the app
+    canopen_monitor.DEBUG = args.debug
+    canmonitor = MonitorApp(dev_names, table_schema, eds_configs)
+
     # Attempt to start the application
     try:
-        canopen_monitor.DEBUG = args.debug
-        canmonitor = MonitorApp(dev_names, table_schema)
         canmonitor.start()
+    except KeyboardInterrupt:
+        print('Stopping {}...'.format(canopen_monitor.APP_NAME))
     finally:
         # Ensure that the application is properly stopped
         #   and that all of its threads are gracefully closed out
         canmonitor.stop()
+        print('Goodbye!')
 
 
 if __name__ == "__main__":

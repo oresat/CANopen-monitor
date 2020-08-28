@@ -10,13 +10,13 @@ class TestUtilities(unittest.TestCase):
         """
         Overload canopen_monitor config paths to build a dummy environment
         """
-        canopen_monitor.CANMONITOR_CONFIG_DIR = os.path.abspath('tests/config-env') \
+        canopen_monitor.CONFIG_DIR = os.path.abspath('tests/config-env') \
             + os.sep
-        canopen_monitor.CANMONITOR_DEVICES_CONFIG = canopen_monitor.CANMONITOR_CONFIG_DIR \
+        canopen_monitor.CONFIG_DIR = canopen_monitor.CONFIG_DIR \
             + 'devices.json'
-        canopen_monitor.CANMONITOR_LAYOUT_CONFIG = canopen_monitor.CANMONITOR_CONFIG_DIR \
+        canopen_monitor.LAYOUT_CONFIG = canopen_monitor.LAYOUT_CONFIG \
             + 'layout.json'
-        canopen_monitor.CANMONITOR_NODES_CONFIG = canopen_monitor.CANMONITOR_CONFIG_DIR \
+        canopen_monitor.NODES_CONFIG = canopen_monitor.NODES_CONFIG \
             + 'nodes.json'
 
         utils.generate_config_dirs()
@@ -25,14 +25,14 @@ class TestUtilities(unittest.TestCase):
         """
         Ensure test environment is cleared out.
         """
-        shutil.rmtree(canopen_monitor.CANMONITOR_CONFIG_DIR)
+        shutil.rmtree(canopen_monitor.CONFIG_DIR)
 
     def test_config_dir_generator_good(self):
         """
         Test that `generate_config_dirs()` correctly generates
         the config dirs needed.
         """
-        self.assertTrue(os.path.exists(canopen_monitor.CANMONITOR_CONFIG_DIR))
+        self.assertTrue(os.path.exists(canopen_monitor.CONFIG_DIR))
 
     def test_generate_devices_good(self):
         """
@@ -40,8 +40,8 @@ class TestUtilities(unittest.TestCase):
         the default devices config and that it can be read back.
         """
         expected = ['can0']
-        utils.config_factory(canopen_monitor.CANMONITOR_DEVICES_CONFIG)
-        config = utils.load_config(canopen_monitor.CANMONITOR_DEVICES_CONFIG)
+        utils.config_factory(canopen_monitor.DEVICES_CONFIG)
+        config = utils.load_config(canopen_monitor.DEVICES_CONFIG)
         self.assertEqual(expected, config)
 
     def test_generate_node_good(self):
@@ -50,8 +50,8 @@ class TestUtilities(unittest.TestCase):
         the default node name override config and that it can be read back.
         """
         expected = {'64': "MDC"}
-        utils.config_factory(canopen_monitor.CANMONITOR_NODES_CONFIG)
-        config = utils.load_config(canopen_monitor.CANMONITOR_NODES_CONFIG)
+        utils.config_factory(canopen_monitor.NODES_CONFIG)
+        config = utils.load_config(canopen_monitor.NODES_CONFIG)
         self.assertEqual(expected, config)
 
     def test_generate_layout_good(self):
@@ -107,6 +107,6 @@ class TestUtilities(unittest.TestCase):
                     'UKOWN'
                 ]
             }]}
-        utils.config_factory(canopen_monitor.CANMONITOR_LAYOUT_CONFIG)
-        config = utils.load_config(canopen_monitor.CANMONITOR_LAYOUT_CONFIG)
+        utils.config_factory(canopen_monitor.LAYOUT_CONFIG)
+        config = utils.load_config(canopen_monitor.LAYOUT_CONFIG)
         self.assertEqual(expected, config)
