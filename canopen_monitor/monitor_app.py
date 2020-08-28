@@ -1,10 +1,11 @@
-import curses
 import time
-import canopen_monitor
-import canopen_monitor.canmsgs.magic_can_bus as mcb
+import curses
 import threading
-from canopen_monitor.ui.grid import Grid, Split
+import canopen_monitor
 from canopen_monitor.ui.pane import Pane
+from canopen_monitor.ui.grid import Grid, Split
+from canopen_monitor.parser.canopen import CANOpenParser
+from canopen_monitor.canmsgs.magic_can_bus import MagicCANBus
 
 
 class PopupWindow:
@@ -52,7 +53,7 @@ class MonitorApp:
     ---------
     """
 
-    def __init__(self, devices, table_schema):
+    def __init__(self, devices, table_schema, eds_configs):
         # Monitor setup
         self.screen = curses.initscr()  # Initialize standard out
         self.screen.scrollok(True)      # Enable window scroll
@@ -61,7 +62,8 @@ class MonitorApp:
 
         # Bus things
         self.devices = devices
-        self.bus = mcb.MagicCANBus(self.devices)
+        self.bus = MagicCANBus(self.devices)
+        self.parser = CANOpenParser(eds_configs)
 
         # panel selection things
         self.panel_index = 0       # Index to get to selected panel
@@ -74,7 +76,7 @@ class MonitorApp:
 
         # Curses configuration
         curses.savetty()        # Save the terminal state
-        # curses.raw()            # Enable raw input (DISABLES SIGNALS)
+        curses.raw()            # Enable raw input (DISABLES SIGNALS)
         curses.noecho()         # Disable user-input echo
         curses.cbreak()         # Disable line-buffering (less input delay)
         curses.curs_set(False)  # Disable the cursor display
@@ -91,38 +93,27 @@ class MonitorApp:
         self.construct_grid(table_schema)
 
     def start(self):
-        try:
-            while not self.stop_listening.is_set():
-                # Get CanBus input
-                data = self.bus.receive()
-                if(data is not None):
-                    self.parent.add_frame(data)
+        while not self.stop_listening.is_set():
+            # Get CanBus input
+            data = self.bus.receive()
+            if(data is not None):
+                self.parent.add_frame(data)
 
-                # Get user input
-                self.read_input()
+            # Get user input
+            self.read_input()
 
-                # Draw the screen
-                try:
-                    self.screen_lock.acquire()
-                    self.draw_banner()
-                    self.parent.draw()
-                    self.screen_lock.release()
-                except Exception as e:
-                    PopupWindow(self.screen, str(e))
-                    self.screen_lock.release()
-        except KeyboardInterrupt:
-            pass
-        finally:
-            self.stop()
+            # Draw the screen
+            self.screen_lock.acquire()
+            self.draw_banner()
+            self.parent.draw()
+            self.screen_lock.release()
 
     def stop(self):
-        # self.screen_lock.acquire()  # Acquire the screen lock
         curses.nocbreak()           # Re-enable line-buffering
         curses.echo()               # Enable user-input echo
         curses.curs_set(True)       # Enable the cursor
         curses.resetty()            # Restore the terminal state
         curses.endwin()             # Destroy the virtual screen
-        # self.screen_lock.release()  # Release the screen lock
         self.stop_listening.set()   # Signal the bus threads to stop
 
         if(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
@@ -160,9 +151,10 @@ class MonitorApp:
         elif(key == curses.KEY_F1):
             window_message = '\n'.join([canopen_monitor.APP_DESCRIPTION,
                                         'Author: ' + canopen_monitor.APP_AUTHOR,
-                                        'Website: ' + canopen_monitor.APP_URL,
+                                        'Email: ' + canopen_monitor.APP_EMAIL,
                                         'License: ' + canopen_monitor.APP_LICENSE,
-                                        'Version: ' + canopen_monitor.APP_VERSION])
+                                        'Version: ' + canopen_monitor.APP_VERSION,
+                                        'Website: ' + canopen_monitor.APP_URL])
             PopupWindow(self.screen,
                         window_message,
                         banner='About ' + canopen_monitor.APP_NAME,
@@ -170,7 +162,7 @@ class MonitorApp:
         elif(key == curses.KEY_F2):
             PopupWindow(self.screen, "<Ctrl+C>: Exit program\
                                      \n\nInfo:\
-                                     \n\t<F1>: About\
+                                     \n\t<F1>: App Info\
                                      \n\t<F2>: Controls\
                                      \n\nMovement:\
                                      \n\t<UP>: Scroll up\
@@ -212,7 +204,7 @@ class MonitorApp:
 
             self.screen.addstr(dev + " ", curses.color_pair(color))
 
-        hottip = '<F2>: Controls'
+        hottip = '<F1: Info> <F2: Controls>'
         self.screen.addstr(0, width - len(hottip), hottip)
 
     def update_selected_panel(self):
@@ -249,6 +241,7 @@ class MonitorApp:
                 dead_time = schema.get('dead_node_timeout')
                 frame_types = schema.get('frame_types')
                 component = Pane(name,
+                                 self.parser,
                                  capacity=capacity,
                                  stale_time=stale_time,
                                  dead_time=dead_time,

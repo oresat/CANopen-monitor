@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BUS_LIST_PATH=~/.config/canmonitor/devices.json
+BUS_LIST_PATH=~/.config/canopen-monitor/devices.json
 BUS_LIST=$(cat $BUS_LIST_PATH | cut -d'[' -f1 | cut -d']' -f1 | sed 's/,//g' | xargs)
 PID_LIST=()
 

@@ -1,14 +1,13 @@
 import unittest
 import os
-
-from canopen_monitor.parser.eds import *
+import canopen_monitor.parser.eds as eds
 
 TEST_FILENAME = os.path.join(os.path.dirname(__file__), 'data/star_tracker_OD.eds')
 
 
 class TestEDS(unittest.TestCase):
     def setUp(self):
-        self.eds = load_eds_file(TEST_FILENAME)
+        self.eds = eds.load_eds_file(TEST_FILENAME)
 
     def test_parse_index(self):
         """

@@ -3,8 +3,10 @@ import json
 import canopen_monitor
 
 
-def generate_config_dirs(exist_ok: bool = True):
+def generate_dirs(exist_ok: bool = True):
     os.makedirs(canopen_monitor.CONFIG_DIR, exist_ok=exist_ok)
+    os.makedirs(canopen_monitor.CACHE_DIR, exist_ok=exist_ok)
+    os.makedirs(canopen_monitor.EDS_DIR, exist_ok=exist_ok)
 
 
 def load_config(filename: str):

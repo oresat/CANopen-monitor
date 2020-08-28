@@ -5,6 +5,7 @@ import canopen_monitor.canmsgs.canmsg_table as cmt
 class Pane(cmt.CANMsgTable):
     def __init__(self,
                  name,
+                 parser,
                  capacity=None,
                  stale_time=60,
                  dead_time=600,
@@ -15,6 +16,7 @@ class Pane(cmt.CANMsgTable):
                          stale_time=stale_time,
                          dead_time=dead_time)
         # Pane properties
+        self.parser = parser
         self.fields = fields
         self.frame_types = frame_types
         self.parent = curses.newwin(0, 0)
@@ -75,7 +77,9 @@ class Pane(cmt.CANMsgTable):
         for i, id in enumerate(self.ids()):
             if(self.selected and i == self.scroll_position):
                 self.pad.attron(style | curses.A_BOLD)
-            self.pad.addstr(i, 1, "#" + str(i + 1) + ": " + str(self.table[id]))
+            data = self.table[id].data
+
+            self.pad.addstr(i, 1, self.parser.parse(id, data))
             self.pad.attroff(style | curses.A_BOLD)
 
         self.parent.refresh()
