@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
 [![PyPi](https://img.shields.io/pypi/pyversions/canopen-monitor?label=pypi)](https://pypi.org/project/canopen-monitor)
 [![Trello](https://img.shields.io/badge/Trello-Backlog-blue)](https://trello.com/b/PWuRFBh1/canopen-monitor)
-[![Unit Tests](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/CAN%20Monitor%20Unit%20Tests?label=unit%20tests)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22CAN+Monitor+Unit+Tests)
+[![Unit Tests](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Unit%20Tests?label=unit%20tests)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Unit+Tests)
 [![Build](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Upload%20Python%20Package)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Upload+Python+Package)
 [![Issues](https://img.shields.io/github/issues/oresat/CANopen-monitor)](https://github.com/oresat/CANopen-monitor/issues)
 

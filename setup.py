@@ -12,7 +12,6 @@ setuptools.setup(
     version=canopen_monitor.APP_VERSION,
     author=canopen_monitor.APP_AUTHOR,
     license=canopen_monitor.APP_LICENSE,
-    license_file='./LICENSE',
     description=canopen_monitor.APP_DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',

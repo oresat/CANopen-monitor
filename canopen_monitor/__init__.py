@@ -2,7 +2,7 @@ import os.path
 
 MAJOR = 2
 MINOR = 9
-PATCH = 10
+PATCH = 11
 
 APP_NAME = 'canopen-monitor'
 APP_DESCRIPTION = 'A utility for displaying and tracking activity over the CAN bus.'
