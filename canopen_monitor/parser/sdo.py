@@ -1,4 +1,4 @@
-from struct import unpack
+from canopen_monitor.parser.utilities import *
 
 # EDS Data Types (Move to utilities?)
 BOOLEAN = '0x0001'
@@ -915,7 +915,7 @@ class SDOParser:
             if sdo_type == SDO_TX:
                 self.__is_complete = True
 
-            return self.__decode()
+            return f"Downloaded - {self.__inProgressName}: {decode(self.__inProgressType, self.__data)}"
 
         if current_download_initiate.size_indicator:
             self.__dataSize = current_download_initiate.data
@@ -929,7 +929,7 @@ class SDOParser:
 
         if self.__is_expedited:
             self.__is_complete = True
-            return self.__decode()
+            return f"Downloaded - {self.__inProgressName}: {decode(self.__inProgressType, self.__data)}"
 
         return self.__inProgressName + " 0%"
 
@@ -1039,37 +1039,7 @@ class SDOParser:
         return "Block download done - " + self.__inProgressName
 
     def __set_name(self, eds, index: bytes):
-        key = int(index[:2].hex(), 16)
-        subindex_key = int(index[2:3].hex(), 16)
-        result = eds[key].parameter_name
+        values = get_name(eds, index)
+        self.__inProgressType = values[0]
+        self.__inProgressName = values[1]
 
-        if eds[key].sub_indices is not None:
-            result += " " + eds[key].sub_indices[subindex_key].parameter_name
-            self.__inProgressType = eds[key].sub_indices[subindex_key].data_type
-        else:
-            self.__inProgressType = eds[key].data_type
-
-        self.__inProgressName = result
-
-    def __decode(self):
-        if self.__inProgressType in (UNSIGNED8, UNSIGNED16, UNSIGNED32, UNSIGNED64):
-            result = str(int.from_bytes(self.__data, byteorder="big", signed=False))
-        elif self.__inProgressType in (INTEGER8, INTEGER16, INTEGER32, INTEGER64):
-            result = str(int.from_bytes(self.__data, byteorder="big", signed=True))
-        elif self.__inProgressType == BOOLEAN:
-            if int.from_bytes(self.__data, byteorder="big", signed=False) > 0:
-                result = str(True)
-            else:
-                result = str(False)
-        elif self.__inProgressType in (REAL32, REAL64):
-            result = str(unpack('>f', self.__data)[0])
-        elif self.__inProgressType == VISIBLE_STRING:
-            result = self.__data.decode('utf-8')
-        elif self.__inProgressType in (OCTET_STRING, DOMAIN):
-            result = self.__data.hex()
-        elif self.__inProgressType == UNICODE_STRING:
-            result = self.__data.decode('utf-16-be')
-        else:
-            raise ValueError(f"Invalid data type {self.__inProgressType}. Unable to decode data {self.__data.hex()}")
-
-        return "Downloaded - " + self.__inProgressName + ": " + result
