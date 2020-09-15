@@ -1,10 +1,10 @@
 [FileInfo]
-FileName=star_tracker_OD.eds
+FileName=CFC_OD.eds
 FileVersion=0
 FileRevision=0
 LastEDS=
 EDSVersion=4.0
-Description=OreSat Star Tracker Board Object Dictionary
+Description=OreSat CFC board Object Dictionary
 CreationTime=11:32AM
 CreationDate=11-07-2019
 CreatedBy=Ryan Medick
@@ -15,7 +15,7 @@ ModifiedBy=
 [DeviceInfo]
 VendorName=Portland State Aerospace Society
 VendorNumber=0
-ProductName=OreSat Star Tracker
+ProductName=Cirrus Flux Camera
 ProductNumber=0
 RevisionNumber=0
 BaudRate_10=1
@@ -1097,7 +1097,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000180+$NODEID
+DefaultValue=$NODEID+0x180
 PDOMapping=0
 
 [1800sub2]
@@ -1115,7 +1115,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0006
 AccessType=rw
-DefaultValue=0
+DefaultValue=100
 PDOMapping=0
 
 [1800sub4]
@@ -1133,7 +1133,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0006
 AccessType=rw
-DefaultValue=5000
+DefaultValue=0
 PDOMapping=0
 
 [1800sub6]
@@ -1166,7 +1166,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000280+$NODEID
+DefaultValue=$NODEID+0x280
 PDOMapping=0
 
 [1801sub2]
@@ -1202,7 +1202,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0006
 AccessType=rw
-DefaultValue=5000
+DefaultValue=0
 PDOMapping=0
 
 [1801sub6]
@@ -1364,7 +1364,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=2
+DefaultValue=0
 PDOMapping=0
 
 [1A00sub1]
@@ -1373,7 +1373,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x31010120
+DefaultValue=0x00000000
 PDOMapping=0
 
 [1A00sub2]
@@ -1382,7 +1382,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x31010220
+DefaultValue=0x00000000
 PDOMapping=0
 
 [1A00sub3]
@@ -1451,7 +1451,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=2
+DefaultValue=0
 PDOMapping=0
 
 [1A01sub1]
@@ -1460,7 +1460,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x31010320
+DefaultValue=0x00000000
 PDOMapping=0
 
 [1A01sub2]
@@ -1469,7 +1469,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x31010420
+DefaultValue=0x00000000
 PDOMapping=0
 
 [1A01sub3]
@@ -1710,7 +1710,7 @@ DefaultValue=0x00000000
 PDOMapping=0
 
 [ManufacturerObjects]
-SupportedObjects=22
+SupportedObjects=19
 1=0x2100
 2=0x2101
 3=0x2102
@@ -1730,9 +1730,6 @@ SupportedObjects=22
 17=0x3006
 18=0x30F0
 19=0x30F1
-20=0x3100
-21=0x3101
-22=0x3102
 
 [2100]
 ParameterName=Error status bits
@@ -1749,7 +1746,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0x12
+DefaultValue=0x22
 PDOMapping=0
 
 [2102]
@@ -2092,7 +2089,7 @@ DefaultValue=
 PDOMapping=0
 
 [3002subA]
-ParameterName=This is for testing
+ParameterName=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x000F
@@ -4601,73 +4598,3 @@ DataType=0x000F
 AccessType=wo
 DefaultValue=0
 PDOMapping=0
-
-[3100]
-ParameterName=Test Camera
-ObjectType=0x7
-;StorageLocation=RAM
-DataType=0x0002
-AccessType=rw
-DefaultValue=0
-PDOMapping=0
-
-[3101]
-ParameterName=Orientation
-ObjectType=0x9
-;StorageLocation=RAM
-SubNumber=0x5
-
-[3101sub0]
-ParameterName=max sub-index
-ObjectType=0x7
-;StorageLocation=RAM
-DataType=0x0005
-AccessType=ro
-DefaultValue=4
-PDOMapping=0
-
-[3101sub1]
-ParameterName=declination
-ObjectType=0x7
-;StorageLocation=RAM
-DataType=0x0008
-AccessType=rw
-DefaultValue=0
-PDOMapping=1
-
-[3101sub2]
-ParameterName=right ascension
-ObjectType=0x7
-;StorageLocation=RAM
-DataType=0x0008
-AccessType=rw
-DefaultValue=0
-PDOMapping=1
-
-[3101sub3]
-ParameterName=orientation
-ObjectType=0x7
-;StorageLocation=RAM
-DataType=0x0008
-AccessType=rw
-DefaultValue=0
-PDOMapping=1
-
-[3101sub4]
-ParameterName=timestamp
-ObjectType=0x7
-;StorageLocation=RAM
-DataType=0x0008
-AccessType=rw
-DefaultValue=0
-PDOMapping=1
-
-[3102]
-ParameterName=Last Aolved filepath
-ObjectType=0x7
-;StorageLocation=RAM
-DataType=0x0009
-AccessType=rw
-DefaultValue=none
-PDOMapping=0
-

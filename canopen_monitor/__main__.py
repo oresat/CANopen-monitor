@@ -2,7 +2,7 @@ import os
 import argparse
 import canopen_monitor
 import canopen_monitor.utilities as utils
-from canopen_monitor.parser.eds import load_eds_file
+import canopen_monitor.parser.eds as eds
 from canopen_monitor.monitor_app import MonitorApp
 from json.decoder import JSONDecodeError
 
@@ -24,6 +24,9 @@ def main():
                         default="",
                         help='specify additional busses to listen on')
     args = parser.parse_args()
+
+    # Set important app-runtime flags
+    canopen_monitor.DEBUG = args.debug
 
     # Guarentee the config directory exists
     utils.generate_dirs()
@@ -78,13 +81,20 @@ def main():
                             destroy it so that Can Monitor can regenerate it!")
 
     # Fetch all of the EDS files that exist
-    eds_configs = []
-    files = os.listdir(canopen_monitor.EDS_DIR)
-    for file in files:
-        eds_configs.append(load_eds_file(file))
+    eds_configs = {}
+    for file in os.listdir(canopen_monitor.EDS_DIR):
+        file = canopen_monitor.EDS_DIR + file
+        eds_config = eds.load_eds_file(file)
+        node_id = eds_config[int("2101", 16)].default_value
+
+        if(canopen_monitor.DEBUG):
+            print('Loaded config for {}({}) witn {} registered subindicies!'
+                  .format(eds_config.device_info.product_name,
+                          node_id,
+                          len(eds_config)))
+        eds_configs[node_id] = eds_config
 
     # Create the app
-    canopen_monitor.DEBUG = args.debug
     canmonitor = MonitorApp(dev_names, table_schema, eds_configs)
 
     # Attempt to start the application

@@ -1,3 +1,4 @@
+from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
 # EDS Data Types (Move to utilities?)
@@ -851,7 +852,7 @@ class SDOParser:
     def is_complete(self):
         return self.__is_complete
 
-    def parse(self, cob_id, eds, data: bytes):
+    def parse(self, cob_id, eds: EDS, data: bytes):
         if 0x580 <= cob_id < 0x600:
             sdo_type = SDO_TX
         elif 0x600 <= cob_id < 0x680:
@@ -1042,4 +1043,3 @@ class SDOParser:
         values = get_name(eds, index)
         self.__inProgressType = values[0]
         self.__inProgressName = values[1]
-

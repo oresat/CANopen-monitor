@@ -1,7 +1,8 @@
 from struct import unpack
+from canopen_monitor.parser.eds import EDS, Index
 
 
-def get_name(eds, index: bytes):
+def get_name(eds: EDS, index: bytes):
     key = int(index[:2].hex(), 16)
     subindex_key = int(index[2:3].hex(), 16)
     result = eds[key].parameter_name

@@ -6,7 +6,7 @@ from canopen_monitor.parser.sdo import SDOParser
 
 
 class CANOpenParser:
-    def __init__(self, eds_configs):
+    def __init__(self, eds_configs: dict):
         self.sdo = SDOParser()
         self.eds_configs = eds_configs
 
@@ -18,9 +18,19 @@ class CANOpenParser:
         elif(cob_id >= 0x80 and cob_id < 0x180):
             response = EMCYParser.parse(data)
         elif(cob_id >= 0x180 and cob_id < 0x580):
-            response = PDOParser.parse(cob_id, self.eds_configs[0][0], data)
+            node_id = cob_id - 0x180
+            eds_config = self.eds_configs.get(node_id)
+            if(eds_config is None):
+                response = "PDO PARSER NOT FOUND FOR NODE ID #{}".format(node_id)
+            else:
+                response = PDOParser.parse(cob_id, eds_config, data)
         elif(cob_id >= 0x580 and cob_id < 0x700):
-            response = self.sdo.parse(cob_id, self.eds_configs[0][0], data)
+            node_id = cob_id - 0x180
+            eds_config = self.eds_configs.get(node_id)
+            if(eds_config is None):
+                response = "SDO PARSER NOT FOUND FOR NODE ID #{}".format(node_id)
+            else:
+                response = self.sdo.parse(cob_id, eds_config, data)
         elif(cob_id >= 0x700 and cob_id < 0x7E4):
             response = HBParser.parse(data)
 
