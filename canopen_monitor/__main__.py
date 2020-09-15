@@ -85,7 +85,7 @@ def main():
     for file in os.listdir(canopen_monitor.EDS_DIR):
         file = canopen_monitor.EDS_DIR + file
         eds_config = eds.load_eds_file(file)
-        node_id = eds_config[int("2101", 16)].default_value
+        node_id = eds_config[2101].default_value
 
         if(canopen_monitor.DEBUG):
             print('Loaded config for {}({}) witn {} registered subindicies!'
@@ -93,6 +93,12 @@ def main():
                           node_id,
                           len(eds_config)))
         eds_configs[node_id] = eds_config
+
+
+    # for k, v in eds_configs.items():
+    #     print('{}: {}'.format(hex(int(k, 16)), v))
+    #
+    # import sys; sys.exit(0)
 
     # Create the app
     canmonitor = MonitorApp(dev_names, table_schema, eds_configs)

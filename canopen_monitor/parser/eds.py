@@ -96,9 +96,9 @@ class EDS:
 
                 if all(c in string.hexdigits for c in id[0]):
                     if len(id) == 1:
-                        self.indices[int(id[0], 16)] = Index(section[1:])
+                        self.indices[hex(int(id[0], 16))] = Index(section[1:])
                     else:
-                        self.indices[int(id[0], 16)].add(Index(section[1:], sub_id=int(id[1], 16)))
+                        self.indices[hex(int(id[0], 16))].add(Index(section[1:], sub_id=int(id[1], 16)))
                 else:
                     name = section[0][1:-1]
                     self.__setattr__(cmp.camel_to_snake(name),
@@ -109,7 +109,7 @@ class EDS:
         return  sum(map(lambda x: len(x), self.indices.values()))
 
     def __getitem__(self, key: int) -> Index:
-        return self.indices.get(key)
+        return self.indices.get(hex(int(str(key), 16)))
 
 
 def load_eds_file(filepath: str) -> EDS:

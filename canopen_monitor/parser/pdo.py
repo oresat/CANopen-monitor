@@ -1,5 +1,5 @@
 from math import ceil, floor
-# from canopen_monitor.parser.eds import EDS
+from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
 PDO1_TX = 0x1A00
