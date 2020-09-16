@@ -1,9 +1,10 @@
 from canopen_monitor.parser.eds import EDS
 
 heartbeat_statuses = {0x00: "Initializing",
-                      0x04: "Stopped",
+                      0x02: "Stopped",
                       0x05: "Operational",
                       0x7f: "Pre-Operational"}
+
 
 def parse(eds_config: EDS, data: bytes):
     data = int(str(data[0]), 16)

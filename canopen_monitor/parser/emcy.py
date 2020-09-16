@@ -1,5 +1,6 @@
 import string
 
+
 def parse(data: bytes):
     message = EMCY(data)
     return message.error_message

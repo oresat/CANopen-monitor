@@ -74,12 +74,18 @@ class Pane(cmt.CANMsgTable):
         self.parent.addstr(")")
         self.parent.attroff(style | curses.A_REVERSE)
 
+        # Pane banner
+        self.pad.addstr(0, 1, '{}{}'.format('COB ID'.ljust(10, ' '),
+                                            'Message'))
+
         for i, id in enumerate(self.ids()):
             if(self.selected and i == self.scroll_position):
                 self.pad.attron(style | curses.A_BOLD)
             data = self.table[id].data
 
-            self.pad.addstr(i, 1, self.parser.parse(id, data))
+            msg = "{}{}".format(hex(id).ljust(10, ' '),
+                                self.parser.parse(id, data))
+            self.pad.addstr(i + 1, 1, msg)
             self.pad.attroff(style | curses.A_BOLD)
 
         self.parent.refresh()
@@ -87,7 +93,12 @@ class Pane(cmt.CANMsgTable):
         scroll_offset = self.scroll_position
         if(self.scroll_position + (height - 3) > len(self.table)):
             scroll_offset = len(self.table) - (height - 3)
-        self.pad.refresh(scroll_offset, 0, y_offset + 1, x_offset + 1, y_offset + height - 2, x_offset + width - 2)
+        self.pad.refresh(scroll_offset,
+                         0,
+                         y_offset + 1,
+                         x_offset + 1,
+                         y_offset + height - 2,
+                         x_offset + width - 2)
 
     def clear(self):
         self.pad.clear()

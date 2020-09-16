@@ -25,7 +25,9 @@ class PopupWindow:
             window.addstr(1 + i, 1, m.ljust(long, ' '))
         window.box()
         window.addstr(0, 1, banner + ":", curses.A_UNDERLINE | style)
-        window.addstr(len(message) + 1, long - len(any_key_message), any_key_message)
+        window.addstr(len(message) + 1,
+                      long - len(any_key_message),
+                      any_key_message)
 
         window.attroff(style)
 
