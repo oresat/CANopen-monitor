@@ -1,15 +1,20 @@
-from canopen_monitor.parser.eds import EDS
+"""
+Parse Heartbeat message
 
-heartbeat_statuses = {0x00: "Initializing",
-                      0x02: "Stopped",
-                      0x05: "Operational",
-                      0x7f: "Pre-Operational"}
+@:param: data: a byte string containing the heartbeat message
+@:returns: string describing the message
+"""
 
 
-def parse(eds_config: EDS, data: bytes):
-    data = int(str(data[0]), 16)
-    status = heartbeat_statuses.get(data)
+def parse(data: bytes):
+    states = {
+        0x00: "Boot-up",
+        0x04: "Stopped",
+        0x05: "Operational",
+        0x7F: "Pre-operational"
+    }
 
-    if(status is None):
-        status = "Unknown Status"
-    return '{}: {}'.format(eds_config.device_info.product_name, status)
+    if int.from_bytes(data, "big") in states:
+        return f"Heartbeat - {states[int.from_bytes(data, 'big')]}"
+    else:
+        raise ValueError("Invalid heartbeat state detected")
