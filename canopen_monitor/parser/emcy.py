@@ -1,3 +1,6 @@
+import string
+
+
 def parse(data: bytes):
     message = EMCY(data)
     return message.error_message
@@ -88,7 +91,8 @@ def determine_error_message(error_code):
         0xFF00: "Device specific - generic error"
     }
 
-    if int(error_code.hex(), 16) in error_codes:
+    if(all(c in string.hexdigits for c in str(error_code)) \
+       and int(error_code.hex(), 16) in error_codes):
         return error_codes[int(error_code.hex(), 16)]
     else:
         return "Error code not found"

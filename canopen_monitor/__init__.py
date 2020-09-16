@@ -1,8 +1,9 @@
 import os.path
+import canopen_monitor
 
 MAJOR = 2
 MINOR = 9
-PATCH = 11
+PATCH = 12
 
 APP_NAME = 'canopen-monitor'
 APP_DESCRIPTION = 'A utility for displaying and tracking activity over the CAN bus.'
@@ -14,7 +15,8 @@ APP_LICENSE = 'GPL-3.0'
 
 CONFIG_DIR = os.path.expanduser('~/.config/{}'.format(APP_NAME)) + os.sep
 CACHE_DIR = os.path.expanduser('~/.cache/{}'.format(APP_NAME)) + os.sep
-EDS_DIR = CACHE_DIR + 'eds' + os.sep
+ASSETS_DIR = os.path.abspath(canopen_monitor.__path__[0] + os.sep + 'assets') + os.sep
+EDS_DIR = ASSETS_DIR
 DEVICES_CONFIG = CONFIG_DIR + 'devices.json'
 LAYOUT_CONFIG = CONFIG_DIR + 'layout.json'
 NODES_CONFIG = CONFIG_DIR + 'nodes.json'

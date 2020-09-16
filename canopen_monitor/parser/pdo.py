@@ -1,4 +1,5 @@
 from math import ceil, floor
+from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
 PDO1_TX = 0x1A00
@@ -11,7 +12,7 @@ PDO4_TX = 0x1A03
 PDO4_RX = 0x1603
 
 
-def parse(cob_id, eds, data: bytes):
+def parse(cob_id, eds: EDS, data: bytes):
     """
     PDO mappings come from the eds file and is dependent on the type (Reciving/transmission PDO).
     mapping value is made up of index subindex and size. For Example 0x31010120 Means 3101sub01 size 32bit
@@ -38,7 +39,8 @@ def parse(cob_id, eds, data: bytes):
     else:
         raise ValueError(f"Unable to determine pdo type with given cob_id {hex(cob_id)}")
 
-    num_elements = int(eds[pdo_type].sub_indices[0].default_value)
+    # num_elements = int(eds[pdo_type].sub_indices[0].default_value)
+    num_elements = int(eds[pdo_type][0].default_value)
     if num_elements < 0x40:
         return parse_pdo(num_elements, pdo_type, eds, data)
 

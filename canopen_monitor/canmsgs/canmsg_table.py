@@ -22,7 +22,14 @@ class CANMsgTable:
         else:
             self.table[frame.id] = frame
 
-    def ids(self): return sorted(self.table.keys())
-    def __len__(self): return len(self.table)
-    def __str__(self): return self.name
-    def __getitem__(self, key): return self.table.get(key)
+    def ids(self):
+        return sorted(self.table.keys())
+
+    def __len__(self):
+        return len(self.table)
+
+    def __str__(self):
+        return self.name
+
+    def __getitem__(self, key):
+        return self.table.get(key)

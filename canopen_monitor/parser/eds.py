@@ -1,112 +1,127 @@
 """EDS File Parser Interface"""
-from re import finditer
-from dateutil.parser import parse as dtparse
 import string
-
-
-def camel_to_snake(string):
-    res = ""
-
-    if (string[0] != ';'):
-        for i in finditer('[A-Z0-9][a-z0-9]*', string):
-            span = i.span()
-            if (span[0] != 0):
-                res += '_'
-            res += string[span[0]:span[1]].lower()
-    return res
+import canopen_monitor.parser as cmp
+from dateutil.parser import parse as dtparse
 
 
 class Metadata:
-    def __init__(self, name, data):
-        self.name = name
-
+    def __init__(self, data):
+        # Process all sub-data
         for e in data:
+            # Skip comment lines
+            if(e[0] == ';'):
+                continue
+
+            # Separate field name from field value
             key, value = e.split('=')
-            key = camel_to_snake(key)
+
+            # Create the proper field name
+            key = cmp.camel_to_snake(key)
+
+            # Turn date-time-like objects into datetimes
             if ('time' in key):
                 value = dtparse(value).time()
             elif ('date' in key):
                 value = dtparse(value).date()
-            self.__setattr__(key, value)
 
-    def __str__(self):
-        res = self.name + ':\n'
-        for key, value in self.__dict__.items():
-            res += '\t\t' + str(key) + ': ' + str(value) + '\n'
-        return res
+            # Set the attribute
+            self.__setattr__(key, value)
 
 
 class Index:
     """
-    Index Class is used to contain data from a single section of a .eds file
+    Index Class is used to contain data from a single section of an .eds file
     Note: Not all possible properties are stored
     """
 
-    def __init__(self, id, data, sub_id=None):
-        self.id = id
-
+    def __init__(self, data, sub_id=None):
+        # Determine if this is a parent index or a child index
         if (sub_id is None):
+            self.is_parent = True
             self.sub_indices = []
         else:
+            self.is_parent = False
             self.sub_id = sub_id
+            self.sub_indices = None
 
+        # Process all sub-data
         for e in data:
-            key, value = e.split('=')
-            if (value.isnumeric()):
-                value = int(value)
-            self.__setattr__(camel_to_snake(key), value)
+            # Skip commented lines
+            if(e[0] == ';'):
+                continue
 
-    def add_subindex(self, index):
+            # Separate field name from field value
+            key, value = e.split('=')
+
+            # Turn number-like objects into numbers
+            if(value != ''):
+                if (all(c in string.digits for c in value)):
+                    value = int(value, 10)
+                elif(all(c in string.hexdigits for c in value)):
+                    value = int(value, 16)
+
+            self.__setattr__(cmp.camel_to_snake(key), value)
+
+    def add(self, index) -> None:
         self.sub_indices.append(index)
 
-    def get_subindex(self, i):
-        return filter(lambda x: x.sub_id == i, self.sub_indices)
+    def __getitem__(self, key: int):
+        return list(filter(lambda x: x.sub_id == key, self.sub_indices))[0]
 
-    def __str__(self):
-        res = str(self.id)
-        if (self.sub_indices is not None):
-            res += "(sub-indicies: " + str(len(self.sub_indices)) + "):\n"
-        for key, value in self.__dict__.items():
-            res += "\t" + str(key) + ': ' + str(value) + '\n'
-        return res
+    def __len__(self) -> int:
+        if(self.sub_indices is None):
+            return 1
+        else:
+            return 1 + sum(map(lambda x: len(x), self.sub_indices))
 
 
-def parse(eds_data):
-    """
-    Parse the array of EDS lines into a dictionary of Metadata/Index objects.
-    """
-    indices = {}
+class EDS:
+    def __init__(self, eds_data: [str]):
+        """
+        Parse the array of EDS lines into a dictionary of Metadata/Index objects.
 
-    prev = 0
-    for i, line in enumerate(eds_data):
-        if line == '':
-            section = eds_data[prev:i]
-            id = section[0][1:-1].split('sub')
+        Parameters
+        ----------
+        eds_data: `[str]` The list of raw lines from the EDS file.
+        """
+        self.indices = {}
 
-            if all(c in string.hexdigits for c in id[0]):
-                if len(id) == 1:
-                    indices[int(id[0], 16)] = Index(int(id[0], 16), section[1:])
+        prev = 0
+        for i, line in enumerate(eds_data):
+            if line == '':
+                section = eds_data[prev:i]
+                id = section[0][1:-1].split('sub')
+
+                if all(c in string.hexdigits for c in id[0]):
+                    if len(id) == 1:
+                        self.indices[hex(int(id[0], 16))] = Index(section[1:])
+                    else:
+                        self.indices[hex(int(id[0], 16))].add(Index(section[1:], sub_id=int(id[1], 16)))
                 else:
-                    indices[int(id[0], 16)].add_subindex(Index(int(id[0], 16),
-                                                               section[1:],
-                                                               sub_id=int(id[1], 16)))
-            else:
-                name = section[0][1:-1]
-                indices[name] = Metadata(name, section[1:])
-            prev = i + 1
-    return indices
+                    name = section[0][1:-1]
+                    self.__setattr__(cmp.camel_to_snake(name),
+                                     Metadata(section[1:]))
+                prev = i + 1
+
+    def __len__(self) -> int:
+        return sum(map(lambda x: len(x), self.indices.values()))
+
+    def __getitem__(self, key: int) -> Index:
+        return self.indices.get(hex(int(str(key), 16)))
 
 
-def load_eds_file(filepath):
+def load_eds_file(filepath: str) -> EDS:
     """
-    Read in the EDS file, grab the raw lines, then parse them and return
-    the dictionary of Metadata/Index objects.
+    Read in the EDS file, grab the raw lines, strip them of all escaped
+    characters, then serialize into an `EDS` and return the resulpythting object.
+
+    Parameters
+    ----------
+    filepath: `str` Path to an eds file.
+
+    Returns
+    -------
+    `EDS`: The succesfully serialized EDS file.
     """
-    raw_lines = []
-
-    file = open(filepath)
-    for line in file:
-        raw_lines.append(line.strip())
-    file.close()
-
-    return parse(raw_lines)
+    with open(filepath) as file:
+        return EDS(list(map(lambda x: x.strip(), file.read().split('\n'))))
