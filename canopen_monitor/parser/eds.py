@@ -90,8 +90,6 @@ class EDS:
         for i, line in enumerate(eds_data):
             if line == '':
                 section = eds_data[prev:i]
-                if(len(section) == 0):
-                    import ipdb; ipdb.set_trace()
                 id = section[0][1:-1].split('sub')
 
                 if all(c in string.hexdigits for c in id[0]):
@@ -106,7 +104,7 @@ class EDS:
                 prev = i + 1
 
     def __len__(self) -> int:
-        return  sum(map(lambda x: len(x), self.indices.values()))
+        return sum(map(lambda x: len(x), self.indices.values()))
 
     def __getitem__(self, key: int) -> Index:
         return self.indices.get(hex(int(str(key), 16)))

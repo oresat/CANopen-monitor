@@ -39,7 +39,8 @@ def parse(cob_id, eds: EDS, data: bytes):
     else:
         raise ValueError(f"Unable to determine pdo type with given cob_id {hex(cob_id)}")
 
-    num_elements = int(eds[pdo_type].sub_indices[0].default_value)
+    # num_elements = int(eds[pdo_type].sub_indices[0].default_value)
+    num_elements = int(eds[pdo_type][0].default_value)
     if num_elements < 0x40:
         return parse_pdo(num_elements, pdo_type, eds, data)
 
