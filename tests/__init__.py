@@ -85,7 +85,7 @@ ObjectType=0x9
 SubNumber=0x5
 
 [1018sub0]
-ParameterName=max sub-index
+ParameterName=unsigned8
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
@@ -94,37 +94,55 @@ DefaultValue=4
 PDOMapping=0
 
 [1018sub1]
-ParameterName=Vendor-ID
+ParameterName=integer8
 ObjectType=0x7
 ;StorageLocation=RAM
-DataType=0x0007
+DataType=0x0002
 AccessType=ro
 DefaultValue=0x00000000
 PDOMapping=0
 
 [1018sub2]
-ParameterName=Product code
+ParameterName=boolean
 ObjectType=0x7
 ;StorageLocation=RAM
-DataType=0x0007
+DataType=0x0001
 AccessType=ro
 DefaultValue=0x00000000
 PDOMapping=0
 
 [1018sub3]
-ParameterName=Revision number
+ParameterName=real32
 ObjectType=0x7
 ;StorageLocation=RAM
-DataType=0x0007
+DataType=0x0008
 AccessType=ro
 DefaultValue=0x00000000
 PDOMapping=0
 
 [1018sub4]
-ParameterName=Serial number
+ParameterName=visible string
 ObjectType=0x7
 ;StorageLocation=RAM
-DataType=0x0007
+DataType=0x0009
+AccessType=ro
+DefaultValue=0x00000000
+PDOMapping=0
+
+[1018sub5]
+ParameterName=octet string
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x000A
+AccessType=ro
+DefaultValue=0x00000000
+PDOMapping=0
+
+[1018sub6]
+ParameterName=unicode string
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x000B
 AccessType=ro
 DefaultValue=0x00000000
 PDOMapping=0
@@ -740,7 +758,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0x02
 PDOMapping=0
 
 [1600sub1]
@@ -749,7 +767,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x31010501
 PDOMapping=0
 
 [1600sub2]
@@ -758,7 +776,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x31010420
 PDOMapping=0
 
 [1600sub3]
@@ -827,7 +845,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0x02
 PDOMapping=0
 
 [1601sub1]
@@ -836,7 +854,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x31010420
 PDOMapping=0
 
 [1601sub2]
@@ -845,7 +863,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x31010501
 PDOMapping=0
 
 [1601sub3]
@@ -1364,7 +1382,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=2
+DefaultValue=1
 PDOMapping=0
 
 [1A00sub1]
@@ -1373,7 +1391,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x31010120
+DefaultValue=0x31010320
 PDOMapping=0
 
 [1A00sub2]
@@ -1538,7 +1556,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0xFE
 PDOMapping=0
 
 [1A02sub1]
@@ -1625,7 +1643,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0xFF
 PDOMapping=0
 
 [1A03sub1]
@@ -4658,6 +4676,15 @@ ParameterName=timestamp
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0008
+AccessType=rw
+DefaultValue=0
+PDOMapping=1
+
+[3101sub5]
+ParameterName=boolean
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0001
 AccessType=rw
 DefaultValue=0
 PDOMapping=1

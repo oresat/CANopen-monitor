@@ -1,7 +1,9 @@
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch, mock_open
 
+from canopen_monitor.parser import eds
 from canopen_monitor.parser.sdo import *
+from tests import TEST_EDS
 
 
 class TestSDO(unittest.TestCase):
@@ -13,39 +15,8 @@ class TestSDO(unittest.TestCase):
         """
         Generate Mocked eds file
         """
-        self.subindex0 = MagicMock(access_type='ro', data_type='0x0005', default_type=4, id=1018, object_type='0x7',
-                                   parameter_name='unsigned8', sub_id=0)
-
-        self.subindex1 = MagicMock(access_type='ro', data_type='0x0002', default_type=4, id=0x1018, object_type='0x7',
-                                   parameter_name='integer8', sub_id=0)
-
-        self.subindex2 = MagicMock(access_type='ro', data_type='0x0001', default_type=4, id=0x1018, object_type='0x7',
-                                   parameter_name='boolean', sub_id=0)
-
-        self.subindex3 = MagicMock(access_type='ro', data_type='0x0008', default_type=4, id=0x1018, object_type='0x7',
-                                   parameter_name='real32', sub_id=0)
-
-        self.subindex4 = MagicMock(access_type='ro', data_type='0x0009', default_type=4, id=0x1018, object_type='0x7',
-                                   parameter_name='visible string', sub_id=0)
-
-        self.subindex5 = MagicMock(access_type='ro', data_type='0x000A', default_type=4, id=0x1018, object_type='0x7',
-                                   parameter_name='octet string', sub_id=0)
-
-        self.subindex6 = MagicMock(access_type='ro', data_type='0x000B', default_type=4, id=0x1018, object_type='0x7',
-                                   parameter_name='unicode string', sub_id=0)
-
-        self.index = MagicMock(id=0x1018, parameter_name='Identity', object_type='0x9', sub_number='0x5',
-                               sub_indices=[self.subindex0, self.subindex1, self.subindex2, self.subindex3,
-                                            self.subindex4, self.subindex5, self.subindex6])
-
-        def get_index(index):
-            if index == 0x1018:
-                return self.index
-            else:
-                raise KeyError(f"Incorrect index retrieved from EDS {index} provided")
-
-        self.eds_data = MagicMock()
-        self.eds_data.__getitem__.side_effect = get_index
+        with patch('builtins.open', mock_open(read_data=TEST_EDS)) as m:
+            self.eds_data = eds.load_eds_file("star_tracker_OD.eds")
 
     def test_expedited_unsigned_int(self):
         """
