@@ -1,4 +1,6 @@
 from math import ceil, floor
+
+from canopen_monitor.parser import FailedValidationError
 from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
@@ -37,17 +39,19 @@ def parse(cob_id, eds: EDS, data: bytes):
     elif 0x500 <= cob_id < 0x580:  # PDO4 rx
         pdo_type = PDO4_RX
     else:
-        raise ValueError(f"Unable to determine pdo type with given cob_id {hex(cob_id)}")
+        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+                                    f"Unable to determine pdo type with given cob_id {hex(cob_id)}, expected value "
+                                    f"between 0x180 and 0x580")
 
-    # num_elements = int(eds[pdo_type].sub_indices[0].default_value)
     num_elements = int(eds[pdo_type][0].default_value)
     if num_elements < 0x40:
         return parse_pdo(num_elements, pdo_type, eds, data)
 
     if num_elements in (0xFE, 0xFF):
-        return parse_mpdo(num_elements, pdo_type, eds, data)
+        return parse_mpdo(num_elements, pdo_type, eds, data, cob_id)
 
-    raise ValueError(f"Invalid pdo mapping detected in eds file at [{pdo_type}sub0]")
+    raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+                                f"Invalid pdo mapping detected in eds file at [{pdo_type}sub0]")
 
 
 def parse_pdo(num_elements, pdo_type, eds, data):
@@ -79,10 +83,11 @@ def parse_pdo(num_elements, pdo_type, eds, data):
     return output_string
 
 
-def parse_mpdo(num_elements, pdo_type, eds, data):
+def parse_mpdo(num_elements, pdo_type, eds, data, cob_id):
     mpdo = MPDO(data)
     if mpdo.is_source_addressing and num_elements != 0xFE:
-        raise ValueError(f"MPDO type and definition do not match. Check [{pdo_type}sub0]")
+        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+                                    f"MPDO type and definition do not match. Check eds file at [{pdo_type}sub0]")
 
     eds_details = get_name(eds, mpdo.index)
     return f"{eds_details[1]} - {decode(eds_details[0], mpdo.data)}"

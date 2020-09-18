@@ -1,3 +1,4 @@
+import datetime
 import enum
 from re import finditer
 
@@ -16,7 +17,6 @@ data_types = {0x01: "BOOLEAN",
               0x11: "REAL64",
               0x15: "INTEGER64",
               0x1B: "UNSIGNED64"}
-
 
 node_names = {0x01: "C3",
               0x06: "Solar Panel",
@@ -71,10 +71,10 @@ def camel_to_snake(old_name: str) -> str:
             sub_substr = old_name[sub_span[0]:sub_span[1]]
             sub_length = sub_span[1] - sub_span[0]
 
-            if(sub_length > 1):
+            if (sub_length > 1):
                 found_submatch = True
 
-                if(span[0] != 0):
+                if (span[0] != 0):
                     new_name += '_'
 
                 first = sub_substr[:-1]
@@ -82,10 +82,35 @@ def camel_to_snake(old_name: str) -> str:
 
                 new_name += '{}_{}'.format(first, second).lower()
 
-        if(not found_submatch):
-            if(span[0] != 0):
+        if (not found_submatch):
+            if (span[0] != 0):
                 new_name += '_'
 
             new_name += substr.lower()
 
     return new_name
+
+
+class FailedValidationError(Exception):
+    """
+    Exception raised for validation errors found when parsing CAN messages
+
+    Attributes
+    ----------
+    bytes - The byte string representation of the message
+    message - text describing the error (same as __str__)
+    node_id - if of the node sending the message
+    cob-id - message cob-id
+    parse_type - message type that failed (ex: SDO, PDO)
+    sub_type - sub-type of message that failed (ex: SDO Segment) or None
+    """
+
+    def __init__(self, data, node_id, cob_id, parse_type, message="A Validation Error has occurred", sub_type=None):
+        self.data = data
+        self.node_id = node_id
+        self.cob_id = cob_id
+        self.parse_type = parse_type
+        self.sub_type = sub_type
+        self.message = message
+        self.time_occured = datetime.datetime.now()
+        super().__init__(self.message)

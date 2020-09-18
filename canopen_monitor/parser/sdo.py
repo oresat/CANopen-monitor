@@ -1,3 +1,4 @@
+from canopen_monitor.parser import FailedValidationError
 from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
@@ -103,7 +104,7 @@ class SDOInitiateData:
 
     def __decode_first_section(self, byte_value):
         if byte_value & 0x10 > 0:
-            raise ValueError(f"Invalid x value (4): {hex(byte_value & 0x10)}")
+            raise ValueError(f"Invalid x value in byte 0, bit 4: {hex(byte_value & 0x10)}, expected 0")
 
         if byte_value & 0x02 == 0:
             self.__is_expedited = False
@@ -119,7 +120,7 @@ class SDOInitiateData:
         if self.__is_expedited and self.__size_indicator:
             self.__n = byte_value & 0x0C >> 2
         elif byte_value & 0x0C > 0:
-            raise ValueError(f"Invalid n value (3_2): '{hex(byte_value & 0x0C)}")
+            raise ValueError(f"Invalid n value in byte 0, bit 3-2: '{hex(byte_value & 0x0C)}, expected 0")
         else:
             self.__n = 0
 
@@ -128,13 +129,14 @@ class SDOInitiateData:
             if self.__size_indicator:
                 self.__data = int.from_bytes(byte_value, "big")
             elif int.from_bytes(byte_value, "big") > 0:
-                raise ValueError(f"Invalid data value: '{byte_value.hex()}")
+                raise ValueError(f"Invalid data value in bytes 4-7: '{byte_value.hex()}, expected > 0")
         # Expedited Transfer
         else:
             if self.__size_indicator:
                 self.__data = byte_value[3 - self.__n:4]
                 if int.from_bytes(byte_value[0:3 - self.__n], "big") > 0:
-                    raise ValueError(f"Data value larger than size: '{self.__n}'")
+                    raise ValueError(f"Invalid data value in bytes 4-7: '{byte_value.hex()} larger than size: "
+                                     f"'{self.__n}'")
             else:
                 self.__data = byte_value
 
@@ -853,56 +855,60 @@ class SDOParser:
         return self.__is_complete
 
     def parse(self, cob_id, eds: EDS, data: bytes):
-        if 0x580 <= cob_id < 0x600:
-            sdo_type = SDO_TX
-        elif 0x600 <= cob_id < 0x680:
-            sdo_type = SDO_RX
-        else:
-            raise ValueError(f"Provided COB-ID {hex(cob_id)} is outside of the range of SDO messages")
+        try:
+            if 0x580 <= cob_id < 0x600:
+                sdo_type = SDO_TX
+            elif 0x600 <= cob_id < 0x680:
+                sdo_type = SDO_RX
+            else:
+                raise ValueError(f"Provided COB-ID {hex(cob_id)} is outside of the range of SDO messages")
 
-        if self.__block_download:
-            return self.__parse_block_data(data)
+            if self.__block_download:
+                return self.__parse_block_data(data)
 
-        if self.__awaiting_conf:
-            return self.__parse_block_no_data(data)
+            if self.__awaiting_conf:
+                return self.__parse_block_no_data(data)
 
-        command_specifier = data[0] & 0xE0
-        if (sdo_type == SDO_RX and command_specifier == 0x20) or (sdo_type == SDO_TX and command_specifier == 0x40):
-            return self.__parse_initiate_data(data, eds, sdo_type)
-        elif (sdo_type == SDO_RX and command_specifier == 0x40) or (sdo_type == SDO_TX and command_specifier == 0x60):
-            return self.__parse_initiate_no_data(data, eds)
-        elif (sdo_type == SDO_RX and command_specifier == 0x00) or (sdo_type == SDO_TX and command_specifier == 0x00):
-            if self.__inProgressName is None:
-                raise ValueError(f"SDO Segment received before initiate")
-            return self.__parse_segment_data(data, sdo_type)
-        elif (sdo_type == SDO_RX and command_specifier == 0x60) or (sdo_type == SDO_TX and command_specifier == 0x20):
-            if self.__inProgressName is None:
-                raise ValueError(f"SDO Segment received before initiate")
-            return self.__parse_segment_no_data(data)
-        elif (sdo_type == SDO_RX and command_specifier == 0xE0) or (sdo_type == SDO_TX and command_specifier == 0xE0):
-            return self.__parse_block_initiate_data(data, eds)
-        elif sdo_type == SDO_TX and command_specifier == 0xC0:
-            subcommand = data[0] & 3
-            """Check for upload"""
-            if subcommand == 1:
+            command_specifier = data[0] & 0xE0
+            if (sdo_type == SDO_RX and command_specifier == 0x20) or (sdo_type == SDO_TX and command_specifier == 0x40):
+                return self.__parse_initiate_data(data, eds, sdo_type)
+            elif (sdo_type == SDO_RX and command_specifier == 0x40) or (sdo_type == SDO_TX and command_specifier == 0x60):
+                return self.__parse_initiate_no_data(data, eds)
+            elif (sdo_type == SDO_RX and command_specifier == 0x00) or (sdo_type == SDO_TX and command_specifier == 0x00):
+                if self.__inProgressName is None:
+                    raise ValueError(f"SDO Segment received before initiate")
+                return self.__parse_segment_data(data, sdo_type)
+            elif (sdo_type == SDO_RX and command_specifier == 0x60) or (sdo_type == SDO_TX and command_specifier == 0x20):
+                if self.__inProgressName is None:
+                    raise ValueError(f"SDO Segment received before initiate")
+                return self.__parse_segment_no_data(data)
+            elif (sdo_type == SDO_RX and command_specifier == 0xE0) or (sdo_type == SDO_TX and command_specifier == 0xE0):
+                return self.__parse_block_initiate_data(data, eds)
+            elif sdo_type == SDO_TX and command_specifier == 0xC0:
+                subcommand = data[0] & 3
+                """Check for upload"""
+                if subcommand == 1:
+                    return self.__parse_block_end_data(data)
+
+                self.__block_download = True
+                return self.__parse_block_initiate_no_data(data, eds)
+            elif sdo_type == SDO_RX and command_specifier == 0xC0:
                 return self.__parse_block_end_data(data)
-
-            self.__block_download = True
-            return self.__parse_block_initiate_no_data(data, eds)
-        elif sdo_type == SDO_RX and command_specifier == 0xC0:
-            return self.__parse_block_end_data(data)
-        elif sdo_type == SDO_TX and command_specifier == 0xA0:
-            return self.__parse_block_end_no_data(data)
-        elif sdo_type == SDO_RX and command_specifier == 0xA0:
-            subcommand = data[0] & 3
-            """Check for upload"""
-            if subcommand == 1:
+            elif sdo_type == SDO_TX and command_specifier == 0xA0:
                 return self.__parse_block_end_no_data(data)
-            return self.__parse_block_upload_initiate_no_data(data, eds)
-        else:
-            raise ValueError(
-                f"Provided COB-ID {hex(cob_id)} ({sdo_type}) and command specifier {hex(command_specifier)}"
-                f" combination does not result in a valid message type")
+            elif sdo_type == SDO_RX and command_specifier == 0xA0:
+                subcommand = data[0] & 3
+                """Check for upload"""
+                if subcommand == 1:
+                    return self.__parse_block_end_no_data(data)
+                return self.__parse_block_upload_initiate_no_data(data, eds)
+            else:
+                raise ValueError(
+                    f"Provided COB-ID {hex(cob_id)} ({sdo_type}) and command specifier {hex(command_specifier)}"
+                    f" combination does not result in a valid message type")
+        except ValueError as error:
+            raise FailedValidationError(data, cob_id-0x580, cob_id, __name__, str(error))
+
 
     def __parse_initiate_data(self, data, eds, sdo_type):
         current_download_initiate = SDOInitiateData(data)

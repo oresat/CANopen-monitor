@@ -1,3 +1,4 @@
+from canopen_monitor.parser import FailedValidationError
 from canopen_monitor.parser.eds import EDS
 """
 Parse Heartbeat message
@@ -7,19 +8,18 @@ Parse Heartbeat message
 """
 
 
-def parse(eds_config: EDS, data: bytes):
+def parse(cob_id, eds_config: EDS, data: bytes):
     states = {
         0x00: "Boot-up",
         0x04: "Stopped",
         0x05: "Operational",
         0x7F: "Pre-operational"
     }
-
     hex_data = int(str(data[0]), 16)
     state = states.get(hex_data)
     name = eds_config.device_info.product_name
 
-    if(state is None):
+    if state is None:
         return "{}{}".format(name.ljust(20, ' '),
                              'Invalid State')
     else:
@@ -27,4 +27,4 @@ def parse(eds_config: EDS, data: bytes):
             return "{}{}".format(name.ljust(20, ' '),
                                  state)
         else:
-            raise ValueError("Invalid heartbeat state detected")
+            raise FailedValidationError(data, cob_id-0x700, cob_id, __name__, "Invalid heartbeat state detected")
