@@ -1,35 +1,20 @@
 from canopen_monitor.parser import FailedValidationError
 from canopen_monitor.parser.utilities import *
 
-# EDS Data Types (Move to utilities?)
-BOOLEAN = '0x0001'
-INTEGER8 = '0x0002'
-INTEGER16 = '0x0003'
-INTEGER32 = '0x0004'
-UNSIGNED8 = '0x0005'
-UNSIGNED16 = '0x0007'
-UNSIGNED32 = '0x0003'
-REAL32 = '0x0008'
-VISIBLE_STRING = '0x0009'
-OCTET_STRING = '0x000A'
-UNICODE_STRING = '0x000B'
-DOMAIN = '0x000F'
-REAL64 = '0x0011'
-INTEGER64 = '0x0015'
-UNSIGNED64 = '0x001B'
-
 SDO_TX = 'SDO_TX'
 SDO_RX = 'SDO_RX'
 
 
 class SDOInitiateData:
     """
- This class is used by the SDO parser to parse the SDO initiate messages containing data
+    This class is used by the SDO parser to parse the SDO initiate messages
+    containing data
 
- This message type is the first message sent from the client during an SDO Download
- and the first message sent from the server during an SDO Upload
+ This message type is the first message sent from the client during an SDO
+ Download and the first message sent from the server during an SDO Upload
 
- It will contain the data to be downloaded or provide information about the segments to be downloaded
+ It will contain the data to be downloaded or provide information about the
+ segments to be downloaded
 
  The SDO initiate message with data should match the below format:
 
@@ -61,7 +46,8 @@ class SDOInitiateData:
   0. data set size is not indicated
   1. data set size is indicated
 
- * **m**: multiplexer. It represents the index/sub-index of the data to be transferred
+ * **m**: multiplexer. It represents the index/sub-index of the data to be
+ transferred
 
  * **d**: data
   * e = 0, s = 0: d is reserved for further use
@@ -103,7 +89,8 @@ class SDOInitiateData:
 
     def __decode_first_section(self, byte_value):
         if byte_value & 0x10 > 0:
-            raise ValueError(f"Invalid x value in byte 0, bit 4: {hex(byte_value & 0x10)}, expected 0")
+            raise ValueError(f"Invalid x value in byte 0, bit 4: "
+                             f"{hex(byte_value & 0x10)}, expected 0")
 
         if byte_value & 0x02 == 0:
             self.__is_expedited = False
@@ -119,7 +106,8 @@ class SDOInitiateData:
         if self.__is_expedited and self.__size_indicator:
             self.__n = byte_value & 0x0C >> 2
         elif byte_value & 0x0C > 0:
-            raise ValueError(f"Invalid n value in byte 0, bit 3-2: '{hex(byte_value & 0x0C)}, expected 0")
+            raise ValueError(f"Invalid n value in byte 0, bit 3-2: "
+                             f"'{hex(byte_value & 0x0C)}, expected 0")
         else:
             self.__n = 0
 
@@ -128,13 +116,15 @@ class SDOInitiateData:
             if self.__size_indicator:
                 self.__data = int.from_bytes(byte_value, "big")
             elif int.from_bytes(byte_value, "big") > 0:
-                raise ValueError(f"Invalid data value in bytes 4-7: '{byte_value.hex()}, expected > 0")
+                raise ValueError(f"Invalid data value in bytes 4-7: "
+                                 f"'{byte_value.hex()}, expected > 0")
         # Expedited Transfer
         else:
             if self.__size_indicator:
                 self.__data = byte_value[3 - self.__n:4]
                 if int.from_bytes(byte_value[0:3 - self.__n], "big") > 0:
-                    raise ValueError(f"Invalid data value in bytes 4-7: '{byte_value.hex()} larger than size: "
+                    raise ValueError(f"Invalid data value in bytes 4-7: "
+                                     f"'{byte_value.hex()} larger than size: "
                                      f"'{self.__n}'")
             else:
                 self.__data = byte_value
@@ -142,12 +132,14 @@ class SDOInitiateData:
 
 class SDOInitiateNoData:
     """
- This class is used by the SDO parser to parse the SDO initiate messages containing no data
+    This class is used by the SDO parser to parse the SDO initiate messages
+    containing no data
 
- This message type is the first message sent from the server during an SDO Download
- and the first message sent from the client during an SDO Upload
+ This message type is the first message sent from the server during an SDO
+ Download and the first message sent from the client during an SDO Upload
 
- It will contain the data to be downloaded or provide information about the segments to be downloaded
+ It will contain the data to be downloaded or provide information about the
+ segments to be downloaded
 
  The SDO initiate message with data should match the below format:
 
@@ -176,9 +168,11 @@ class SDOInitiateNoData:
     def __init__(self, raw_sdo: bytes):
         self.__index = raw_sdo[1:4]
         if raw_sdo[0] & 0x1F > 0:
-            raise ValueError(f"Invalid x value (4_0): '{hex(raw_sdo[0] & 0x1F)}'")
+            raise ValueError(f"Invalid x value (4_0): "
+                             f"'{hex(raw_sdo[0] & 0x1F)}'")
         if int.from_bytes(raw_sdo[4:8], "big") > 0:
-            raise ValueError(f"Invalid reserved value: '{raw_sdo[4:8].hex()}'")
+            raise ValueError(f"Invalid reserved value: "
+                             f"'{raw_sdo[4:8].hex()}'")
 
     @property
     def index(self):
@@ -187,10 +181,12 @@ class SDOInitiateNoData:
 
 class SDOSegmentData:
     """
-    This class is used by the SDO parser to parse the SDO segment message containing data
+    This class is used by the SDO parser to parse the SDO segment message
+    containing data
 
-    This message type is the segment message sent from the server during an SDO Download
-    and the segment message sent from the client during an SDO Upload
+    This message type is the segment message sent from the server during an
+    SDO Download and the segment message sent from the client during an SDO
+    Upload
 
     The SDO segment message should match the below format:
 
@@ -219,9 +215,10 @@ class SDOSegmentData:
      0. more segments to be downloaded
      1. no more segments to be downloaded
 
-    * **t**: toggle bit. This bit shall alternate for each subsequent segment that is downloaded. The first segment
-    shall be 0. The toggle but shall equal for the request and response message.
-        """
+    * **t**: toggle bit. This bit shall alternate for each subsequent segment
+    that is downloaded. The first segment shall be 0. The toggle but shall
+    equal for the request and response message.
+    """
 
     def __init__(self, raw_sdo: bytes):
         self.__more_segments = None
@@ -259,18 +256,22 @@ class SDOSegmentData:
             self.__more_segments = True
 
     def __decode_data(self, byte_value: bytes):
-        self.__data = int.from_bytes(byte_value[0:6 - self.__n], "big").to_bytes(7, "big")
+        value = byte_value[0:6 - self.__n]
+        self.__data = int.from_bytes(value, "big").to_bytes(7, "big")
         if self.__n > 0:
             if int.from_bytes(byte_value[6 - self.__n:6], "big") > 0:
-                raise ValueError(f"Data value larger than size: '{byte_value.hex()}'")
+                raise ValueError(f"Data value larger than size: "
+                                 f"'{byte_value.hex()}'")
 
 
 class SDOSegmentNoData:
     """
-    This class is used by the SDO parser to parse the SDO segment message containing no data
+    This class is used by the SDO parser to parse the SDO segment message
+    containing no data
 
-    This message type is the segment message sent from the server during an SDO Upload
-    and the segment message sent from the client during an SDO Download
+    This message type is the segment message sent from the server during an
+    SDO Upload and the segment message sent from the client during an SDO
+    Download
 
     The SDO segment message should match the below format:
 
@@ -290,8 +291,9 @@ Definitions
 * **scs**: server command specifier
  1. download segment response
 
-* **t**: toggle bit. This bit shall alternate for each subsequent segment that is downloaded. The first segment shall be
-0. The toggle but shall equal for the request and response message.
+* **t**: toggle bit. This bit shall alternate for each subsequent segment
+that is downloaded. The first segment shall be 0. The toggle but shall equal
+for the request and response message.
 
 * **x**: not used, always 0
 
@@ -301,10 +303,12 @@ Definitions
     def __init__(self, raw_sdo: bytes):
         self.__toggle_bit = raw_sdo[0] & 0x10
         if raw_sdo[0] & 0x0F > 0:
-            raise ValueError(f"Invalid x value (4_0): '{hex(raw_sdo[0] & 0x1F)}'")
+            raise ValueError(f"Invalid x value (4_0): "
+                             f"'{hex(raw_sdo[0] & 0x1F)}'")
 
         if int.from_bytes(raw_sdo[4:8], "big") > 0:
-            raise ValueError(f"Invalid data value: '{raw_sdo[4:8].hex()}")
+            raise ValueError(f"Invalid data value: "
+                             f"'{raw_sdo[4:8].hex()}")
 
     @property
     def toggle_bit(self):
@@ -313,10 +317,11 @@ Definitions
 
 class SDOBlockInitiateData:
     """
-This class is used by the SDO parser to parse the SDO block initiate messages containing data
+    This class is used by the SDO parser to parse the SDO block initiate
+    messages containing data
 
-This message type is the first message sent from the client during an SDO Download
-and the first message sent from the server during an SDO Upload # TODO: confirm
+This message type is the first message sent from the client during an SDO
+Download and the first message sent from the server during an SDO Upload
 
 It will contain information about the blocks to be downloaded
 
@@ -354,7 +359,8 @@ Definitions
 * **ss**: server subcommand
  0. Initiate upload response
 
-* **m**: multiplexer. It represents the index/sub-index of the data to be transferred
+* **m**: multiplexer. It represents the index/sub-index of the data to be
+transferred
 
 * **size**: download size in bytes
  * s = 0: size is reserved for further use, always 0
@@ -401,12 +407,14 @@ Definitions
 
 class SDOBlockInitiateNoData:
     """
-This class is used by the SDO parser to parse the SDO block initiate messages containing no data
+    This class is used by the SDO parser to parse the SDO block initiate
+    messages containing no data
 
-This message type is the first message sent from the server during an SDO Download
-and not used as part of the SDO Block Upload
+This message type is the first message sent from the server during an SDO
+Download and not used as part of the SDO Block Upload
 
-It will contain information about the number of blocks to be downloaded before a confirmation is returned
+It will contain information about the number of blocks to be downloaded
+before a confirmation is returned
 
 The SDO block initiate message with no data should match the below format:
 
@@ -432,10 +440,11 @@ Definitions
 * **ss**: server subcommand
  0. initiate download response
 
-* **m**: multiplexer. It represents the index/sub-index of the data to be transferred
+* **m**: multiplexer. It represents the index/sub-index of the data to be
+transferred
 
-* **blksize**: Number of segments per block that shall be used by the client for the following block
-download with 0 < blksize < 128
+* **blksize**: Number of segments per block that shall be used by the client
+for the following block download with 0 < blksize < 128
 
 * **reserved**: reserved for further use, always 0
     """
@@ -451,7 +460,8 @@ download with 0 < blksize < 128
         self.__blksize = raw_sdo[4]
         self.__reserved = raw_sdo[5:8]
         if int.from_bytes(self.__reserved, "big") > 0:
-            raise ValueError(f"Invalid reserved value: '{self.__reserved.hex()}'")
+            raise ValueError(f"Invalid reserved value: "
+                             f"'{self.__reserved.hex()}'")
 
     @property
     def command_specifier(self):
@@ -476,16 +486,19 @@ download with 0 < blksize < 128
 
 class SDOBlockUploadInitiateNoData:
     """
-This class is used by the SDO parser to parse the SDO block initiate messages containing no data when uploading
+    This class is used by the SDO parser to parse the SDO block initiate
+    messages containing no data when uploading
 
 This message type is the first message sent from the client during an SDO Upload
 
-This message contains information about the number of blocks that the client expects before returning a confirmation
+This message contains information about the number of blocks that the client
+expects before returning a confirmation
 
-The difference between this message and the Download Initiate no data message is that
-this one includes pst (protocol switch threshold)
+The difference between this message and the Download Initiate no data message
+is that this one includes pst (protocol switch threshold)
 
-The SDO upload block initiate message with no data should match the below format:
+The SDO upload block initiate message with no data should match the below
+format:
 
 
 .. code-block:: python
@@ -509,15 +522,19 @@ Definitions
 * **cs**: client subcommand
  0. initiate upload request
 
-* **m**: multiplexer. It represents the index/sub-index of the data to be transferred
+* **m**: multiplexer. It represents the index/sub-index of the data to be
+transferred
 
-* **blksize**: Number of segments per block that shall be used by the client for the following block
-download with 0 < blksize < 128
+* **blksize**: Number of segments per block that shall be used by the client
+for the following block download with 0 < blksize < 128
 
-* **pst**: protocol switch threshold in bytes to change the SDO transfer protocol
+* **pst**: protocol switch threshold in bytes to change the SDO transfer
+protocol
+
  0. Change of transfer protocol not allowed
- >0. If the size of the data in bytes is less or equal pst the server may switch to the SDO upload protocol
- by transmitting the server response of the protocol SDO upload as described in sub-clause 7.2.4.3.5.
+ >0. If the size of the data in bytes is less or equal pst the server may
+ switch to the SDO upload protocol by transmitting the server response of the
+ protocol SDO upload as described in sub-clause 7.2.4.3.5.
 
 * **reserved**: reserved for further use, always 0
     """
@@ -534,7 +551,8 @@ download with 0 < blksize < 128
         self.__pst = raw_sdo[5]
         self.__reserved = raw_sdo[6:8]
         if int.from_bytes(self.__reserved, "big") > 0:
-            raise ValueError(f"Invalid reserved value: '{self.__reserved.hex()}'")
+            raise ValueError(f"Invalid reserved value: "
+                             f"'{self.__reserved.hex()}'")
 
     @property
     def command_specifier(self):
@@ -563,10 +581,11 @@ download with 0 < blksize < 128
 
 class SDOBlockSegmentData:
     """
-This class is used by the SDO parser to parse the SDO block's segment messages containing data
+This class is used by the SDO parser to parse the SDO block's segment messages
+containing data
 
-This message type is the first message sent from the client during an SDO Download
-and the first message sent from the server during an SDO Upload # TODO: confirm
+This message type is the first message sent from the client during an SDO
+Download and the first message sent from the server during an SDO Upload
 
 It will contain a segment of data to be downloaded
 
@@ -613,10 +632,11 @@ Definitions
 
 class SDOBlockSegmentNoData:
     """
-This class is used by the SDO parser to parse the SDO block segment messages containing no data
+This class is used by the SDO parser to parse the SDO block segment messages
+containing no data
 
 This message type is sent from the server during an SDO Download
-and sent from the client during an SDO Upload # TODO: confirm
+and sent from the client during an SDO Upload
 
 This message is used to indicate the last message that was received successfully
 
@@ -634,23 +654,24 @@ The SDO block segment message with no data should match the below format:
 Definitions
 ===========
 * **ccs**: client command specifier
- 6. # TODO update for upload
+ 1. download segment response
 
 * **scs**: server command specifier
  5. block download
 
 * **cs**: client subcommand
- 0. # TODO: update for upload
+ 0. This section contains x data on upload
 
 * **ss**: server subcommand
  2. block download response
 
-* **ackseq**: sequence number of last segment that was received successfully during the last block download. If ackseq
-is set to 0 the server indicates the client that the segment with the sequence number 1 was not received correctly and
-all segments shall be retransmitted by the client.
+* **ackseq**: sequence number of last segment that was received successfully
+during the last block download. If ackseq is set to 0 the server indicates
+the client that the segment with the sequence number 1 was not received
+correctly and all segments shall be retransmitted by the client.
 
-* **blksize**: Number of segments per block that shall be used by the client for the following block
-download with 0 < blksize < 128
+* **blksize**: Number of segments per block that shall be used by the client
+for the following block download with 0 < blksize < 128
 
 * **x**: not used, always 0
 
@@ -667,7 +688,8 @@ download with 0 < blksize < 128
         self.__blksize = raw_sdo[2]
         self.__reserved = raw_sdo[3:8]
         if int.from_bytes(self.__reserved, "big") > 0:
-            raise ValueError(f"Invalid reserved value: '{self.__reserved.hex()}'")
+            raise ValueError(f"Invalid reserved value: "
+                             f"'{self.__reserved.hex()}'")
 
     @property
     def command_specifier(self):
@@ -688,13 +710,14 @@ download with 0 < blksize < 128
 
 class SDOBlockEndData:
     """
-This class is used by the SDO parser to parse the SDO block end message containing the checksum data
+    This class is used by the SDO parser to parse the SDO block end message
+    containing the checksum data
 
 This message type is sent from the client during an SDO Download
-and sent from the server during an SDO Upload # TODO: confirm
+and sent from the server during an SDO Upload
 
-This message is sent after ending the block transfer and includes a checksum which can be used to verify the integrity
-of the data transfer
+This message is sent after ending the block transfer and includes a checksum
+which can be used to verify the integrity of the data transfer
 
 The SDO block end message with data should match the below format:
 
@@ -715,8 +738,8 @@ Definitions
 * **scs**: server command specifier
  6. Block Upload
 
-* **n**: indicates the number of bytes in the last segment of the last block that do not contain data. Bytes [8-n, 7]
-do not contain segment data.
+* **n**: indicates the number of bytes in the last segment of the last block
+that do not contain data. Bytes [8-n, 7] do not contain segment data.
 
 * **cs**: client subcommand
  1. End block download request
@@ -724,9 +747,10 @@ do not contain segment data.
 * **ss**: server subcommand
  1. End block upload response
 
-* **crc**: 16 bit cyclic redundancy checksum (CRC) for the data set. The algorithm for generating the CRC is described
-in sub-clause 7.2.4.3.16. CRC is only valid if in SDO block download initiate cc and sc are set to 1 otherwise CRC
-shall be set to 0.
+* **crc**: 16 bit cyclic redundancy checksum (CRC) for the data set. The
+algorithm for generating the CRC is described in sub-clause 7.2.4.3.16. CRC
+is only valid if in SDO block download initiate cc and sc are set to 1
+otherwise CRC shall be set to 0.
 
 * **x**: not used, always 0
 
@@ -743,7 +767,8 @@ shall be set to 0.
         self.__crc = raw_sdo[1:3]
         self.__reserved = raw_sdo[3:8]
         if int.from_bytes(self.__reserved, "big") > 0:
-            raise ValueError(f"Invalid reserved value: '{self.__reserved.hex()}'")
+            raise ValueError(f"Invalid reserved value: "
+                             f"'{self.__reserved.hex()}'")
 
     @property
     def command_specifier(self):
@@ -764,10 +789,11 @@ shall be set to 0.
 
 class SDOBlockEndNoData:
     """
-This class is used by the SDO parser to parse the SDO block end message containing no data
+    This class is used by the SDO parser to parse the SDO block end message
+    containing no data
 
 This message type is sent from the server during an SDO Download
-and sent from the client during an SDO Upload # TODO: confirm
+and sent from the client during an SDO Upload
 
 This message is sent after ending the block transfer
 
@@ -790,8 +816,8 @@ Definitions
 * **scs**: server command specifier
  5. Block Download
 
-* **n**: indicates the number of bytes in the last segment of the last block that do not contain data. Bytes [8-n, 7]
-do not contain segment data.
+* **n**: indicates the number of bytes in the last segment of the last block
+that do not contain data. Bytes [8-n, 7] do not contain segment data.
 
 * **cs**: client subcommand
  3. start upload
@@ -812,7 +838,8 @@ do not contain segment data.
         self.__subcommand = raw_sdo[0] & 0x03
         self.__reserved = raw_sdo[1:8]
         if int.from_bytes(self.__reserved, "big") > 0:
-            raise ValueError(f"Invalid reserved value: '{self.__reserved.hex()}'")
+            raise ValueError(f"Invalid reserved value: "
+                             f"'{self.__reserved.hex()}'")
 
     @property
     def command_specifier(self):
@@ -824,12 +851,13 @@ do not contain segment data.
 
 
 class SDOParser:
-    """Sub-Parser for SDO messages
-    The SDO parser will parse SDO download initiate and segment messages following the CANopen protocol
+    """Sub-Parser for SDO messages The SDO parser will parse SDO download
+    initiate and segment messages following the CANopen protocol
 
     Use the parse function for parsing 8-byte SDO messages
 
-    Once the transfer is complete (is_complete() returns true) the object should be thrown away
+    Once the transfer is complete (is_complete() returns true) the object
+    should be thrown away
     """
 
     def __init__(self):
@@ -860,7 +888,8 @@ class SDOParser:
             elif 0x600 <= cob_id < 0x680:
                 sdo_type = SDO_RX
             else:
-                raise ValueError(f"Provided COB-ID {hex(cob_id)} is outside of the range of SDO messages")
+                raise ValueError(f"Provided COB-ID {hex(cob_id)} "
+                                 f"is outside of the range of SDO messages")
 
             if self.__block_download:
                 return self.__parse_block_data(data)
@@ -869,21 +898,39 @@ class SDOParser:
                 return self.__parse_block_no_data(data)
 
             command_specifier = data[0] & 0xE0
-            if (sdo_type == SDO_RX and command_specifier == 0x20) or (sdo_type == SDO_TX and command_specifier == 0x40):
+            if (sdo_type == SDO_RX and command_specifier == 0x20) or (
+                    sdo_type == SDO_TX and command_specifier == 0x40):
+
                 return self.__parse_initiate_data(data, eds, sdo_type)
-            elif (sdo_type == SDO_RX and command_specifier == 0x40) or (sdo_type == SDO_TX and command_specifier == 0x60):
+
+            elif (sdo_type == SDO_RX and command_specifier == 0x40) or (
+                    sdo_type == SDO_TX and command_specifier == 0x60):
+
                 return self.__parse_initiate_no_data(data, eds)
-            elif (sdo_type == SDO_RX and command_specifier == 0x00) or (sdo_type == SDO_TX and command_specifier == 0x00):
+
+            elif (sdo_type == SDO_RX and command_specifier == 0x00) or (
+                    sdo_type == SDO_TX and command_specifier == 0x00):
+
                 if self.__inProgressName is None:
                     raise ValueError(f"SDO Segment received before initiate")
+
                 return self.__parse_segment_data(data, sdo_type)
-            elif (sdo_type == SDO_RX and command_specifier == 0x60) or (sdo_type == SDO_TX and command_specifier == 0x20):
+
+            elif (sdo_type == SDO_RX and command_specifier == 0x60) or (
+                    sdo_type == SDO_TX and command_specifier == 0x20):
+
                 if self.__inProgressName is None:
                     raise ValueError(f"SDO Segment received before initiate")
+
                 return self.__parse_segment_no_data(data)
-            elif (sdo_type == SDO_RX and command_specifier == 0xE0) or (sdo_type == SDO_TX and command_specifier == 0xE0):
+
+            elif (sdo_type == SDO_RX and command_specifier == 0xE0) or (
+                    sdo_type == SDO_TX and command_specifier == 0xE0):
+
                 return self.__parse_block_initiate_data(data, eds)
+
             elif sdo_type == SDO_TX and command_specifier == 0xC0:
+
                 subcommand = data[0] & 3
                 """Check for upload"""
                 if subcommand == 1:
@@ -891,23 +938,30 @@ class SDOParser:
 
                 self.__block_download = True
                 return self.__parse_block_initiate_no_data(data, eds)
+
             elif sdo_type == SDO_RX and command_specifier == 0xC0:
                 return self.__parse_block_end_data(data)
+
             elif sdo_type == SDO_TX and command_specifier == 0xA0:
                 return self.__parse_block_end_no_data(data)
+
             elif sdo_type == SDO_RX and command_specifier == 0xA0:
                 subcommand = data[0] & 3
+
                 """Check for upload"""
                 if subcommand == 1:
                     return self.__parse_block_end_no_data(data)
                 return self.__parse_block_upload_initiate_no_data(data, eds)
+
             else:
                 raise ValueError(
-                    f"Provided COB-ID {hex(cob_id)} ({sdo_type}) and command specifier {hex(command_specifier)}"
-                    f" combination does not result in a valid message type")
-        except ValueError as error:
-            raise FailedValidationError(data, cob_id-0x580, cob_id, __name__, str(error))
+                    f"Provided COB-ID {hex(cob_id)} ({sdo_type}) and command "
+                    f"specifier {hex(command_specifier)} combination does "
+                    f"not result in a valid message type")
 
+        except ValueError as error:
+            raise FailedValidationError(data, cob_id - 0x580, cob_id, __name__,
+                                        str(error))
 
     def __parse_initiate_data(self, data, eds, sdo_type):
         current_download_initiate = SDOInitiateData(data)
@@ -921,7 +975,8 @@ class SDOParser:
             if sdo_type == SDO_TX:
                 self.__is_complete = True
 
-            return f"Downloaded - {self.__inProgressName}: {decode(self.__inProgressType, self.__data)}"
+            return f"Downloaded - {self.__inProgressName}: " \
+                   f"{decode(self.__inProgressType, self.__data)}"
 
         if current_download_initiate.size_indicator:
             self.__dataSize = current_download_initiate.data
@@ -935,7 +990,8 @@ class SDOParser:
 
         if self.__is_expedited:
             self.__is_complete = True
-            return f"Downloaded - {self.__inProgressName}: {decode(self.__inProgressType, self.__data)}"
+            return f"Downloaded - {self.__inProgressName}: " \
+                   f"{decode(self.__inProgressType, self.__data)}"
 
         return self.__inProgressName + " 0%"
 
@@ -947,10 +1003,10 @@ class SDOParser:
             self.__is_complete = True
 
         if download_segment.toggle_bit == self.__data_toggle:
-            raise ValueError(f"Invalid Valid Client Toggle {not self.__data_toggle} expected")
+            raise ValueError(f"Invalid Valid Client Toggle "
+                             f"{not self.__data_toggle} expected")
 
         self.__data_toggle = download_segment.toggle_bit
-        # TODO: is this working? (appending data)
         self.__data += download_segment.data
 
         if not download_segment.more_segments:
@@ -961,7 +1017,8 @@ class SDOParser:
     def __parse_segment_no_data(self, data):
         download_segment = SDOSegmentNoData(data)
         if download_segment.toggle_bit == self.__no_data_toggle:
-            raise ValueError(f"Invalid Toggle bit {not self.__no_data_toggle} expected")
+            raise ValueError(
+                f"Invalid Toggle bit {not self.__no_data_toggle} expected")
 
         self.__no_data_toggle = download_segment.toggle_bit
         if not self.__more_segments:
@@ -981,7 +1038,8 @@ class SDOParser:
             self.__set_name(eds, current_download_initiate.index)
 
         if current_download_initiate.size_indicated:
-            self.__dataSize = int.from_bytes(current_download_initiate.size, "big")
+            self.__dataSize = int.from_bytes(current_download_initiate.size,
+                                             "big")
 
         return "Initiating block download - " + self.__inProgressName
 

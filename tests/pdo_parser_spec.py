@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import patch, mock_open
 
 from canopen_monitor.parser import eds
 from canopen_monitor.parser.pdo import *
@@ -32,7 +32,8 @@ class TestPDO(unittest.TestCase):
         Test PDO transmit with multiple elements in message
         """
         pdo_message = b'\x3F\x80\x00\x00\x3F\xC0\x00\x00'
-        self.assertEqual("Orientation orientation - 1.0\nOrientation timestamp - 1.5",
+        self.assertEqual("Orientation orientation - 1.0 Orientation timestamp "
+                         "- 1.5",
                          parse(0x280, self.eds_data, pdo_message),
                          "Error on PDO Message parse (multiple)")
 
@@ -41,14 +42,17 @@ class TestPDO(unittest.TestCase):
         Test PDO transmit with multiple elements in message
         """
         pdo_message = b'\x01\x3F\xC0\x00\x00'
-        self.assertEqual("Orientation boolean - True\nOrientation timestamp - 1.5",
+        self.assertEqual("Orientation boolean - True Orientation timestamp - "
+                         "1.5",
                          parse(0x200, self.eds_data, pdo_message),
                          "Error on PDO Message parse (multiple & complex)")
 
         pdo_message = b'\x7F\x80\x00\x01'
-        self.assertEqual("Orientation timestamp - 1.5\nOrientation boolean - True",
+        self.assertEqual("Orientation timestamp - 1.5 Orientation boolean - "
+                         "True",
                          parse(0x300, self.eds_data, pdo_message),
-                         "Error on PDO Message parse (multiple & complex - reverse)")
+                         "Error on PDO Message parse (multiple & complex - "
+                         "reverse)")
 
     def test_mpdo_with_SAM(self):
         """

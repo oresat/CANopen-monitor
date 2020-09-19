@@ -51,8 +51,8 @@ class EMCY:
 
 def determine_error_message(error_code: bytes):
     """
-    Generic Emergency Error Codes are defined here, but application specific error codes
-    can be defined as well
+    Generic Emergency Error Codes are defined here, but application specific
+    error codes can be defined as well
     """
     error_codes = {
         0x0000: "Error reset or no error",

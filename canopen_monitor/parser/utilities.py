@@ -2,7 +2,13 @@ from struct import unpack
 from canopen_monitor.parser.eds import EDS, Index
 
 
-def get_name(eds: EDS, index: bytes):
+def get_name(eds: EDS, index: bytes) -> (str, str):
+    """
+    Get the name and data type for a given index
+    :param eds: An EDS file for the current node
+    :param index: the index and subindex to retrieve data from
+    :return: a tuple containing the name and data type as a string
+    """
     key = int(index[:2].hex(), 16)
     subindex_key = int(index[2:3].hex(), 16)
 
@@ -53,6 +59,7 @@ def decode(defined_type, data):
     elif defined_type == UNICODE_STRING:
         result = data.decode('utf-16-be')
     else:
-        raise ValueError(f"Invalid data type {defined_type}. Unable to decode data {data.hex()}")
+        raise ValueError(f"Invalid data type {defined_type}. "
+                         f"Unable to decode data {data.hex()}")
 
     return result

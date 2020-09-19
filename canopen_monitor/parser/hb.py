@@ -31,4 +31,5 @@ def parse(cob_id, eds_config: EDS, data: bytes):
             return "{}{}".format(name.ljust(20, ' '),
                                  state)
         else:
-            raise FailedValidationError(data, cob_id-0x700, cob_id, __name__, "Invalid heartbeat state detected")
+            raise FailedValidationError(data, cob_id-0x700, cob_id, __name__,
+                                        "Invalid heartbeat state detected")

@@ -1,5 +1,7 @@
 """EDS File Parser Interface"""
 import string
+from typing import Union
+
 import canopen_monitor.parser as cmp
 from dateutil.parser import parse as dtparse
 
@@ -106,7 +108,7 @@ class EDS:
     def __len__(self) -> int:
         return sum(map(lambda x: len(x), self.indices.values()))
 
-    def __getitem__(self, key: int) -> Index:
+    def __getitem__(self, key: Union[int, str]) -> Index:
         return self.indices.get(hex(int(str(key), 16)))
 
 

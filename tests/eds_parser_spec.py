@@ -44,9 +44,10 @@ class TestEDS(unittest.TestCase):
 
     def test_named_sections(self):
         """
-        Some sections use names instead of hex values, this should test all valid names
-        Currently the deadbeef problem exist, where a name made up of hex values will be treated
-        as a hex location. This can be tested here if new named sections are added.
+        Some sections use names instead of hex values, this should test all
+        valid names Currently the deadbeef problem exist, where a name made
+        up of hex values will be treated as a hex location. This can be
+        tested here if new named sections are added.
         """
         self.assertEqual("OreSat Star Tracker Board Object Dictionary",
                          self.eds.file_info.description,

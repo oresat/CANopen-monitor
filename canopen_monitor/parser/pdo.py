@@ -16,11 +16,12 @@ PDO4_RX = 0x1603
 
 def parse(cob_id, eds: EDS, data: bytes):
     """
-    PDO mappings come from the eds file and is dependent on the type (Reciving/transmission PDO).
-    mapping value is made up of index subindex and size. For Example 0x31010120 Means 3101sub01 size 32bit
+    PDO mappings come from the eds file and is dependent on the type (
+    Receiving/transmission PDO). Mapping value is made up of index subindex
+    and size. For Example 0x31010120 Means 3101sub01 size 32bit
 
-    The eds mapping is determined by the cob_id passed ot this function. That indicated which PDO record to look up
-    in the EDS file.
+    The eds mapping is determined by the cob_id passed ot this function. That
+    indicated which PDO record to look up in the EDS file.
     """
     if 0x180 <= cob_id < 0x200:  # PDO1 tx
         pdo_type = PDO1_TX
@@ -40,7 +41,8 @@ def parse(cob_id, eds: EDS, data: bytes):
         pdo_type = PDO4_RX
     else:
         raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
-                                    f"Unable to determine pdo type with given cob_id {hex(cob_id)}, expected value "
+                                    f"Unable to determine pdo type with given "
+                                    f"cob_id {hex(cob_id)}, expected value "
                                     f"between 0x180 and 0x580")
     try:
         eds_elements = eds[hex(pdo_type)][0]
@@ -62,13 +64,14 @@ def parse(cob_id, eds: EDS, data: bytes):
         return parse_mpdo(num_elements, pdo_type, eds, data, cob_id)
 
     raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
-                                f"Invalid pdo mapping detected in eds file at [{pdo_type}sub0]")
+                                f"Invalid pdo mapping detected in eds file at "
+                                f"[{pdo_type}sub0]")
 
 
 def parse_pdo(num_elements, pdo_type, eds, data):
     """
-    Parse pdo message. Message will include num_elements elements. Elements are processed in reverse order, from
-    rightmost to leftmost
+    Parse pdo message. Message will include num_elements elements. Elements
+    are processed in reverse order, from rightmost to leftmost
     """
     output_string = ""
     data_start = 0
@@ -88,16 +91,16 @@ def parse_pdo(num_elements, pdo_type, eds, data):
         eds_details = get_name(eds, index)
         num_bytes = ceil(size / 8)
 
-        masked_data = int.from_bytes(
-            data[len(data) - num_bytes - floor(data_start / 8):len(data) -
-                                                               floor(
-                                                                   data_start / 8)],
-            "big") & mask
+        start = len(data) - num_bytes - floor(data_start / 8)
+        end = len(data) - floor(data_start / 8)
+        masked_data = int.from_bytes(data[start:end], "big") & mask
         masked_data = masked_data >> data_start % 8
         masked_data = masked_data.to_bytes(num_bytes, "big")
-        output_string = f"{eds_details[1]} - {decode(eds_details[0], masked_data)}" + output_string
+        output_string = f"{eds_details[1]} -" \
+                        f" {decode(eds_details[0], masked_data)}" + \
+                        output_string
         if i > 1:
-            output_string = "\n" + output_string
+            output_string = " " + output_string
         data_start += size
 
     return output_string
@@ -107,7 +110,8 @@ def parse_mpdo(num_elements, pdo_type, eds, data, cob_id):
     mpdo = MPDO(data)
     if mpdo.is_source_addressing and num_elements != 0xFE:
         raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
-                                    f"MPDO type and definition do not match. Check eds file at [{pdo_type}sub0]")
+                                    f"MPDO type and definition do not match. "
+                                    f"Check eds file at [{pdo_type}sub0]")
 
     eds_details = get_name(eds, mpdo.index)
     return f"{eds_details[1]} - {decode(eds_details[0], mpdo.data)}"
@@ -132,18 +136,20 @@ class MPDO:
   0. Source addressing
   1. Destination addressing
 
- * **addr**: node-ID of the MPDO consumer in destination addressing or MPDO producer in source
- addressing.
-  0. Shall be reserved in source addressing mode. Shall address all CANopen devices in the network
-  that are configured for MPDO reception in destination addressing mode.
-  1..127. Shall address the CANopen device in the network with the very same node-ID
+ * **addr**: node-ID of the MPDO consumer in destination addressing or MPDO
+ producer in source addressing. 0. Shall be reserved in source addressing
+ mode. Shall address all CANopen devices in the network that are configured
+ for MPDO reception in destination addressing mode. 1..127. Shall address the
+ CANopen device in the network with the very same node-ID
 
- * **m**: multiplexer. It represents the index/sub-index of the process data to be transferred by
- the MPDO. In source addressing this shall be used to identify the data from the transmitting CANopen
- device or in destination addressing addressing to identity the data on the receiving CANopen device.
+ * **m**: multiplexer. It represents the index/sub-index of the process data
+ to be transferred by the MPDO. In source addressing this shall be used to
+ identify the data from the transmitting CANopen device or in destination
+ addressing addressing to identity the data on the receiving CANopen device.
 
- * **d**: process data. Data length lower than 4 bytes is filled up to fit 32-bit
-     """
+ * **d**: process data. Data length lower than 4 bytes is filled up to fit
+ 32-bit
+    """
 
     def __init__(self, raw_sdo: bytes):
         self.__is_source_addressing = raw_sdo[0] & 0x8 == 0x8
