@@ -1,7 +1,7 @@
+import string
 from math import ceil, floor
 
 from canopen_monitor.parser import FailedValidationError
-from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
 PDO1_TX = 0x1A00
@@ -42,12 +42,18 @@ def parse(cob_id, eds: EDS, data: bytes):
         raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
                                     f"Unable to determine pdo type with given cob_id {hex(cob_id)}, expected value "
                                     f"between 0x180 and 0x580")
+    try:
+        eds_elements = eds[hex(pdo_type)][0]
+    except TypeError:
+        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+                                    f"Unable to find eds data for pdo type "
+                                    f"{hex(pdo_type)}")
 
     # default_value could be 2 or '0x02', this is meant to work with both
-    try:
-        num_elements = int(eds[pdo_type][0].default_value)
-    except ValueError:
-        num_elements = int(eds[pdo_type][0].default_value, 16)
+    if (c in string.hexdigits for c in str(eds_elements.default_value)):
+        num_elements = int(str(eds_elements.default_value), 16)
+    else:
+        num_elements = int(str(eds_elements.default_value))
 
     if num_elements < 0x40:
         return parse_pdo(num_elements, pdo_type, eds, data)
@@ -67,7 +73,12 @@ def parse_pdo(num_elements, pdo_type, eds, data):
     output_string = ""
     data_start = 0
     for i in range(num_elements, 0, -1):
-        pdo_definition = int(eds[pdo_type].sub_indices[i].default_value, 16).to_bytes(4, "big")
+        # Not wrapping this in a try block because by this time we should
+        # have already accessed element 0 for this pdo_type. Alternatively,
+        # we could just pass the default value instead of the whole eds object
+        eds_record = eds[hex(pdo_type)][i]
+        pdo_definition = int(eds_record.default_value, 16).to_bytes(4, "big")
+
         index = pdo_definition[0:3]
         size = pdo_definition[3]
         mask = 1
@@ -76,9 +87,12 @@ def parse_pdo(num_elements, pdo_type, eds, data):
             mask += 1
         eds_details = get_name(eds, index)
         num_bytes = ceil(size / 8)
-        masked_data = int.from_bytes(data[len(data) - num_bytes - floor(data_start / 8):len(data) -
-                                                                                        floor(data_start / 8)],
-                                     "big") & mask
+
+        masked_data = int.from_bytes(
+            data[len(data) - num_bytes - floor(data_start / 8):len(data) -
+                                                               floor(
+                                                                   data_start / 8)],
+            "big") & mask
         masked_data = masked_data >> data_start % 8
         masked_data = masked_data.to_bytes(num_bytes, "big")
         output_string = f"{eds_details[1]} - {decode(eds_details[0], masked_data)}" + output_string

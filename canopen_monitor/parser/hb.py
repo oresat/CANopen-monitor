@@ -17,7 +17,11 @@ def parse(cob_id, eds_config: EDS, data: bytes):
     }
     hex_data = int(str(data[0]), 16)
     state = states.get(hex_data)
-    name = eds_config.device_info.product_name
+    try:
+        name = eds_config.device_info.product_name
+    except AttributeError:
+        raise FailedValidationError(data, cob_id - 0x700, cob_id, __name__,
+                                    "Unable to find product name from eds file")
 
     if state is None:
         return "{}{}".format(name.ljust(20, ' '),

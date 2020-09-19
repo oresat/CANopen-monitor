@@ -10,6 +10,7 @@ class TestUtilities(unittest.TestCase):
         """
         Overload canopen_monitor config paths to build a dummy environment
         """
+        self.skipTest("This is still in progress")
         canopen_monitor.CONFIG_DIR = os.path.abspath('tests/config-env') \
             + os.sep
         canopen_monitor.CONFIG_DIR = canopen_monitor.CONFIG_DIR \

@@ -5,13 +5,14 @@ from canopen_monitor.parser.eds import EDS, Index
 def get_name(eds: EDS, index: bytes):
     key = int(index[:2].hex(), 16)
     subindex_key = int(index[2:3].hex(), 16)
-    result = eds[key].parameter_name
 
-    if eds[key].sub_indices is not None:
-        result += " " + eds[key].sub_indices[subindex_key].parameter_name
-        defined_type = eds[key].sub_indices[subindex_key].data_type
+    result = eds[hex(key)].parameter_name
+
+    if len(eds[hex(key)]) > 0:
+        result += " " + eds[hex(key)][subindex_key].parameter_name
+        defined_type = eds[hex(key)][subindex_key].data_type
     else:
-        defined_type = eds[key].data_type
+        defined_type = eds[hex(key)].data_type
 
     return defined_type, result
 

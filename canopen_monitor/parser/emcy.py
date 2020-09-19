@@ -29,7 +29,8 @@ class EMCY:
         self.__emergency_error_code = raw_sdo[0:2]
         self.__error_register = raw_sdo[2]
         self.__manufacturer_specific_error_code = raw_sdo[3:8]
-        self.__error_message = determine_error_message(self.__emergency_error_code)
+        self.__error_message = determine_error_message(
+            self.__emergency_error_code)
 
     @property
     def emergency_error_code(self):
@@ -48,7 +49,7 @@ class EMCY:
         return self.__error_message
 
 
-def determine_error_message(error_code):
+def determine_error_message(error_code: bytes):
     """
     Generic Emergency Error Codes are defined here, but application specific error codes
     can be defined as well
@@ -91,8 +92,8 @@ def determine_error_message(error_code):
         0xFF00: "Device specific - generic error"
     }
 
-    if(all(c in string.hexdigits for c in str(error_code)) \
-       and int(error_code.hex(), 16) in error_codes):
+    # Unsafe conversion to int ok, because data is bytes
+    if int(error_code.hex(), 16) in error_codes:
         return error_codes[int(error_code.hex(), 16)]
     else:
         return "Error code not found"

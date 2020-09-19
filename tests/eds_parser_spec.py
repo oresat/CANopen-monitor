@@ -15,15 +15,15 @@ class TestEDS(unittest.TestCase):
         EDS should allow for parsing index locations
         """
         self.assertEqual("Device type",
-                         self.eds[0x1000].parameter_name,
+                         self.eds[hex(0x1000)].parameter_name,
                          "Error parsing index")
 
     def test_parse_sub_index(self):
         """
         EDS should allow for parsing sub-index locations
         """
-        self.assertEqual("max sub-index",
-                         self.eds[0x1018][0].parameter_name,
+        self.assertEqual("unsigned8",
+                         self.eds[hex(0x1018)][0].parameter_name,
                          "Error parsing sub-index")
 
     def test_parse_high_hex_index(self):
@@ -31,7 +31,7 @@ class TestEDS(unittest.TestCase):
         EDS should allow for parsing of high (>9) index hex values
         """
         self.assertEqual("TPDO mapping parameter",
-                         self.eds[0x1A00].parameter_name,
+                         self.eds[hex(0x1A00)].parameter_name,
                          "Error parsing high hex index")
 
     def test_parse_high_hex_sub_index(self):
@@ -39,7 +39,7 @@ class TestEDS(unittest.TestCase):
         EDS should allow for parsing of high (>9) sub index hex values
         """
         self.assertEqual("This is for testing",
-                         self.eds[0x3002][0xA].parameter_name,
+                         self.eds[hex(0x3002)][0xA].parameter_name,
                          "Error parsing high hex sub-index")
 
     def test_named_sections(self):

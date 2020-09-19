@@ -1,5 +1,4 @@
 from canopen_monitor.parser import FailedValidationError
-from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
 # EDS Data Types (Move to utilities?)
@@ -1046,6 +1045,10 @@ class SDOParser:
         return "Block download done - " + self.__inProgressName
 
     def __set_name(self, eds, index: bytes):
-        values = get_name(eds, index)
+        try:
+            values = get_name(eds, index)
+        except TypeError:
+            raise ValueError(f"Unable to eds content at index {index.hex()}")
+
         self.__inProgressType = values[0]
         self.__inProgressName = values[1]

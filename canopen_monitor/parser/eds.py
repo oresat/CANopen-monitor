@@ -107,7 +107,7 @@ class EDS:
         return sum(map(lambda x: len(x), self.indices.values()))
 
     def __getitem__(self, key: int) -> Index:
-        return self.indices.get(hex(key))
+        return self.indices.get(hex(int(str(key), 16)))
 
 
 def load_eds_file(filepath: str) -> EDS:
