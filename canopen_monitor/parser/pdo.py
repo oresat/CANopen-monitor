@@ -58,7 +58,7 @@ def parse(cob_id, eds: EDS, data: bytes):
         num_elements = int(str(eds_elements.default_value))
 
     if num_elements < 0x40:
-        return parse_pdo(num_elements, pdo_type, eds, data)
+        return parse_pdo(num_elements, pdo_type, cob_id, eds, data)
 
     if num_elements in (0xFE, 0xFF):
         return parse_mpdo(num_elements, pdo_type, eds, data, cob_id)
@@ -68,7 +68,7 @@ def parse(cob_id, eds: EDS, data: bytes):
                                 f"[{pdo_type}sub0]")
 
 
-def parse_pdo(num_elements, pdo_type, eds, data):
+def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
     """
     Parse pdo message. Message will include num_elements elements. Elements
     are processed in reverse order, from rightmost to leftmost
@@ -76,10 +76,13 @@ def parse_pdo(num_elements, pdo_type, eds, data):
     output_string = ""
     data_start = 0
     for i in range(num_elements, 0, -1):
-        # Not wrapping this in a try block because by this time we should
-        # have already accessed element 0 for this pdo_type. Alternatively,
-        # we could just pass the default value instead of the whole eds object
-        eds_record = eds[hex(pdo_type)][i]
+        try:
+            eds_record = eds[hex(pdo_type)][i]
+        except TypeError:
+            raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+                                        f"Unable to find eds data for pdo type "
+                                        f"{hex(pdo_type)} index {i}")
+
         pdo_definition = int(eds_record.default_value, 16).to_bytes(4, "big")
 
         index = pdo_definition[0:3]
