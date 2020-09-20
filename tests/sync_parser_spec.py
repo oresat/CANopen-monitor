@@ -14,7 +14,7 @@ class TestSYNC(unittest.TestCase):
         """
         sync_message = b'\x81'
         self.assertEqual("SYNC - 129",
-                         parse(sync_message),
+                         parse(sync_message, 123),
                          "Error on SYNC Message parse")
 
     """
@@ -27,7 +27,7 @@ class TestSYNC(unittest.TestCase):
         """
         sync_message = b''
         self.assertEqual("SYNC - 0",
-                         parse(sync_message),
+                         parse(sync_message, 123),
                          "Error on SYNC empty Message parse")
 
     """
@@ -39,8 +39,8 @@ class TestSYNC(unittest.TestCase):
         Test SYNC Message with an invalid payload
         """
         sync_message = b'\x01\xFF'
-        with self.assertRaises(ValueError):
-            parse(sync_message)
+        with self.assertRaises(FailedValidationError):
+            parse(sync_message, 123)
 
 
 if __name__ == '__main__':
