@@ -23,7 +23,8 @@ class TestEMCY(unittest.TestCase):
         emcy_message = b'\x81\x11\x00\x00\x00\x00\x00\x00'
         self.assertEqual("Error code not found",
                          parse(emcy_message),
-                         "Error on EMCY Message parse with undefined error message")
+                         "Error on EMCY Message parse with undefined error "
+                         "message")
 
 
 if __name__ == '__main__':
