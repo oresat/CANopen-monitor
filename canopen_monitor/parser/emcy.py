@@ -1,7 +1,8 @@
 import string
+from canopen_monitor.parser.eds import EDS
 
 
-def parse(data: bytes):
+def parse(cob_id: int, data: bytes, eds: EDS):
     message = EMCY(data)
     return message.error_message
 

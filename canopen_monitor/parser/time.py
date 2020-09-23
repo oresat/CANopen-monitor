@@ -1,5 +1,4 @@
 import datetime
-
 from canopen_monitor.parser.utilities import *
 
 """

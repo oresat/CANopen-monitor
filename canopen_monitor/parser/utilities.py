@@ -1,5 +1,5 @@
 from struct import unpack
-from canopen_monitor.parser.eds import EDS, Index
+from canopen_monitor.parser.eds import EDS
 
 
 def get_name(eds: EDS, index: bytes) -> (str, str):

@@ -1,9 +1,9 @@
-import canopen_monitor.parser.sync as SYNCParser
-import canopen_monitor.parser.emcy as EMCYParser
-import canopen_monitor.parser.pdo as PDOParser
-import canopen_monitor.parser.hb as HBParser
-from canopen_monitor.parser import FailedValidationError
-from canopen_monitor.parser.sdo import SDOParser
+from ..canmsgs import CANMsg, MessageType
+from . import hb as HBParser, \
+              pdo as PDOParser, \
+              sync as SYNCParser, \
+              emcy as EMCYParser
+from .sdo import SDOParser
 
 
 class CANOpenParser:
@@ -11,35 +11,32 @@ class CANOpenParser:
         self.sdo = SDOParser()
         self.eds_configs = eds_configs
 
-    def parse(self, cob_id: int, data: [bytes]) -> str:
+    def parse(self, msg: CANMsg) -> [str, int]:
         try:
-            response = 'Unknown Parse for COB ID {}'.format(hex(cob_id))
+            node_id = MessageType.cob_id_to_node_id(msg.arb_id)
+            eds_config = self.eds_configs.get(node_id)
 
-            if(cob_id <= 0x80):
-                response = SYNCParser.parse(data, cob_id)
-            elif(cob_id >= 0x80 and cob_id < 0x180):
-                response = EMCYParser.parse(data)
-            elif(cob_id >= 0x180 and cob_id < 0x580):
-                node_id = hex(int(str(cob_id - 0x180), 16))
-                eds_config = self.eds_configs.get(node_id)
-                if(eds_config is None):
-                    response = 'Unregistered Node: {}'.format(node_id)
-                else:
-                    response = PDOParser.parse(cob_id, eds_config, data)
-            elif(cob_id >= 0x580 and cob_id < 0x700):
-                node_id = hex(int(str(cob_id - 0x580), 16))
-                eds_config = self.eds_configs.get(node_id)
-                if(eds_config is None):
-                    response = 'Unregistered Node: {}'.format(node_id)
-                else:
-                    response = self.sdo.parse(cob_id, eds_config, data)
-            elif(cob_id >= 0x700 and cob_id < 0x7E4):
-                node_id = hex(int(str(cob_id - 0x700), 16))
-                eds_config = self.eds_configs.get(node_id)
-                if(eds_config is None):
-                    response = 'Unregistered Node: {}'.format(node_id)
-                else:
-                    response = HBParser.parse(cob_id, eds_config, data)
-        except FailedValidationError as error:
-            return str(error)
-        return response
+            if(msg.message_type == MessageType.UNKNOWN):
+                return [str(msg.message_type), msg.arb_id]
+            elif(msg.message_type == MessageType.SYNC):
+                parse = SYNCParser.parse
+            elif(msg.message_type == MessageType.EMCY):
+                parse = EMCYParser.parse
+            elif(msg.message_type in [
+                MessageType.PDO1_TX, MessageType.PDO1_RX,
+                MessageType.PDO2_TX, MessageType.PDO2_RX,
+                MessageType.PDO3_TX, MessageType.PDO3_RX,
+                MessageType.PDO4_TX, MessageType.PDO4_RX
+            ]):
+                parse = PDOParser.parse
+            elif(msg.message_type in [
+                MessageType.SDO_TX, MessageType.SDO_RX,
+            ]):
+                parse = SDOParser.parse
+            elif(msg.message_type == MessageType.HEARTBEAT):
+                parse = HBParser.parse
+            message = parse(msg.arb_id, msg.data, eds_config)
+
+            return [message, node_id]
+        except Exception as error:
+            return [str(error), 0x0]

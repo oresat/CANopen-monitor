@@ -1,35 +1,33 @@
+from .canmsg import CANMsg
+
+
 class CANMsgTable:
     def __init__(self,
-                 name="",
-                 capacity=None,
-                 stale_time=60,
-                 dead_time=600):
+                 name: str = "message_table",
+                 capacity: int = None):
         self.name = name
-        self.type = type
-        self.table = {}
+        self.message_table = {}
         self.capacity = capacity
-        self.stale_time = stale_time
-        self.dead_time = dead_time
 
-    def add(self, frame):
-        frame.stale_time = self.stale_time
-        frame.dead_time = self.dead_time
-
+    def add(self, frame: CANMsg) -> None:
         if(self.capacity is not None):
-            if(len(self.table) < self.capacity
-                    or (self.table.get(frame.id) is not None)):
-                self.table[frame.id] = frame
+            if(len(self.message_table) < self.capacity
+                    or (self.message_table.get(frame.arb_id) is not None)):
+                self.message_table[frame.arb_id] = frame
         else:
-            self.table[frame.id] = frame
+            self.message_table[frame.arb_id] = frame
 
-    def ids(self):
-        return sorted(self.table.keys())
+    def ids(self) -> [int]:
+        return sorted(self.message_table.keys())
 
-    def __len__(self):
-        return len(self.table)
+    def __len__(self) -> int:
+        return len(self.message_table)
 
-    def __str__(self):
-        return self.name
+    def __str__(self) -> str:
+        attrs = []
+        for k, v in self.__dict__.items():
+            attrs += ['{}={}'.format(k, v)]
+        return 'CANMsgTable {}\n\n'.format(', '.join(attrs))
 
-    def __getitem__(self, key):
-        return self.table.get(key)
+    def __getitem__(self, key: int) -> CANMsg:
+        return self.message_table.get(key)

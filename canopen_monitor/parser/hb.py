@@ -1,14 +1,18 @@
-from canopen_monitor.parser import FailedValidationError
-from canopen_monitor.parser.eds import EDS
-"""
-Parse Heartbeat message
-
-@:param: data: a byte string containing the heartbeat message
-@:returns: string describing the message
-"""
+from .eds import EDS
 
 
-def parse(cob_id, eds_config: EDS, data: bytes):
+def parse(cob_id: int, data: bytes, eds_config: EDS):
+    """
+    Parse Heartbeat message
+
+    Arguments
+    ---------
+    @:param: data: a byte string containing the heartbeat message
+
+    Returns
+    -------
+    `str`: The parsed message
+    """
     states = {
         0x00: "Boot-up",
         0x04: "Stopped",

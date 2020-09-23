@@ -1,7 +1,6 @@
 import string
 from math import ceil, floor
-
-from canopen_monitor.parser import FailedValidationError
+from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
 PDO1_TX = 0x1A00
@@ -14,7 +13,7 @@ PDO4_TX = 0x1A03
 PDO4_RX = 0x1603
 
 
-def parse(cob_id, eds: EDS, data: bytes):
+def parse(cob_id: int, data: bytes, eds: EDS):
     """
     PDO mappings come from the eds file and is dependent on the type (
     Receiving/transmission PDO). Mapping value is made up of index subindex

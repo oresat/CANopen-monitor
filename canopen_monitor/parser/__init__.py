@@ -1,6 +1,13 @@
 import datetime
 import enum
 from re import finditer
+from .eds import load_eds_file
+from .canopen import CANOpenParser
+
+__all__ = [
+    'CANOpenParser',
+    'load_eds_file',
+]
 
 data_types = {0x01: "BOOLEAN",
               0x02: "INTEGER8",
@@ -63,7 +70,7 @@ def camel_to_snake(old_name: str) -> str:
     for match in finditer('[A-Z0-9]+[a-z]*', old_name):
         span = match.span()
         substr = old_name[span[0]:span[1]]
-        length = span[1] - span[0]
+        # length = span[1] - span[0]
         found_submatch = False
 
         for sub_match in finditer('[A-Z]+', substr):

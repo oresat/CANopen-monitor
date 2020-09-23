@@ -1,4 +1,4 @@
-from canopen_monitor.parser import FailedValidationError
+from canopen_monitor.parser.eds import EDS
 from canopen_monitor.parser.utilities import *
 
 SDO_TX = 'SDO_TX'
@@ -881,7 +881,7 @@ class SDOParser:
     def is_complete(self):
         return self.__is_complete
 
-    def parse(self, cob_id, eds: EDS, data: bytes):
+    def parse(self, cob_id: int, data: bytes, eds: EDS):
         try:
             if 0x580 <= cob_id < 0x600:
                 sdo_type = SDO_TX

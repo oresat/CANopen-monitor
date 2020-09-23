@@ -45,6 +45,36 @@ class Pane(cmt.CANMsgTable):
         if(self.scroll_position > (len(self.table) - 1)):
             self.scroll_position = (len(self.table) - 1)
 
+    def draw_schema(self, style):
+        # Pane banner
+        if('HB' in self.frame_types):
+            banner = '{}{}{}{}'.format('COB ID'.ljust(10, ' '),
+                                       'Node Name'.ljust(20, ' '),
+                                       'Status'.ljust(10, ' '),
+                                       'Alive'.ljust(10, ' '))
+        else:
+            banner = '{}{}{}'.format('COB ID'.ljust(10, ' '),
+                                     'Node Name'.ljust(25, ' '),
+                                     'Message'.ljust(40, ' '))
+        self.pad.addstr(0, 1, banner)
+
+        for i, id in enumerate(self.ids()):
+            if(self.selected and i == self.scroll_position):
+                self.pad.attron(style | curses.A_BOLD)
+            data = self.table[id].data
+            cob_id = self.table[id].arb_id
+
+            parsed_msg, node_id = self.parser.parse(id, data)
+            if('HB' in self.frame_types):
+                msg = '{}{}{}{}'.format(str(cob_id).ljust(10, ' '),
+                                        str(node_id).ljust(20, ' '),
+                                        'stuff'.ljust(10, ' '),
+                                        self.table[id].status().ljust(10, ' '))
+            else:
+                msg = ''
+            self.pad.addstr(i + 1, 1, msg)
+            self.pad.attroff(style | curses.A_BOLD)
+
     def draw(self):
         style = curses.color_pair(4)
         height, width = self.parent.getmaxyx()
@@ -74,19 +104,7 @@ class Pane(cmt.CANMsgTable):
         self.parent.addstr(")")
         self.parent.attroff(style | curses.A_REVERSE)
 
-        # Pane banner
-        self.pad.addstr(0, 1, '{}{}'.format('COB ID'.ljust(10, ' '),
-                                            'Message'))
-
-        for i, id in enumerate(self.ids()):
-            if(self.selected and i == self.scroll_position):
-                self.pad.attron(style | curses.A_BOLD)
-            data = self.table[id].data
-
-            msg = "{}{}".format(hex(id).ljust(10, ' '),
-                                self.parser.parse(id, data))
-            self.pad.addstr(i + 1, 1, msg)
-            self.pad.attroff(style | curses.A_BOLD)
+        self.draw_schema(style)
 
         self.parent.refresh()
 

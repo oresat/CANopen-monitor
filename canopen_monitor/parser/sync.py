@@ -1,8 +1,8 @@
-from canopen_monitor.parser import FailedValidationError
-from canopen_monitor.parser.utilities import *
+from canopen_monitor.parser.eds import EDS
+from canopen_monitor.parser.utilities import decode, UNSIGNED8
 
 
-def parse(data: bytes, cob_id):
+def parse(cob_id: int, data: bytes, eds: EDS):
     if len(data) > 1:
         raise FailedValidationError(data, cob_id, cob_id, __name__,
                                     f"SYNC message is outside of bounds "
