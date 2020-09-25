@@ -1,7 +1,7 @@
 import string
 from math import ceil, floor
-from canopen_monitor.parser.eds import EDS
-from canopen_monitor.parser.utilities import *
+from .eds import EDS
+from .utilities import FailedValidationError, get_name, decode
 
 PDO1_TX = 0x1A00
 PDO1_RX = 0x1600

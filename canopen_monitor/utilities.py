@@ -41,7 +41,7 @@ def config_factory(filepath: str):
                             'name': 'Hearbeats',
                             'stale_node_timeout': 60,
                             'fields': [],
-                            'frame_types': ['HB']
+                            'frame_types': ['HEARTBEAT']
                         }, {
                             'type': 'table',
                             'capacity': 16,
@@ -61,19 +61,19 @@ def config_factory(filepath: str):
                 'frame_types': [
                     'NMT',
                     'SYNC',
-                    'EMCY',
                     'TIME',
-                    'TPDO1',
-                    'RPDO1',
-                    'TPDO2',
-                    'RPDO2',
-                    'TPDO3',
-                    'RPDO3',
-                    'TPDO4',
-                    'RPDO4',
-                    'TSDO',
-                    'RSDO',
-                    'UKOWN'
+                    'EMER',
+                    'PDO1_TX',
+                    'PDO1_RX',
+                    'PDO2_TX',
+                    'PDO2_RX',
+                    'PDO3_TX',
+                    'PDO3_RX',
+                    'PDO4_TX',
+                    'PDO4_RX',
+                    'SDO_TX',
+                    'SDO_RX',
+                    'UKNOWN'
                 ]
             }]}
     else:

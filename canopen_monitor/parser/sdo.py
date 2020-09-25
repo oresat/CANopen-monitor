@@ -1,5 +1,5 @@
-from canopen_monitor.parser.eds import EDS
-from canopen_monitor.parser.utilities import *
+from .eds import EDS
+from .utilities import FailedValidationError, get_name, decode
 
 SDO_TX = 'SDO_TX'
 SDO_RX = 'SDO_RX'
@@ -124,7 +124,7 @@ class SDOInitiateData:
                 self.__data = byte_value[3 - self.__n:4]
                 if int.from_bytes(byte_value[0:3 - self.__n], "big") > 0:
                     raise ValueError(f"Invalid data value in bytes 4-7: "
-                                     f"'{byte_value.hex()} larger than size: "
+                                     f"'{hex(byte_value)} larger than size: "
                                      f"'{self.__n}'")
             else:
                 self.__data = byte_value
@@ -261,7 +261,7 @@ class SDOSegmentData:
         if self.__n > 0:
             if int.from_bytes(byte_value[6 - self.__n:6], "big") > 0:
                 raise ValueError(f"Data value larger than size: "
-                                 f"'{byte_value.hex()}'")
+                                 f"'{hex(byte_value)}'")
 
 
 class SDOSegmentNoData:
@@ -461,7 +461,7 @@ for the following block download with 0 < blksize < 128
         self.__reserved = raw_sdo[5:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{self.__reserved.hex()}'")
+                             f"'{hex(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -552,7 +552,7 @@ protocol
         self.__reserved = raw_sdo[6:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{self.__reserved.hex()}'")
+                             f"'{hex(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -689,7 +689,7 @@ for the following block download with 0 < blksize < 128
         self.__reserved = raw_sdo[3:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{self.__reserved.hex()}'")
+                             f"'{hex(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -768,7 +768,7 @@ otherwise CRC shall be set to 0.
         self.__reserved = raw_sdo[3:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{self.__reserved.hex()}'")
+                             f"'{hex(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -839,7 +839,7 @@ that do not contain data. Bytes [8-n, 7] do not contain segment data.
         self.__reserved = raw_sdo[1:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{self.__reserved.hex()}'")
+                             f"'{hex(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -1106,7 +1106,7 @@ class SDOParser:
         try:
             values = get_name(eds, index)
         except TypeError:
-            raise ValueError(f"Unable to eds content at index {index.hex()}")
+            raise ValueError(f"Unable to eds content at index {hex(index)}")
 
         self.__inProgressType = values[0]
         self.__inProgressName = values[1]

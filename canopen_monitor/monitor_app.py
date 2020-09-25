@@ -207,8 +207,6 @@ class MonitorApp:
                 component = Pane(name,
                                  self.parser,
                                  capacity=capacity,
-                                 stale_time=stale_time,
-                                 dead_time=dead_time,
                                  fields=fields,
                                  frame_types=frame_types)
             parent.add_panel(component)

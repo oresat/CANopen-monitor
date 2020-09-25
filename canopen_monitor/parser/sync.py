@@ -1,5 +1,5 @@
-from canopen_monitor.parser.eds import EDS
-from canopen_monitor.parser.utilities import decode, UNSIGNED8
+from .eds import EDS
+from .utilities import FailedValidationError, decode, UNSIGNED8
 
 
 def parse(cob_id: int, data: bytes, eds: EDS):

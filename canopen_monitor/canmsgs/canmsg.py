@@ -2,6 +2,22 @@ import datetime
 from enum import Enum
 import pyvit.can as pc
 
+node_ranges = [(0x0, 0x0),      # NMT
+               (0x1, 0x7F),     # SYNC
+               (0x100, 0x100),  # TIME
+               (0x80, 0x0FF),   # EMER
+               (0x180, 0x1FF),  # PDO1_TX
+               (0x200, 0x27F),  # PDO1_RX
+               (0x280, 0x2FF),  # PDO2_TX
+               (0x300, 0x37F),  # PDO2_RX
+               (0x380, 0x3FF),  # PDO3_TX
+               (0x400, 0x47F),  # PDO3_RX
+               (0x480, 0x4FF),  # PDO4_TX
+               (0x500, 0x57F),  # PDO4_RX
+               (0x580, 0x5FF),  # SDO_TX
+               (0x600, 0x680),  # SDO_RX
+               (0x700, 0x7FF)]  # HEARTBEAT
+
 
 class MessageType(Enum):
     NMT = 0
@@ -33,22 +49,6 @@ class MessageType(Enum):
         -------
         `MessageType`: The message type of the the message based on the COB ID.
         """
-        node_ranges = [(0x0, 0x0),
-                       (0x1, 0x7F),
-                       (0x100, 0x100),
-                       (0x80, 0x0FF),
-                       (0x180, 0x1FF),
-                       (0x200, 0x27F),
-                       (0x280, 0x2FF),
-                       (0x300, 0x37F),
-                       (0x380, 0x3FF),
-                       (0x400, 0x47F),
-                       (0x480, 0x4FF),
-                       (0x500, 0x57F),
-                       (0x580, 0x5FF),
-                       (0x600, 0x680),
-                       (0x700, 0x7FF)]
-
         # Determine a node type the cob id fits into
         #   and return the matching type
         for i, range in enumerate(node_ranges):
@@ -71,7 +71,7 @@ class MessageType(Enum):
         `int`: The Node ID of the message.
         """
         # Determine a node type the cob id fits into and return the node id
-        for range in MessageType.NODE_RANGES:
+        for range in node_ranges:
             if(cob_id >= range[0] and cob_id <= range[1]):
                 return cob_id - range[0]
 
@@ -90,8 +90,8 @@ class CANMsg(pc.Frame):
     def __init__(self,
                  src: pc.Frame,
                  interface: str,
-                 stale_timeout: int = 6,
-                 dead_timeout: int = 12):
+                 stale_timeout: int = 60,
+                 dead_timeout: int = 120):
         """
         CANMsg Frame initialization.abs($0)
 
@@ -113,12 +113,19 @@ class CANMsg(pc.Frame):
         self.node_name = hex(self.arb_id)
 
     def __str__(self):
+        """
+        Overloaded str opeartor.
+
+        Returns
+        -------
+        `str`: A string representation of a CANMsg.
+        """
         attrs = []
         for k, v in self.__dict__.items():
             attrs += ['{}={}'.format(k, v)]
-        return "<CANMsg {} {} {}>".format(self.status(),
-                                          self.message_type,
-                                          self.arb_id)
+        return "<CANMsg {} {} {}>".format(self.message_type,
+                                          self.arb_id,
+                                          self.status())
 
     def __le__(self, operand) -> bool:
         """
@@ -139,14 +146,14 @@ class CANMsg(pc.Frame):
         -------
         `str`: A string indication of the CAN message's current status.
         """
-        if(self.is_dead()):
+        if(self._is_dead()):
             return 'DEAD'
-        elif(self.is_stale()):
+        elif(self._is_stale()):
             return 'STALE'
         else:
             return 'ALIVE'
 
-    def is_stale(self) -> bool:
+    def _is_stale(self) -> bool:
         """
         Returns
         -------
@@ -156,7 +163,7 @@ class CANMsg(pc.Frame):
         return (datetime.datetime.now() - self.timestamp) \
             .total_seconds() >= self.stale_timeout
 
-    def is_dead(self) -> bool:
+    def _is_dead(self) -> bool:
         """
         Returns
         -------

@@ -1,4 +1,5 @@
 from .eds import EDS
+from .utilities import FailedValidationError
 
 
 def parse(cob_id: int, data: bytes, eds_config: EDS):
