@@ -2,11 +2,11 @@ import time
 import curses
 import threading
 import canopen_monitor
-from canopen_monitor.ui.pane import Pane
-from canopen_monitor.ui.windows import PopupWindow
-from canopen_monitor.ui.grid import Grid, Split
-from canopen_monitor.parser.canopen import CANOpenParser
-from canopen_monitor.canmsgs.magic_can_bus import MagicCANBus
+from .ui.pane import HeartBeatPane, InfoPane, Pane
+from .ui.windows import PopupWindow
+from .ui.grid import Grid, Split
+from .parser.canopen import CANOpenParser
+from .canmsgs.magic_can_bus import MagicCANBus
 
 
 class MonitorApp:
@@ -204,9 +204,17 @@ class MonitorApp:
                 stale_time = schema.get('stale_node_timeout')
                 dead_time = schema.get('dead_node_timeout')
                 frame_types = schema.get('frame_types')
-                component = Pane(name,
-                                 self.parser,
-                                 capacity=capacity,
-                                 fields=fields,
-                                 frame_types=frame_types)
+
+                if('HEARTBEAT' in frame_types):
+                    component_type = HeartBeatPane
+                elif('SDO_TX' in frame_types
+                     or 'PDO1_TX' in frame_types):
+                    component_type = Pane
+                else:
+                    component_type = InfoPane
+                component = component_type(name,
+                                           self.parser,
+                                           capacity=capacity,
+                                           fields=fields,
+                                           frame_types=frame_types)
             parent.add_panel(component)

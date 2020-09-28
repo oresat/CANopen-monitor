@@ -117,7 +117,7 @@ class SDOInitiateData:
                 self.__data = int.from_bytes(byte_value, "big")
             elif int.from_bytes(byte_value, "big") > 0:
                 raise ValueError(f"Invalid data value in bytes 4-7: "
-                                 f"'{byte_value.hex()}, expected > 0")
+                                 f"'{hex(byte_value)}, expected > 0")
         # Expedited Transfer
         else:
             if self.__size_indicator:
@@ -171,8 +171,9 @@ class SDOInitiateNoData:
             raise ValueError(f"Invalid x value (4_0): "
                              f"'{hex(raw_sdo[0] & 0x1F)}'")
         if int.from_bytes(raw_sdo[4:8], "big") > 0:
+            bytes = list(map(lambda x: hex(x), raw_sdo[4:8]))
             raise ValueError(f"Invalid reserved value: "
-                             f"'{raw_sdo[4:8].hex()}'")
+                             f"'{bytes}'")
 
     @property
     def index(self):

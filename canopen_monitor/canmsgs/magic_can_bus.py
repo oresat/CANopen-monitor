@@ -25,7 +25,11 @@ class MagicCANBus:
     threads `[threading.Thread]`: A list of bus-listener worker threads.
     """
 
-    def __init__(self, interface_names: [str] = [], block: bool = True):
+    def __init__(self,
+                 interface_names: [str] = [],
+                 block: bool = True,
+                 stale_timeout: int = 60,
+                 dead_timeout: int = 120):
         """
         Magic CAN Bus initialization.
 
@@ -39,6 +43,8 @@ class MagicCANBus:
         self.interfaces = []
         self.frames = q.Queue()
         self.failed_interfaces = []
+        self.stale_timeout = stale_timeout
+        self.dead_timeout = dead_timeout
 
         # Threading things
         self.stop_listening = t.Event()
@@ -106,7 +112,10 @@ class MagicCANBus:
         try:
             res = self.frames.get(block=self.block,
                                   timeout=TIMEOUT)
-            return canmsgs.CANMsg(res[0], res[1])
+            return canmsgs.CANMsg(res[0],
+                                  res[1],
+                                  self.stale_timeout,
+                                  self.dead_timeout)
         except q.Empty:
             return None
 

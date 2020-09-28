@@ -94,6 +94,6 @@ def determine_error_message(error_code: bytes):
 
     # Unsafe conversion to int ok, because data is bytes
     if int(hex(error_code[0]), 16) in error_codes:
-        return error_codes[int(error_code.hex(), 16)]
+        return error_codes[int(hex(error_code), 16)]
     else:
         return "Error code not found"

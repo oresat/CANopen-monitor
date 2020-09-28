@@ -37,6 +37,17 @@ class MessageType(Enum):
     HEARTBEAT = 14
     UKNOWN = 15
 
+    PDO = 16  # Super type PDO
+    SDO = 17  # Super type SDO
+
+    def super_type(self):
+        if(self.value >= 4 and self.value <= 11):
+            return MessageType(16)
+        elif(self.value >= 12 and self.value <= 13):
+            return MessageType(17)
+        else:
+            return MessageType(self.value)
+
     def cob_id_to_type(cob_id: int):
         """
         A static function for turning a COB ID into a MessageType.
@@ -90,8 +101,8 @@ class CANMsg(pc.Frame):
     def __init__(self,
                  src: pc.Frame,
                  interface: str,
-                 stale_timeout: int = 60,
-                 dead_timeout: int = 120):
+                 stale_timeout: int,
+                 dead_timeout: int):
         """
         CANMsg Frame initialization.abs($0)
 
@@ -110,7 +121,9 @@ class CANMsg(pc.Frame):
         self.message_type = MessageType.cob_id_to_type(src.arb_id)
         self.stale_timeout = stale_timeout
         self.dead_timeout = dead_timeout
-        self.node_name = hex(self.arb_id)
+        node_name = MessageType.cob_id_to_node_id(src.arb_id)
+        self.node_name = hex(node_name) \
+            if node_name is not None else hex(src.arb_id)
 
     def __str__(self):
         """
