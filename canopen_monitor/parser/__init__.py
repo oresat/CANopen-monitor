@@ -1,6 +1,12 @@
-import datetime
 import enum
 from re import finditer
+from .eds import load_eds_file
+from .canopen import CANOpenParser
+
+__all__ = [
+    'CANOpenParser',
+    'load_eds_file',
+]
 
 data_types = {0x01: "BOOLEAN",
               0x02: "INTEGER8",
@@ -63,7 +69,7 @@ def camel_to_snake(old_name: str) -> str:
     for match in finditer('[A-Z0-9]+[a-z]*', old_name):
         span = match.span()
         substr = old_name[span[0]:span[1]]
-        length = span[1] - span[0]
+        # length = span[1] - span[0]
         found_submatch = False
 
         for sub_match in finditer('[A-Z]+', substr):
@@ -89,28 +95,3 @@ def camel_to_snake(old_name: str) -> str:
             new_name += substr.lower()
 
     return new_name
-
-
-class FailedValidationError(Exception):
-    """
-    Exception raised for validation errors found when parsing CAN messages
-
-    Attributes
-    ----------
-    bytes - The byte string representation of the message
-    message - text describing the error (same as __str__)
-    node_id - if of the node sending the message
-    cob-id - message cob-id
-    parse_type - message type that failed (ex: SDO, PDO)
-    sub_type - sub-type of message that failed (ex: SDO Segment) or None
-    """
-
-    def __init__(self, data, node_id, cob_id, parse_type, message="A Validation Error has occurred", sub_type=None):
-        self.data = data
-        self.node_id = node_id
-        self.cob_id = cob_id
-        self.parse_type = parse_type
-        self.sub_type = sub_type
-        self.message = message
-        self.time_occured = datetime.datetime.now()
-        super().__init__(self.message)

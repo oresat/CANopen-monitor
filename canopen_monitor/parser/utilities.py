@@ -1,5 +1,37 @@
+import datetime
 from struct import unpack
-from canopen_monitor.parser.eds import EDS, Index
+from canopen_monitor.parser.eds import EDS
+
+
+class FailedValidationError(Exception):
+    """
+    Exception raised for validation errors found when parsing CAN messages
+
+    Attributes
+    ----------
+    bytes - The byte string representation of the message
+    message - text describing the error (same as __str__)
+    node_id - if of the node sending the message
+    cob-id - message cob-id
+    parse_type - message type that failed (ex: SDO, PDO)
+    sub_type - sub-type of message that failed (ex: SDO Segment) or None
+    """
+
+    def __init__(self,
+                 data,
+                 node_id,
+                 cob_id,
+                 parse_type,
+                 message="A Validation Error has occurred",
+                 sub_type=None):
+        self.data = data
+        self.node_id = node_id
+        self.cob_id = cob_id
+        self.parse_type = parse_type
+        self.sub_type = sub_type
+        self.message = message
+        self.time_occured = datetime.datetime.now()
+        super().__init__(self.message)
 
 
 def get_name(eds: EDS, index: bytes) -> (str, str):
@@ -9,8 +41,8 @@ def get_name(eds: EDS, index: bytes) -> (str, str):
     :param index: the index and subindex to retrieve data from
     :return: a tuple containing the name and data type as a string
     """
-    key = int(index[:2].hex(), 16)
-    subindex_key = int(index[2:3].hex(), 16)
+    key = int(hex(index[:2]), 16)
+    subindex_key = int(hex(index[2:3]), 16)
 
     result = eds[hex(key)].parameter_name
 
@@ -55,11 +87,11 @@ def decode(defined_type, data):
     elif defined_type == VISIBLE_STRING:
         result = data.decode('utf-8')
     elif defined_type in (OCTET_STRING, DOMAIN):
-        result = data.hex()
+        result = hex(data)
     elif defined_type == UNICODE_STRING:
         result = data.decode('utf-16-be')
     else:
         raise ValueError(f"Invalid data type {defined_type}. "
-                         f"Unable to decode data {data.hex()}")
+                         f"Unable to decode data {hex(data)}")
 
     return result

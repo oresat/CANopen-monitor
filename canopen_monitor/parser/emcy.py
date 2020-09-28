@@ -1,7 +1,7 @@
-import string
+from canopen_monitor.parser.eds import EDS
 
 
-def parse(data: bytes):
+def parse(cob_id: int, data: bytes, eds: EDS):
     message = EMCY(data)
     return message.error_message
 
@@ -93,7 +93,7 @@ def determine_error_message(error_code: bytes):
     }
 
     # Unsafe conversion to int ok, because data is bytes
-    if int(error_code.hex(), 16) in error_codes:
-        return error_codes[int(error_code.hex(), 16)]
+    if int(hex(error_code[0]), 16) in error_codes:
+        return error_codes[int(hex(error_code), 16)]
     else:
         return "Error code not found"

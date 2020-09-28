@@ -1,14 +1,29 @@
-import time
-import canopen_monitor.parser as dictionaries
-from canard.can import Frame
+import datetime
 from enum import Enum
+import pyvit.can as pc
+
+node_ranges = [(0x0, 0x0),      # NMT
+               (0x1, 0x7F),     # SYNC
+               (0x100, 0x100),  # TIME
+               (0x80, 0x0FF),   # EMER
+               (0x180, 0x1FF),  # PDO1_TX
+               (0x200, 0x27F),  # PDO1_RX
+               (0x280, 0x2FF),  # PDO2_TX
+               (0x300, 0x37F),  # PDO2_RX
+               (0x380, 0x3FF),  # PDO3_TX
+               (0x400, 0x47F),  # PDO3_RX
+               (0x480, 0x4FF),  # PDO4_TX
+               (0x500, 0x57F),  # PDO4_RX
+               (0x580, 0x5FF),  # SDO_TX
+               (0x600, 0x680),  # SDO_RX
+               (0x700, 0x7FF)]  # HEARTBEAT
 
 
-class FrameType(Enum):
+class MessageType(Enum):
     NMT = 0
     SYNC = 1
-    EMER = 2
-    TIME_STAMP = 3
+    TIME = 2
+    EMER = 3
     PDO1_TX = 4
     PDO1_RX = 5
     PDO2_TX = 6
@@ -22,114 +37,151 @@ class FrameType(Enum):
     HEARTBEAT = 14
     UKNOWN = 15
 
-    def __str__(self): return {
-            0: "NMT",
-            1: "SYNC",
-            2: "EMCY",
-            3: "TIME",
-            4: "TPDO1",
-            5: "RPDO1",
-            6: "TPDO2",
-            7: "RPDO2",
-            8: "TPDO3",
-            9: "RPDO3",
-            10: "TPDO4",
-            11: "RPDO4",
-            12: "TSDO",
-            13: "RSDO",
-            14: "HB",
-            15: "UKOWN"
-            }[self.value]
+    PDO = 16  # Super type PDO
+    SDO = 17  # Super type SDO
+
+    def super_type(self):
+        if(self.value >= 4 and self.value <= 11):
+            return MessageType(16)
+        elif(self.value >= 12 and self.value <= 13):
+            return MessageType(17)
+        else:
+            return MessageType(self.value)
+
+    def cob_id_to_type(cob_id: int):
+        """
+        A static function for turning a COB ID into a MessageType.
+
+        Arguments
+        ---------
+        cob_id `int`: The COB ID of the message.
+
+        Returns
+        -------
+        `MessageType`: The message type of the the message based on the COB ID.
+        """
+        # Determine a node type the cob id fits into
+        #   and return the matching type
+        for i, range in enumerate(node_ranges):
+            if(cob_id >= range[0] and cob_id <= range[1]):
+                return MessageType(i)
+
+        # If the cob id matched no range then return the unknown type
+        return MessageType(15)
+
+    def cob_id_to_node_id(cob_id: int) -> int:
+        """
+        A static function for turning a COB ID into a Node ID.
+
+        Arguments
+        ---------
+        cob_id `int`: The COB ID of the message.
+
+        Returns
+        -------
+        `int`: The Node ID of the message.
+        """
+        # Determine a node type the cob id fits into and return the node id
+        for range in node_ranges:
+            if(cob_id >= range[0] and cob_id <= range[1]):
+                return cob_id - range[0]
+
+        # If the cob id matched no range then return None
+        return None
+
+    def __str__(self) -> str:
+        return self.name
 
 
-class CANMsg(Frame):
-    """Models a raw CANopen Message recieved from the CAN Bus
-
-
+class CANMsg(pc.Frame):
+    """
+    Models a raw CANopen Message recieved from the CAN Bus
     """
 
-    def __init__(self, src, ndev, type=FrameType.UKNOWN):
-        super().__init__(src.id, src.dlc, src.data, src.frame_type, src.is_extended_id)
-        self.node_id = src.id
-        self.ndev = ndev
-        self.type = type
-        self.stale_time = 0
-        self.dead_time = 0
-        self.last_modified = time.time()
+    def __init__(self,
+                 src: pc.Frame,
+                 interface: str,
+                 stale_timeout: int,
+                 dead_timeout: int):
+        """
+        CANMsg Frame initialization.abs($0)
 
-        # Process the ID
-        if(self.id == 0):  # NMT node control
-            self.type = FrameType.NMT
-            self.node_id = self.id
-        elif(self.id == 0x080):  # SYNC
-            self.type = FrameType.SYNC
-            self.node_id = self.id
-        elif(self.id > 0x80 and self.id < 0x100):  # Emergency
-            self.type = FrameType.EMER
-            self.node_id = self.id - 0x80
-        elif(self.id == 100):  # Time Stamp
-            self.type = FrameType.TIME_STAMP
-            self.node_id = self.id
-        elif(self.id >= 0x180 and self.id < 0x200):  # PDO1 tx
-            self.type = FrameType.PDO1_TX
-            self.node_id = self.id - 0x180
-        elif(self.id >= 0x200 and self.id < 0x280):  # PDO1 rx
-            self.type = FrameType.PDO1_RX
-            self.node_id = self.id - 0x200
-        elif(self.id >= 0x280 and self.id < 0x300):  # PDO2 tx
-            self.type = FrameType.PDO2_TX
-            self.node_id = self.id - 0x280
-        elif(self.id >= 0x300 and self.id < 0x380):  # PDO2 rx
-            self.type = FrameType.PDO2_RX
-            self.node_id = self.id - 0x300
-        elif(self.id >= 0x380 and self.id < 0x400):  # PDO3 tx
-            self.type = FrameType.PDO3_TX
-            self.node_id = self.id - 0x380
-        elif(self.id >= 0x400 and self.id < 0x480):  # PDO3 rx
-            self.type = FrameType.PDO3_RX
-            self.node_id = self.id - 0x400
-        elif(self.id >= 0x480 and self.id < 0x500):  # PDO4 tx
-            self.type = FrameType.PDO4_TX
-            self.node_id = self.id - 0x480
-        elif(self.id >= 0x500 and self.id < 0x580):  # PDO4 rx
-            self.type = FrameType.PDO4_RX
-            self.node_id = self.id - 0x500
-        elif(self.id >= 0x580 and self.id < 0x600):  # SDO tx
-            self.type = FrameType.SDO_TX
-            self.node_id = self.id - 0x580
-        elif(self.id >= 0x600 and self.id < 0x680):  # SDO rx
-            self.type = FrameType.SDO_RX
-            self.node_id = self.id - 0x600
-        elif(self.id > 0x700 and self.id < 0x7FF):  # Heartbeats
-            self.node_id = self.id - 0x700
-            self.type = FrameType.HEARTBEAT
+        Arguments
+        ----------
 
-        self.name = dictionaries.node_names.get(self.node_id)
-        if(self.name is None):
-            self.name = str(hex(self.id))
+        src `pyvit.can.Frame`: The raw Frame read off of the CAN bus.
+        interface `str`: The name of the interface that src was read from.
+        """
+        super().__init__(src.arb_id,
+                         data=src.data,
+                         frame_type=src.frame_type,
+                         interface=interface,
+                         timestamp=datetime.datetime.now(),
+                         extended=src.is_extended_id)
+        self.message_type = MessageType.cob_id_to_type(src.arb_id)
+        self.stale_timeout = stale_timeout
+        self.dead_timeout = dead_timeout
+        node_name = MessageType.cob_id_to_node_id(src.arb_id)
+        self.node_name = hex(node_name) \
+            if node_name is not None else hex(src.arb_id)
 
     def __str__(self):
-        if(self.type == FrameType.HEARTBEAT):
-            status = dictionaries.heartbeat_statuses.get(self.data[0])
-            if(status is None):
-                return str(hex(self.data[0]))
-            else:
-                return status
+        """
+        Overloaded str opeartor.
+
+        Returns
+        -------
+        `str`: A string representation of a CANMsg.
+        """
+        attrs = []
+        for k, v in self.__dict__.items():
+            attrs += ['{}={}'.format(k, v)]
+        return "<CANMsg {} {} {}>".format(self.message_type,
+                                          self.arb_id,
+                                          self.status())
+
+    def __le__(self, operand) -> bool:
+        """
+        Arguments
+        ----------
+        operand `CANMsg`: The CAN message to comare this object against.
+
+        Returns
+        -------
+        `bool`: An indication of whether or not this object has a lesser or
+                equal COB ID than the specified operand.
+        """
+        return self.arb_id <= operand.arb_id
+
+    def status(self) -> str:
+        """
+        Returns
+        -------
+        `str`: A string indication of the CAN message's current status.
+        """
+        if(self._is_dead()):
+            return 'DEAD'
+        elif(self._is_stale()):
+            return 'STALE'
         else:
-            res = ""
-            for i in self.data:
-                res += str(hex(i)) + " "
-            return res
+            return 'ALIVE'
 
-    def __lt__(self, operand): return self.type.value < operand.value
-    def __le__(self, operand): return self.type.value <= operand.value
-    def __gt__(self, operand): return self.type.value > operand.value
-    def __ge__(self, operand): return self.type.value >= operand.value
-    def __eq__(self, operand): return self.type.value == operand.value
-    def __ne__(self, operand): return self.type.value != operand.value
+    def _is_stale(self) -> bool:
+        """
+        Returns
+        -------
+        `bool`: An indication of whether or not this message is older than the
+                configured stale timeout time.
+        """
+        return (datetime.datetime.now() - self.timestamp) \
+            .total_seconds() >= self.stale_timeout
 
-    def is_stale(self):
-        return ((time.time() - self.last_modified) >= self.stale_time)
-
-    def is_dead(self):
-        return ((time.time() - self.last_modified) >= self.dead_time)
+    def _is_dead(self) -> bool:
+        """
+        Returns
+        -------
+        `bool`: An indication of whether or not this message is older than the
+                configured dead timeout time.
+        """
+        return (datetime.datetime.now() - self.timestamp) \
+            .total_seconds() >= self.dead_timeout
