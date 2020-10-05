@@ -2,7 +2,7 @@ import os
 
 MAJOR = 3
 MINOR = 1
-PATCH = 0
+PATCH = 1
 
 APP_NAME = 'canopen-monitor'
 APP_DESCRIPTION \

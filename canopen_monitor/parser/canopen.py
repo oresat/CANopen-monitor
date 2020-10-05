@@ -20,9 +20,7 @@ class CANOpenParser:
         if(eds_config is not None):
             msg.node_name = eds_config.device_info.product_name
 
-        if(len(msg.data) < 8):
-            return ['Empty or corrupt data block!', msg.node_name]
-        elif(msg.message_type == MessageType.UKNOWN):
+        if(msg.message_type == MessageType.UKNOWN):
             return [str(msg.message_type), str(hex(msg.arb_id))]
         elif(msg.message_type == MessageType.SYNC):
             parse = SYNCParser.parse
@@ -37,10 +35,6 @@ class CANOpenParser:
 
         try:
             message = parse(msg.arb_id, msg.data, eds_config)
-        except UnboundLocalError as e:
-            message = str(e)
-        except TypeError as e:
-            message = str(e)
         except FailedValidationError:
             message = str(list(map(lambda x: hex(x), msg.data)))
 

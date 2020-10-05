@@ -68,17 +68,19 @@ class Pane(CANMsgTable):
             if(len(str(msg.message_type)) > self.col_widths[3]):
                 self.col_widths[3] = len(str(msg.message_type)) + 2
 
-    def draw_banner(self):
+    def draw_banner(self, style):
         banner = ''
 
         for i, col in enumerate(self.cols):
             banner += col.ljust(self.col_widths[i], ' ')
 
+        self.parent.attron(style | curses.A_REVERSE)
         self.pad.addstr(0, 1, banner)
+        self.parent.attroff(style | curses.A_REVERSE)
 
     def draw_schema(self, style):
         self.check_col_widths()
-        self.draw_banner()
+        self.draw_banner(style)
 
         for i, id in enumerate(self.ids()):
             if(self.selected and i == self.scroll_position):
@@ -102,6 +104,7 @@ class Pane(CANMsgTable):
                                        cols[2].ljust(self.col_widths[2], ' '),
                                        cols[3].ljust(self.col_widths[3], ' '),
                                        cols[4].ljust(self.col_widths[4], ' '))
+
             self.pad.addstr(i + 1, 1, line)
             self.pad.attroff(style | curses.A_BOLD)
 
@@ -158,12 +161,8 @@ class Pane(CANMsgTable):
 
 
 class InfoPane(Pane):
-    def __init__(self, name, parser, capacity=None, fields=[], frame_types=[]):
-        super().__init__(name,
-                         parser,
-                         capacity=capacity,
-                         fields=fields,
-                         frame_types=frame_types)
+    def __init__(self, name, parser):
+        super().__init__(name, parser)
 
         # Column layout configuration
         self.cols = []
@@ -203,7 +202,7 @@ class HeartBeatPane(Pane):
 
     def draw_schema(self, style):
         self.check_col_widths()
-        self.draw_banner()
+        self.draw_banner(style)
 
         for i, id in enumerate(self.ids()):
             if(self.selected and i == self.scroll_position):

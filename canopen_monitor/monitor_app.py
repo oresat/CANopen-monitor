@@ -178,11 +178,18 @@ class MonitorApp:
         self.selected.selected = True
 
     def construct_grid(self, schema, parent=None):
+        # Required attributes
         type = schema.get('type')
         split = schema.get('split')
         data = schema.get('data')
         split = {'horizontal': Split.HORIZONTAL,
                  'vertical': Split.VERTICAL}.get(split)
+
+        # Optional attributes
+        name = schema.get('name')
+        fields = schema.get('fields')
+        capacity = schema.get('capacity')
+        frame_types = schema.get('frame_types')
 
         if(parent is None):
             self.parent = Grid(parent=self.screen, split=split)
@@ -197,24 +204,21 @@ class MonitorApp:
 
                 for entry in data:
                     self.construct_grid(entry, component)
+            elif(type == 'heartbeat_table'):
+                component = HeartBeatPane(name,
+                                          self.parser,
+                                          capacity=capacity,
+                                          fields=fields,
+                                          frame_types=frame_types)
+            elif(type == 'misc_table'):
+                component = Pane(name,
+                                 self.parser,
+                                 capacity=capacity,
+                                 fields=fields,
+                                 frame_types=frame_types)
+            elif(type == 'info_table'):
+                component = InfoPane(name, self.parser)
             else:
-                name = schema.get('name')
-                fields = schema.get('fields')
-                capacity = schema.get('capacity')
-                stale_time = schema.get('stale_node_timeout')
-                dead_time = schema.get('dead_node_timeout')
-                frame_types = schema.get('frame_types')
-
-                if('HEARTBEAT' in frame_types):
-                    component_type = HeartBeatPane
-                elif('SDO_TX' in frame_types
-                     or 'PDO1_TX' in frame_types):
-                    component_type = Pane
-                else:
-                    component_type = InfoPane
-                component = component_type(name,
-                                           self.parser,
-                                           capacity=capacity,
-                                           fields=fields,
-                                           frame_types=frame_types)
+                raise ValueError('Failed to parse layout! Invalid table type: {}'
+                                 .format(type))
             parent.add_panel(component)

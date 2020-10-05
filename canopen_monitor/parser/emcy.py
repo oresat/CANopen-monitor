@@ -92,8 +92,9 @@ def determine_error_message(error_code: bytes):
         0xFF00: "Device specific - generic error"
     }
 
-    # Unsafe conversion to int ok, because data is bytes
-    if int(hex(error_code[0]), 16) in error_codes:
-        return error_codes[int(hex(error_code), 16)]
+    # Safe conversion to int ok, because data is bytes
+    error_id = int(hex(error_code[0]), 16)
+    if error_id in error_codes.keys():
+        return error_codes[error_id]
     else:
-        return "Error code not found"
+        return "UNKNOWN ERROR"

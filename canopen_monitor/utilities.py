@@ -35,28 +35,22 @@ def config_factory(filepath: str):
                 'type': 'grid',
                 'split': 'vertical',
                 'data': [{
-                            'type': 'table',
-                            'capacity': 16,
-                            'dead_node_timeout': 600,
+                            'type': 'heartbeat_table',
+                            'capacity': None,
                             'name': 'Hearbeats',
-                            'stale_node_timeout': 60,
                             'fields': [],
                             'frame_types': ['HEARTBEAT']
                         }, {
-                            'type': 'table',
-                            'capacity': 16,
-                            'dead_node_timeout': 600,
+                            'type': 'info_table',
+                            'capacity': None,
                             'name': 'Info',
-                            'stale_node_timeout': 60,
                             'fields': [],
                             'frame_types': []
                         }]
             }, {
-                'type': 'table',
-                'capacity': 16,
-                'dead_node_timeout': 60,
+                'type': 'misc_table',
+                'capacity': None,
                 'name': 'Misc',
-                'stale_node_timeout': 600,
                 'fields': [],
                 'frame_types': [
                     'NMT',
