@@ -82,11 +82,15 @@ A utility for displaying and tracking activity over the CAN bus.
 
 `devices.json:`
 ```json
-[
-  "can0"
-]
+{
+  "dead_timeout": 120,
+  "devices": [
+    "can0"
+  ],
+  "stale_timeout": 60
+}
 ```
-A list of CAN Buses that CAN Monitor will try to bind to on launch.
+A set of devices configs including a list of CAN Buses that CAN Monitor will try to bind to on launch as well as respective timeout lengths.
 
 *(note: additional buses can be added via cmd-line arguments, see `canopen-monitor --help`)*
 
@@ -95,56 +99,58 @@ A list of CAN Buses that CAN Monitor will try to bind to on launch.
 `layout.json`
 ```json
 {
-  "type": "grid",
+  "data": [
+    {
+      "data": [
+        {
+          "capacity": null,
+          "fields": [],
+          "frame_types": [
+            "HEARTBEAT"
+          ],
+          "name": "Hearbeats",
+          "type": "heartbeat_table"
+        },
+        {
+        "capacity": null,
+        "fields": [],
+        "frame_types": [],
+        "name": "Info",
+        "type": "info_table"
+        }
+      ],
+      "split": "vertical",
+      "type": "grid"
+    },
+    {
+      "capacity": null,
+      "fields": [],
+      "frame_types": [
+        "NMT",
+        "SYNC",
+        "TIME",
+        "EMER",
+        "PDO1_TX",
+        "PDO1_RX",
+        "PDO2_TX",
+        "PDO2_RX",
+        "PDO3_TX",
+        "PDO3_RX",
+        "PDO4_TX",
+        "PDO4_RX",
+        "SDO_TX",
+        "SDO_RX",
+        "UKNOWN"
+      ],
+      "name": "Misc",
+      "type": "misc_table"
+    }
+  ],
   "split": "horizontal",
-  "data": [{
-    "type": "grid",
-    "split": "vertical",
-    "data": [{
-    "type": "table",
-    "capacity": 16,
-    "dead_node_timeout": 600,
-    "name": "Hearbeats",
-    "stale_node_timeout": 60,
-    "fields": [],
-    "frame_types": ["HB"]
-    }, {
-    "type": "table",
-    "capacity": 16,
-    "dead_node_timeout": 600,
-    "name": "Info",
-    "stale_node_timeout": 60,
-    "fields": [],
-    "frame_types": []
-    }]
-  }, {
-    "type": "table",
-    "capacity": 16,
-    "dead_node_timeout": 60,
-    "name": "Misc",
-    "stale_node_timeout": 600,
-    "fields": [],
-    "frame_types": [
-    "NMT",
-    "SYNC",
-    "EMCY",
-    "TIME",
-    "TPDO1",
-    "RPDO1",
-    "TPDO2",
-    "RPDO2",
-    "TPDO3",
-    "RPDO3",
-    "TPDO4",
-    "RPDO4",
-    "TSDO",
-    "RSDO",
-    "UKOWN"
-    ]
-  }]
+  "type": "grid"
 }
 ```
-A recursive set of dictionaries that define how CAN Monitor constructs the UI layout as well as some other properties of each table.
+A recursive set of dictionaries that define how CAN Monitor constructs the UI layout and what CAN Message types go to what tables.
 
 &nbsp;
 
