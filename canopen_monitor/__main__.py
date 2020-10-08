@@ -72,8 +72,10 @@ def main():
     # Guarentee the config directory exists
     utils.generate_dirs()
 
-    # Fetch the interface names
-    dev_names = ensure_config_load(cm.DEVICES_CONFIG)
+    # Fetch the devices configurations
+    devices_cfg = ensure_config_load(cm.DEVICES_CONFIG)
+    dev_names = devices_cfg['devices']
+    timeouts = (devices_cfg['stale_timeout'], devices_cfg['dead_timeout'])
 
     # If any interfaces are specified by command line, add them to the list
     if(len(args.interfaces) > 0):
@@ -92,7 +94,7 @@ def main():
     overwrite_node_names(node_names, eds_configs)
 
     # Create the app
-    canmonitor = MonitorApp(dev_names, table_schema, eds_configs)
+    canmonitor = MonitorApp(dev_names, timeouts, table_schema, eds_configs)
 
     try:
         # Start the application

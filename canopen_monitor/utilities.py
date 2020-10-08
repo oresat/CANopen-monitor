@@ -24,7 +24,11 @@ def load_config(filename: str):
 def config_factory(filepath: str):
     '''Generate the default configs'''
     if(filepath == canopen_monitor.DEVICES_CONFIG):
-        data = ['can0']
+        data = {
+            'devices': ['can0'],
+            'stale_timeout': 60,
+            'dead_timeout': 120
+        }
     elif(filepath == canopen_monitor.NODES_CONFIG):
         data = {0x40: "MDC"}
     elif(filepath == canopen_monitor.LAYOUT_CONFIG):

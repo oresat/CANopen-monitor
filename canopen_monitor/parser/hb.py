@@ -26,7 +26,7 @@ def parse(cob_id: int, data: bytes, eds_config: EDS):
     state = states.get(hex_data)
 
     if state is None:
-        return "INVALID STATE ({})".format(hex_data)
+        return "Invalid State"
     else:
         if int.from_bytes(data, "big") in states:
             return state

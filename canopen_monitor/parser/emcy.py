@@ -93,8 +93,9 @@ def determine_error_message(error_code: bytes):
     }
 
     # Safe conversion to int ok, because data is bytes
-    error_id = int(hex(error_code[0]), 16)
+    ebytes = list(map(lambda x: hex(x)[2:], error_code))
+    error_id = int('0x' + ''.join(ebytes), 16)
     if error_id in error_codes.keys():
         return error_codes[error_id]
     else:
-        return "UNKNOWN ERROR"
+        return "Error code not found"

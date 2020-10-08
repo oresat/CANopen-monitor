@@ -17,7 +17,11 @@ class MonitorApp:
     ---------
     """
 
-    def __init__(self, devices, table_schema: dict, eds_configs: dict):
+    def __init__(self,
+                 devices: [str],
+                 timeouts: tuple,
+                 table_schema: dict,
+                 eds_configs: dict):
         # Monitor setup
         self.screen = curses.initscr()  # Initialize standard out
         self.screen.scrollok(True)      # Enable window scroll
@@ -26,7 +30,9 @@ class MonitorApp:
 
         # Bus things
         self.devices = devices
-        self.bus = MagicCANBus(self.devices)
+        self.bus = MagicCANBus(interface_names=self.devices,
+                               stale_timeout=timeouts[0],
+                               dead_timeout=timeouts[1])
         self.parser = CANOpenParser(eds_configs)
 
         # panel selection things

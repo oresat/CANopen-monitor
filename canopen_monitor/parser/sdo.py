@@ -1,3 +1,4 @@
+import array
 from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
 
@@ -1070,7 +1071,7 @@ class SDOParser:
         if self.__last_sequence % self.__block_size == 0:
             self.__awaiting_conf = True
 
-        self.__data += download_segment.data
+        self.__data += array.array('B', download_segment.data)
 
         return "Block downloading - " + self.__inProgressName
 

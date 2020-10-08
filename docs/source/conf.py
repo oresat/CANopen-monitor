@@ -13,13 +13,15 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
+import canopen_monitor
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'CANmonitor'
-copyright = '2020, Portland State Aerospace Society'
-author = 'PSAS'
+project = canopen_monitor.APP_NAME
+copyright = canopen_monitor.APP_LICENSE
+author = canopen_monitor.APP_AUTHOR
 
 
 # -- General configuration ---------------------------------------------------

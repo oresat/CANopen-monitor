@@ -1,3 +1,4 @@
+import array
 import datetime
 from struct import unpack
 from canopen_monitor.parser.eds import EDS
@@ -34,23 +35,24 @@ class FailedValidationError(Exception):
         super().__init__(self.message)
 
 
-def get_name(eds: EDS, index: bytes) -> (str, str):
+def get_name(eds_config: EDS, index: bytes) -> (str, str):
     """
     Get the name and data type for a given index
     :param eds: An EDS file for the current node
     :param index: the index and subindex to retrieve data from
     :return: a tuple containing the name and data type as a string
     """
-    key = int(hex(index[:2]), 16)
-    subindex_key = int(hex(index[2:3]), 16)
+    index_bytes = list(map(lambda x: hex(x)[2:].rjust(2, '0'), index))
+    key = int('0x' + ''.join(index_bytes[:2]), 16)
+    subindex_key = int('0x' + ''.join(index_bytes[2:3]), 16)
 
-    result = eds[hex(key)].parameter_name
+    result = eds_config[hex(key)].parameter_name
 
-    if len(eds[hex(key)]) > 0:
-        result += " " + eds[hex(key)][subindex_key].parameter_name
-        defined_type = eds[hex(key)][subindex_key].data_type
+    if len(eds_config[hex(key)]) > 0:
+        result += " " + eds_config[hex(key)][subindex_key].parameter_name
+        defined_type = eds_config[hex(key)][subindex_key].data_type
     else:
-        defined_type = eds[hex(key)].data_type
+        defined_type = eds_config[hex(key)].data_type
 
     return defined_type, result
 
@@ -72,7 +74,19 @@ INTEGER64 = '0x0015'
 UNSIGNED64 = '0x001B'
 
 
-def decode(defined_type, data):
+def decode(defined_type: str, data: [int]) -> str:
+    """
+    Does something?
+
+    Arguments
+    ---------
+    defined_type `str`: The data type?
+    data `[int]`: The data?
+
+    Returns
+    -------
+    `str`: something
+    """
     if defined_type in (UNSIGNED8, UNSIGNED16, UNSIGNED32, UNSIGNED64):
         result = str(int.from_bytes(data, byteorder="big", signed=False))
     elif defined_type in (INTEGER8, INTEGER16, INTEGER32, INTEGER64):
@@ -83,12 +97,16 @@ def decode(defined_type, data):
         else:
             result = str(False)
     elif defined_type in (REAL32, REAL64):
+        data = array.array('B', data).tobytes()
         result = str(unpack('>f', data)[0])
     elif defined_type == VISIBLE_STRING:
+        data = array.array('B', data).tobytes()
         result = data.decode('utf-8')
     elif defined_type in (OCTET_STRING, DOMAIN):
-        result = hex(data)
+        data = list(map(lambda x: hex(x)[2:].rjust(2, '0'), data))
+        result = '0x' + ''.join(data)
     elif defined_type == UNICODE_STRING:
+        data = array.array('B', data).tobytes()
         result = data.decode('utf-16-be')
     else:
         raise ValueError(f"Invalid data type {defined_type}. "

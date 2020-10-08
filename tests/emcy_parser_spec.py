@@ -1,28 +1,28 @@
 import unittest
-
-from canopen_monitor.parser.emcy import *
+from canopen_monitor.parser.emcy import parse
 
 
 class TestEMCY(unittest.TestCase):
     """
     Tests for the EMCY parser
     """
+
     def test_EMCY(self):
         """
         Test EMCY Message
         """
-        emcy_message = b'\x81\x10\x00\x00\x00\x00\x00\x00'
+        emcy_message = [0x81, 0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]
         self.assertEqual("CAN overrun (objects lost)",
-                         parse(emcy_message),
+                         parse(None, emcy_message, None),
                          "Error on EMCY Message parse")
 
     def test_EMCY_invalid(self):
         """
         Test EMCY Message with undefined message
         """
-        emcy_message = b'\x81\x11\x00\x00\x00\x00\x00\x00'
+        emcy_message = [0x81, 0x11, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]
         self.assertEqual("Error code not found",
-                         parse(emcy_message),
+                         parse(None, emcy_message, None),
                          "Error on EMCY Message parse with undefined error "
                          "message")
 

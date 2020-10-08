@@ -1,6 +1,5 @@
 import unittest
-
-from canopen_monitor.parser.sync import *
+from canopen_monitor.parser.sync import parse, FailedValidationError
 
 
 class TestSYNC(unittest.TestCase):
@@ -14,7 +13,7 @@ class TestSYNC(unittest.TestCase):
         """
         sync_message = b'\x81'
         self.assertEqual("SYNC - 129",
-                         parse(sync_message, 123),
+                         parse(None, sync_message, None),
                          "Error on SYNC Message parse")
 
     """
@@ -27,7 +26,7 @@ class TestSYNC(unittest.TestCase):
         """
         sync_message = b''
         self.assertEqual("SYNC - 0",
-                         parse(sync_message, 123),
+                         parse(None, sync_message, None),
                          "Error on SYNC empty Message parse")
 
     """
@@ -40,7 +39,7 @@ class TestSYNC(unittest.TestCase):
         """
         sync_message = b'\x01\xFF'
         with self.assertRaises(FailedValidationError):
-            parse(sync_message, 123)
+            parse(None, sync_message, None)
 
 
 if __name__ == '__main__':
