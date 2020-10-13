@@ -2,6 +2,7 @@ import array
 import datetime
 from struct import unpack
 from canopen_monitor.parser.eds import EDS
+from typing import List
 
 
 class FailedValidationError(Exception):
@@ -35,11 +36,12 @@ class FailedValidationError(Exception):
         super().__init__(self.message)
 
 
-def get_name(eds_config: EDS, index: bytes) -> (str, str):
+def get_name(eds_config: EDS, index: List[int]) -> (str, str):
     """
     Get the name and data type for a given index
-    :param eds: An EDS file for the current node
+    :param eds_config: An EDS file for the current node
     :param index: the index and subindex to retrieve data from
+                  expected to be length 3. (not validated)
     :return: a tuple containing the name and data type as a string
     """
     index_bytes = list(map(lambda x: hex(x)[2:].rjust(2, '0'), index))
@@ -74,7 +76,7 @@ INTEGER64 = '0x0015'
 UNSIGNED64 = '0x001B'
 
 
-def decode(defined_type: str, data: [int]) -> str:
+def decode(defined_type: str, data: List[int]) -> str:
     """
     Does something?
 
@@ -110,6 +112,6 @@ def decode(defined_type: str, data: [int]) -> str:
         result = data.decode('utf-16-be')
     else:
         raise ValueError(f"Invalid data type {defined_type}. "
-                         f"Unable to decode data {hex(data)}")
+                         f"Unable to decode data {str(data)}")
 
     return result

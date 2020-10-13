@@ -33,7 +33,7 @@ class TestHB(unittest.TestCase):
         with self.assertRaises(FailedValidationError) as context:
             parse(123, hb_message, self.eds)
 
-        self.assertEquals("Invalid heartbeat state detected",
+        self.assertEqual("Invalid heartbeat state detected",
                           str(context.exception))
 
     def test_HB_Empty(self):
@@ -44,7 +44,7 @@ class TestHB(unittest.TestCase):
         with self.assertRaises(FailedValidationError) as context:
             parse(123, hb_message, self.eds)
 
-        self.assertEquals("Invalid heartbeat state detected",
+        self.assertEqual("Invalid heartbeat state detected",
         str(context.exception))
 
 
