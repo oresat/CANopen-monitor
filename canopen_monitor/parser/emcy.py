@@ -1,7 +1,11 @@
 from canopen_monitor.parser.eds import EDS
+from canopen_monitor.parser.utilities import FailedValidationError
 
 
-def parse(cob_id: int, data: bytes, eds: EDS):
+def parse(cob_id: int, data: list, eds: EDS):
+    if len(data) != 8:
+        raise FailedValidationError(data, cob_id-0x80, cob_id, __name__,
+                                    "Invalid EMCY message length")
     message = EMCY(data)
     return message.error_message
 
@@ -25,7 +29,7 @@ class EMCY:
  * **mcef**: Manufacturer Specific Error Code
      """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: list):
         self.__emergency_error_code = raw_sdo[0:2]
         self.__error_register = raw_sdo[2]
         self.__manufacturer_specific_error_code = raw_sdo[3:8]
@@ -49,7 +53,7 @@ class EMCY:
         return self.__error_message
 
 
-def determine_error_message(error_code: bytes):
+def determine_error_message(error_code: list):
     """
     Generic Emergency Error Codes are defined here, but application specific
     error codes can be defined as well

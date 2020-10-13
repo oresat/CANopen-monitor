@@ -1,5 +1,6 @@
 import unittest
 from canopen_monitor.parser.emcy import parse
+from canopen_monitor.parser.utilities import FailedValidationError
 
 
 class TestEMCY(unittest.TestCase):
@@ -13,7 +14,7 @@ class TestEMCY(unittest.TestCase):
         """
         emcy_message = [0x81, 0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]
         self.assertEqual("CAN overrun (objects lost)",
-                         parse(None, emcy_message, None),
+                         parse(0, emcy_message, 0),
                          "Error on EMCY Message parse")
 
     def test_EMCY_invalid(self):
@@ -22,9 +23,20 @@ class TestEMCY(unittest.TestCase):
         """
         emcy_message = [0x81, 0x11, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]
         self.assertEqual("Error code not found",
-                         parse(None, emcy_message, None),
+                         parse(0, emcy_message, 0),
                          "Error on EMCY Message parse with undefined error "
                          "message")
+
+    def test_EMCY_invalid_length(self):
+        """
+        Test EMCY Message with undefined message
+        """
+        emcy_message = [0x81, 0x11, 0x0]
+        with self.assertRaises(FailedValidationError) as context:
+            parse(0, emcy_message, 0)
+
+        self.assertEqual("Invalid EMCY message length",
+        str(context.exception))
 
 
 if __name__ == '__main__':
