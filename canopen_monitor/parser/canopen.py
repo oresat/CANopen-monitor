@@ -2,7 +2,8 @@ from ..canmsgs import CANMsg, MessageType
 from . import hb as HBParser, \
     pdo as PDOParser, \
     sync as SYNCParser, \
-    emcy as EMCYParser
+    emcy as EMCYParser, \
+    time as TIMEParser
 from .sdo import SDOParser
 from .utilities import FailedValidationError
 
@@ -34,6 +35,8 @@ class CANOpenParser:
             parse = self.sdo_parser.parse
         elif (msg.message_type == MessageType.HEARTBEAT):
             parse = HBParser.parse
+        elif (msg.message_type == MessageType.TIME):
+            parse = TIMEParser.parse
         else:
             return ["Unknown", str(hex(msg.arb_id))]
 
