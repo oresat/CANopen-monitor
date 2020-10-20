@@ -47,10 +47,13 @@ def get_name(eds_config: EDS, index: List[int]) -> (str, str):
     index_bytes = list(map(lambda x: hex(x)[2:].rjust(2, '0'), index))
     key = int('0x' + ''.join(index_bytes[:2]), 16)
     subindex_key = int('0x' + ''.join(index_bytes[2:3]), 16)
+    current = eds_config[hex(key)]
+    if current is None:
+        return "Unknown", "Unknown"
 
     result = eds_config[hex(key)].parameter_name
 
-    if len(eds_config[hex(key)]) > 0:
+    if len(current) > 0:
         result += " " + eds_config[hex(key)][subindex_key].parameter_name
         defined_type = eds_config[hex(key)][subindex_key].data_type
     else:
