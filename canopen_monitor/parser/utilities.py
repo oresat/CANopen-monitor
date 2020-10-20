@@ -90,11 +90,11 @@ def decode(defined_type: str, data: List[int]) -> str:
     `str`: something
     """
     if defined_type in (UNSIGNED8, UNSIGNED16, UNSIGNED32, UNSIGNED64):
-        result = str(int.from_bytes(data, byteorder="big", signed=False))
+        result = str(int.from_bytes(data, byteorder="little", signed=False))
     elif defined_type in (INTEGER8, INTEGER16, INTEGER32, INTEGER64):
-        result = str(int.from_bytes(data, byteorder="big", signed=True))
+        result = str(int.from_bytes(data, byteorder="little", signed=True))
     elif defined_type == BOOLEAN:
-        if int.from_bytes(data, byteorder="big", signed=False) > 0:
+        if int.from_bytes(data, byteorder="little", signed=False) > 0:
             result = str(True)
         else:
             result = str(False)

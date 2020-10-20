@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch, mock_open
 
+from canopen_monitor import ASSETS_DIR
 from canopen_monitor.parser import eds
 from canopen_monitor.parser.sdo import SDOParser
 from canopen_monitor.parser.utilities import FailedValidationError
@@ -24,8 +25,8 @@ class TestSDO(unittest.TestCase):
         Text expedited SDO transfer with an unsigned int data type
         """
         parser = SDOParser()
-        client_initiate_message = [0x27, 0x10, 0x18, 0x00, 0x00, 0x00, 0x00,
-                                   0x0A]
+        client_initiate_message = [0x27, 0x10, 0x18, 0x00, 0x0A, 0x00, 0x00,
+                                   0x00]
         self.assertEqual("Downloaded - Identity unsigned8: 10",
                          parser.parse(0x600, client_initiate_message,
                                       self.eds_data),
@@ -46,8 +47,8 @@ class TestSDO(unittest.TestCase):
         Text expedited SDO transfer with an signed int data type
         """
         parser = SDOParser()
-        client_initiate_message = [0x2F, 0x10, 0x18, 0x01, 0xFF, 0xFF, 0xFF,
-                                   0xF6]
+        client_initiate_message = [0x2F, 0x10, 0x18, 0x01, 0xF6, 0xFF, 0xFF,
+                                   0xFF]
         self.assertEqual("Downloaded - Identity integer8: -10",
                          parser.parse(0x600, client_initiate_message,
                                       self.eds_data),
@@ -384,8 +385,8 @@ class TestSDO(unittest.TestCase):
         self.assertEqual(False, parser.is_complete,
                          "Parser should be incomplete")
 
-        server_initiate_response = [0x47, 0x10, 0x18, 0x00, 0x00, 0x00, 0x00,
-                                    0x0A]
+        server_initiate_response = [0x47, 0x10, 0x18, 0x00, 0x0A, 0x00, 0x00,
+                                    0x00]
         self.assertEqual("Downloaded - Identity unsigned8: 10",
                          parser.parse(0x580, server_initiate_response,
                                       self.eds_data),
