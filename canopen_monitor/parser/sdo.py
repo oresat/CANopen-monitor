@@ -1,6 +1,7 @@
 import array
 from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
+from typing import List
 
 SDO_TX = 'SDO_TX'
 SDO_RX = 'SDO_RX'
@@ -59,7 +60,7 @@ class SDOInitiateData:
  * **x**: not used, always 0
      """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__is_expedited = None
         self.__size_indicator = None
         self.__n = None
@@ -91,7 +92,7 @@ class SDOInitiateData:
     def __decode_first_section(self, byte_value):
         if byte_value & 0x10 > 0:
             raise ValueError(f"Invalid x value in byte 0, bit 4: "
-                             f"{hex(byte_value & 0x10)}, expected 0")
+                             f"{str(byte_value & 0x10)}, expected 0")
 
         if byte_value & 0x02 == 0:
             self.__is_expedited = False
@@ -108,24 +109,24 @@ class SDOInitiateData:
             self.__n = byte_value & 0x0C >> 2
         elif byte_value & 0x0C > 0:
             raise ValueError(f"Invalid n value in byte 0, bit 3-2: "
-                             f"'{hex(byte_value & 0x0C)}, expected 0")
+                             f"'{str(byte_value & 0x0C)}, expected 0")
         else:
             self.__n = 0
 
-    def __decode_data(self, byte_value: bytes):
+    def __decode_data(self, byte_value: List[int]):
         if not self.__is_expedited:
             if self.__size_indicator:
-                self.__data = int.from_bytes(byte_value, "big")
+                self.__data = byte_value
             elif int.from_bytes(byte_value, "big") > 0:
                 raise ValueError(f"Invalid data value in bytes 4-7: "
-                                 f"'{hex(byte_value)}, expected > 0")
+                                 f"'{str(byte_value)}, expected > 0")
         # Expedited Transfer
         else:
             if self.__size_indicator:
                 self.__data = byte_value[3 - self.__n:4]
                 if int.from_bytes(byte_value[0:3 - self.__n], "big") > 0:
                     raise ValueError(f"Invalid data value in bytes 4-7: "
-                                     f"'{hex(byte_value)} larger than size: "
+                                     f"'{str(byte_value)} larger than size: "
                                      f"'{self.__n}'")
             else:
                 self.__data = byte_value
@@ -166,11 +167,11 @@ class SDOInitiateNoData:
   * **reserved**: reserved for further use, always 0
       """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__index = raw_sdo[1:4]
         if raw_sdo[0] & 0x1F > 0:
             raise ValueError(f"Invalid x value (4_0): "
-                             f"'{hex(raw_sdo[0] & 0x1F)}'")
+                             f"'{str(raw_sdo[0] & 0x1F)}'")
         if int.from_bytes(raw_sdo[4:8], "big") > 0:
             bytes = list(map(lambda x: hex(x), raw_sdo[4:8]))
             raise ValueError(f"Invalid reserved value: "
@@ -222,7 +223,7 @@ class SDOSegmentData:
     equal for the request and response message.
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__more_segments = None
         self.__n = None
         self.__data = None
@@ -257,13 +258,13 @@ class SDOSegmentData:
         else:
             self.__more_segments = True
 
-    def __decode_data(self, byte_value: bytes):
+    def __decode_data(self, byte_value: List[int]):
         value = byte_value[0:6 - self.__n]
         self.__data = int.from_bytes(value, "big").to_bytes(7, "big")
         if self.__n > 0:
             if int.from_bytes(byte_value[6 - self.__n:6], "big") > 0:
                 raise ValueError(f"Data value larger than size: "
-                                 f"'{hex(byte_value)}'")
+                                 f"'{str(byte_value)}'")
 
 
 class SDOSegmentNoData:
@@ -302,15 +303,15 @@ for the request and response message.
 * **reserved**: reserved for further use, always 0
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__toggle_bit = raw_sdo[0] & 0x10
         if raw_sdo[0] & 0x0F > 0:
             raise ValueError(f"Invalid x value (4_0): "
-                             f"'{hex(raw_sdo[0] & 0x1F)}'")
+                             f"'{str(raw_sdo[0] & 0x1F)}'")
 
         if int.from_bytes(raw_sdo[4:8], "big") > 0:
             raise ValueError(f"Invalid data value: "
-                             f"'{raw_sdo[4:8].hex()}")
+                             f"'{str(raw_sdo[4:8])}")
 
     @property
     def toggle_bit(self):
@@ -371,11 +372,11 @@ transferred
 * **x**: not used, always 0
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__command_specifier = raw_sdo[0] & 0xE0
         self.__x = raw_sdo[0] & 0x18
         if self.__x > 0:
-            raise ValueError(f"Invalid x value (4_3): '{hex(self.__x)}'")
+            raise ValueError(f"Invalid x value (4_3): '{str(self.__x)}'")
         self.__supports_crc = raw_sdo[0] & 0x04 > 0
         self.__size_indicated = raw_sdo[0] & 0x02 > 0
         self.__subcommand = raw_sdo[0] & 0x01
@@ -451,11 +452,11 @@ for the following block download with 0 < blksize < 128
 * **reserved**: reserved for further use, always 0
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__command_specifier = raw_sdo[0] & 0xE0
         self.__x = raw_sdo[0] & 0x18
         if self.__x > 0:
-            raise ValueError(f"Invalid x value (4_3): '{hex(self.__x)}'")
+            raise ValueError(f"Invalid x value (4_3): '{str(self.__x)}'")
         self.__supports_crc = raw_sdo[0] & 0x04 > 0
         self.__subcommand = raw_sdo[0] & 0x03
         self.__index = raw_sdo[1:4]
@@ -463,7 +464,7 @@ for the following block download with 0 < blksize < 128
         self.__reserved = raw_sdo[5:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{hex(self.__reserved)}'")
+                             f"'{str(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -541,11 +542,11 @@ protocol
 * **reserved**: reserved for further use, always 0
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__command_specifier = raw_sdo[0] & 0xE0
         self.__x = raw_sdo[0] & 0x18
         if self.__x > 0:
-            raise ValueError(f"Invalid x value (4_3): '{hex(self.__x)}'")
+            raise ValueError(f"Invalid x value (4_3): '{str(self.__x)}'")
         self.__supports_crc = raw_sdo[0] & 0x04 > 0
         self.__subcommand = raw_sdo[0] & 0x03
         self.__index = raw_sdo[1:4]
@@ -554,7 +555,7 @@ protocol
         self.__reserved = raw_sdo[6:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{hex(self.__reserved)}'")
+                             f"'{str(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -614,7 +615,7 @@ Definitions
 * **seg-data**: at most 7 bytes of segment data to be downloaded.
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__more_segments = raw_sdo[0] & 0x80 == 0
         self.__seqno = raw_sdo[0] & 0x7F
         self.__data = raw_sdo[1:8]
@@ -680,18 +681,18 @@ for the following block download with 0 < blksize < 128
 * **reserved**: reserved for further use, always 0
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__command_specifier = raw_sdo[0] & 0xE0
         self.__x = raw_sdo[0] & 0x1C
         if self.__x > 0:
-            raise ValueError(f"Invalid x value (4_2): '{hex(self.__x)}'")
+            raise ValueError(f"Invalid x value (4_2): '{str(self.__x)}'")
         self.__subcommand = raw_sdo[0] & 0x03
         self.__ackseq = raw_sdo[1]
         self.__blksize = raw_sdo[2]
         self.__reserved = raw_sdo[3:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{hex(self.__reserved)}'")
+                             f"'{str(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -759,18 +760,18 @@ otherwise CRC shall be set to 0.
 * **reserved**: reserved for further use, always 0
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__command_specifier = raw_sdo[0] & 0xE0
         self.__n = raw_sdo[0] & 0x1C
         self.__x = raw_sdo[0] & 0x02
         if self.__x > 0:
-            raise ValueError(f"Invalid x value (1): '{hex(self.__x)}'")
+            raise ValueError(f"Invalid x value (1): '{str(self.__x)}'")
         self.__subcommand = raw_sdo[0] & 0x01
         self.__crc = raw_sdo[1:3]
         self.__reserved = raw_sdo[3:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{hex(self.__reserved)}'")
+                             f"'{str(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -832,16 +833,16 @@ that do not contain data. Bytes [8-n, 7] do not contain segment data.
 * **reserved**: reserved for further use, always 0
     """
 
-    def __init__(self, raw_sdo: bytes):
+    def __init__(self, raw_sdo: List[int]):
         self.__command_specifier = raw_sdo[0] & 0xE0
         self.__x = raw_sdo[0] & 0x1C
         if self.__x > 0:
-            raise ValueError(f"Invalid x value (1): '{hex(self.__x)}'")
+            raise ValueError(f"Invalid x value (1): '{str(self.__x)}'")
         self.__subcommand = raw_sdo[0] & 0x03
         self.__reserved = raw_sdo[1:8]
         if int.from_bytes(self.__reserved, "big") > 0:
             raise ValueError(f"Invalid reserved value: "
-                             f"'{hex(self.__reserved)}'")
+                             f"'{str(self.__reserved)}'")
 
     @property
     def command_specifier(self):
@@ -875,7 +876,7 @@ class SDOParser:
 
         # Added for Block Segments
         self.__block_download = False
-        self.__block_size = None
+        self.__block_size = 1
         self.__last_sequence = 0
         self.__awaiting_conf = False
 
@@ -883,20 +884,32 @@ class SDOParser:
     def is_complete(self):
         return self.__is_complete
 
-    def parse(self, cob_id: int, data: bytes, eds: EDS):
+    def parse(self, cob_id: int, data: List[int], eds: EDS):
+        node_id = None
         try:
             if 0x580 <= cob_id < 0x600:
                 sdo_type = SDO_TX
+                node_id = cob_id - 0x580
             elif 0x600 <= cob_id < 0x680:
                 sdo_type = SDO_RX
+                node_id = cob_id - 0x600
             else:
-                raise ValueError(f"Provided COB-ID {hex(cob_id)} "
+                raise ValueError(f"Provided COB-ID {str(cob_id)} "
                                  f"is outside of the range of SDO messages")
 
+            if len(data) != 8:
+                raise FailedValidationError(data, node_id, cob_id, __name__,
+                                            f"Invalid SDO payload length, "
+                                            f"expected 8, received {len(data)}")
+
             if self.__block_download:
+                if self.__inProgressName is None:
+                    self.__inProgressName = ""
                 return self.__parse_block_data(data)
 
             if self.__awaiting_conf:
+                if self.__inProgressName is None:
+                    self.__inProgressName = ""
                 return self.__parse_block_no_data(data)
 
             command_specifier = data[0] & 0xE0
@@ -957,12 +970,12 @@ class SDOParser:
 
             else:
                 raise ValueError(
-                    f"Provided COB-ID {hex(cob_id)} ({sdo_type}) and command "
-                    f"specifier {hex(command_specifier)} combination does "
+                    f"Provided COB-ID {str(cob_id)} ({sdo_type}) and command "
+                    f"specifier {str(command_specifier)} combination does "
                     f"not result in a valid message type")
 
         except ValueError as error:
-            raise FailedValidationError(data, cob_id - 0x580, cob_id, __name__,
+            raise FailedValidationError(data, node_id, cob_id, __name__,
                                         str(error))
 
     def __parse_initiate_data(self, data, eds, sdo_type):
@@ -981,7 +994,8 @@ class SDOParser:
                    f"{decode(self.__inProgressType, self.__data)}"
 
         if current_download_initiate.size_indicator:
-            self.__dataSize = current_download_initiate.data
+            self.__dataSize = int.from_bytes(current_download_initiate.data,
+                                             "big")
 
         return "Initiating block download - " + self.__inProgressName
 
@@ -1029,7 +1043,8 @@ class SDOParser:
             return result
         else:
             if self.__dataSize is not None:
-                percent = str(round((len(data) / self.__dataSize) * 100, 1))
+                percent = len(data) / self.__dataSize
+                percent = str(round(percent * 100, 1))
                 return self.__inProgressName + " " + percent + "%"
             else:
                 return self.__inProgressName + " XXX%"
@@ -1104,11 +1119,11 @@ class SDOParser:
 
         return "Block download done - " + self.__inProgressName
 
-    def __set_name(self, eds, index: bytes):
+    def __set_name(self, eds, index: List[int]):
         try:
             values = get_name(eds, index)
         except TypeError:
-            raise ValueError(f"Unable to eds content at index {hex(index)}")
+            raise ValueError(f"Unable to eds content at index {str(index)}")
 
         self.__inProgressType = values[0]
         self.__inProgressName = values[1]

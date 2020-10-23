@@ -43,6 +43,11 @@ def parse(cob_id: int, data: bytes, eds: EDS):
                                     f"Unable to determine pdo type with given "
                                     f"cob_id {hex(cob_id)}, expected value "
                                     f"between 0x180 and 0x580")
+
+    if len(data) > 8 or len(data) < 1:
+        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+                                    f"Invalid payload length {len(data)} "
+                                    f"expected between 1 and 8")
     try:
         eds_elements = eds[hex(pdo_type)][0]
     except TypeError:
@@ -60,6 +65,10 @@ def parse(cob_id: int, data: bytes, eds: EDS):
         return parse_pdo(num_elements, pdo_type, cob_id, eds, data)
 
     if num_elements in (0xFE, 0xFF):
+        if len(data) != 8:
+            raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+                                        f"Invalid payload length {len(data)} "
+                                        f"expected 8")
         return parse_mpdo(num_elements, pdo_type, eds, data, cob_id)
 
     raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,

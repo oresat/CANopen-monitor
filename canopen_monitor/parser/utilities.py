@@ -2,6 +2,7 @@ import array
 import datetime
 from struct import unpack
 from canopen_monitor.parser.eds import EDS
+from typing import List
 
 
 class FailedValidationError(Exception):
@@ -35,20 +36,24 @@ class FailedValidationError(Exception):
         super().__init__(self.message)
 
 
-def get_name(eds_config: EDS, index: bytes) -> (str, str):
+def get_name(eds_config: EDS, index: List[int]) -> (str, str):
     """
     Get the name and data type for a given index
-    :param eds: An EDS file for the current node
+    :param eds_config: An EDS file for the current node
     :param index: the index and subindex to retrieve data from
+                  expected to be length 3. (not validated)
     :return: a tuple containing the name and data type as a string
     """
     index_bytes = list(map(lambda x: hex(x)[2:].rjust(2, '0'), index))
     key = int('0x' + ''.join(index_bytes[:2]), 16)
     subindex_key = int('0x' + ''.join(index_bytes[2:3]), 16)
+    current = eds_config[hex(key)]
+    if current is None:
+        return "Unknown", "Unknown"
 
     result = eds_config[hex(key)].parameter_name
 
-    if len(eds_config[hex(key)]) > 0:
+    if len(current) > 0:
         result += " " + eds_config[hex(key)][subindex_key].parameter_name
         defined_type = eds_config[hex(key)][subindex_key].data_type
     else:
@@ -74,7 +79,7 @@ INTEGER64 = '0x0015'
 UNSIGNED64 = '0x001B'
 
 
-def decode(defined_type: str, data: [int]) -> str:
+def decode(defined_type: str, data: List[int]) -> str:
     """
     Does something?
 
@@ -88,11 +93,11 @@ def decode(defined_type: str, data: [int]) -> str:
     `str`: something
     """
     if defined_type in (UNSIGNED8, UNSIGNED16, UNSIGNED32, UNSIGNED64):
-        result = str(int.from_bytes(data, byteorder="big", signed=False))
+        result = str(int.from_bytes(data, byteorder="little", signed=False))
     elif defined_type in (INTEGER8, INTEGER16, INTEGER32, INTEGER64):
-        result = str(int.from_bytes(data, byteorder="big", signed=True))
+        result = str(int.from_bytes(data, byteorder="little", signed=True))
     elif defined_type == BOOLEAN:
-        if int.from_bytes(data, byteorder="big", signed=False) > 0:
+        if int.from_bytes(data, byteorder="little", signed=False) > 0:
             result = str(True)
         else:
             result = str(False)
@@ -110,6 +115,6 @@ def decode(defined_type: str, data: [int]) -> str:
         result = data.decode('utf-16-be')
     else:
         raise ValueError(f"Invalid data type {defined_type}. "
-                         f"Unable to decode data {hex(data)}")
+                         f"Unable to decode data {str(data)}")
 
     return result
