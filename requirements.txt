@@ -1,3 +1,0 @@
-pyvit>=0.2.1
-python-dateutil>=2.8.1
-ConfigArgParse>=1.2.3

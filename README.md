@@ -1,84 +1,54 @@
 # CANOpen Monitor
 
-[![License](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
-[![PyPi](https://img.shields.io/pypi/pyversions/canopen-monitor?label=pypi)](https://pypi.org/project/canopen-monitor)
-[![Trello](https://img.shields.io/badge/Trello-Backlog-blue)](https://trello.com/b/PWuRFBh1/canopen-monitor)
-[![Unit Tests](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Unit%20Tests?label=unit%20tests)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Unit+Tests)
-[![Build](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Upload%20Python%20Package)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Upload+Python+Package)
-[![Issues](https://img.shields.io/github/issues/oresat/CANopen-monitor)](https://github.com/oresat/CANopen-monitor/issues)
+[![license](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
+[![pypi](https://img.shields.io/pypi/v/canopen-monitor)](https://pypi.org/project/canopen-monitor)
+[![read the docs](https://readthedocs.org/projects/canopen-monitor/badge/?version=latest)](https://canopen-monitor.readthedocs.io/en/latest/?badge=latest)
+[![issues](https://img.shields.io/github/issues/oresat/CANopen-monitor/bug?label=issues)](https://github.com/oresat/CANopen-monitor/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
+[![unit tests](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Unit%20Tests?label=unit%20tests)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Unit+Tests%22)
+[![deployment](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Deploy%20to%20PyPi?label=deployment)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Deploy+to+PyPi%22)
 
 A utility for displaying and tracking activity over the CAN bus.
 
 ***
 
-# Run App
+# Quick Start *(Usage)*
+
+## Install *(from PyPi)*
+
+`$` `pip install package-demo`
+
+
+## Run
 
 `$` `canopen-monitor`
 
 ***
 
-# Install via PyPi
+# Development and Contribution
 
-`$` `pip3 install canopen-monitor`
+## Build
 
-***
+`$` `python setup.py bdist_wheel sdist`
 
-# Install Locally
+## Install Locally
 
-**Build the CANOpen Monitor module:**
+`$` `pip install -e .[dev]`
 
-`$` `python3 setup.py sdist bdist_wheel`
+*(The `-e` flag creates a live-link to your local development version, so there's no need to uninstall and reinstall every time. Set it and forget it.)*
 
-**Install for current user only:**
+## Create or Update Manifest
 
-`$` `python -m pip install dist/*.whl`
+`$` `rm -f MANIFEST.in && check-manifest --update`
 
-**Install for all users:**
+## Create or Update Sphinx Documentation
 
-`$` `sudo python -m pip install dist/*.whl`
-
-**Clean up build artifacts:**
-
-`$` `rm -rf build dist *.egg-info`
+`$` `sphinx-apidoc -f -o docs canopen_monitor && make -C docs html`
 
 ***
 
-# Development and Contribution:
+# Default Configs
 
-**Install dependencies:**
-
-`$` `pip install -r requirements.txt`
-
-
-**Install development dependencies:**
-
-`$` `pip install -r dev-requirements.txt`
-
-**Lint Code:**
-
-`$` `flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics`
-
-**Run unit tests:**
-
-`$` `python -m unittest -f --locals tests/*.py`
-
-**Auto generate Sphinx documentation:**
-
-`$` `sphinx-apidoc -o docs/source canopen_monitor`
-
-`$` `make -C docs clean html`
-
-**Deploy manually to PyPi:**
-
-`$` `python -m twine upload dist/*`
-
-*(This assumes that you have the correct PyPi credentials and tokens set up according to the instructions [outlined here](https://packaging.python.org/guides/distributing-packages-using-setuptools/#id79))*
-
-***
-
-# Configs:
-
-  These are the auto-generated configs that are stored in `~/.config/canopen-monitor`
+These are the auto-generated configs that can be found at `~/.config/canopen-monitor/`
 
 `devices.json:`
 ```json

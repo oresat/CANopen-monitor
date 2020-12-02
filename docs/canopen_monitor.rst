@@ -1,5 +1,5 @@
-canopen_monitor package
-===============
+canopen\_monitor package
+========================
 
 Subpackages
 -----------
@@ -14,22 +14,21 @@ Subpackages
 Submodules
 ----------
 
-canopen_monitor.canopen_monitor\_app module
----------------------------
+canopen\_monitor.monitor\_app module
+------------------------------------
 
 .. automodule:: canopen_monitor.monitor_app
    :members:
    :undoc-members:
    :show-inheritance:
 
-canopen_monitor.utilities module
-------------------------
+canopen\_monitor.utilities module
+---------------------------------
 
 .. automodule:: canopen_monitor.utilities
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

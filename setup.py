@@ -1,21 +1,18 @@
 import setuptools
-import canopen_monitor
+import canopen_monitor as cm
 
 with open('README.md', 'r') as file:
     long_description = file.read()
 
-with open('requirements.txt', 'r') as file:
-    dependencies = file.read().split('\n')[:-1]
-
 setuptools.setup(
-    name=canopen_monitor.APP_NAME,
-    version=canopen_monitor.APP_VERSION,
-    author=canopen_monitor.APP_AUTHOR,
-    license=canopen_monitor.APP_LICENSE,
-    description=canopen_monitor.APP_DESCRIPTION,
+    name=cm.APP_NAME,
+    version=cm.APP_VERSION,
+    author=cm.APP_AUTHOR,
+    license=cm.APP_LICENSE,
+    description=cm.APP_DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url=canopen_monitor.APP_URL,
+    url=cm.APP_URL,
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -27,11 +24,27 @@ setuptools.setup(
         "Topic :: System :: Monitoring",
         "Topic :: System :: Networking :: Monitoring :: Hardware Watchdog"
     ],
-    install_requires=dependencies,
+    install_requires=[
+        "pyvit",
+        "python-dateutil",
+        "ConfigArgParse",
+        "canopen"
+    ],
+    extra_requires={
+        "dev": [
+            "setuptools",
+            "wheel",
+            "pytest",
+            "flake8",
+            "twine",
+            "sphinx",
+            "sphinx_rtd_theme",
+        ]
+    },
     python_requires='>=3.8.5',
     entry_points={
         "console_scripts": [
-            '{} = canopen_monitor.__main__:main'.format(canopen_monitor.APP_NAME),
+            '{} = canopen_monitor.__main__:main'.format(cm.APP_NAME),
         ]
     }
 )
