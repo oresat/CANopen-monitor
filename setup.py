@@ -30,7 +30,7 @@ setuptools.setup(
         "ConfigArgParse",
         "canopen"
     ],
-    extra_requires={
+    extras_require={
         "dev": [
             "setuptools",
             "wheel",

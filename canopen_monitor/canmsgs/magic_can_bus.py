@@ -88,7 +88,10 @@ class MagicCANBus:
             for thread in self.threads:
                 thread.join(TIMEOUT)
                 if(thread.is_alive() and DEBUG):
-                    print('the bus thread listener with pid ({}) took too long to close, will try again in {}s!'.format(thread.native_id, round(TIMEOUT * len(self.threads), 3)))
+                    print('the bus thread listener with pid ({}) took too long'
+                          ' to close, will try again in {}s!'
+                          .format(thread.native_id,
+                                  round(TIMEOUT * len(self.threads), 3)))
             if(DEBUG):
                 print('all bus threads closed gracefully!')
         else:

@@ -927,7 +927,7 @@ class SDOParser:
                     sdo_type == SDO_TX and command_specifier == 0x00):
 
                 if self.__inProgressName is None:
-                    raise ValueError(f"SDO Segment received before initiate")
+                    raise ValueError("SDO Segment received before initiate")
 
                 return self.__parse_segment_data(data, sdo_type)
 
@@ -935,7 +935,7 @@ class SDOParser:
                     sdo_type == SDO_TX and command_specifier == 0x20):
 
                 if self.__inProgressName is None:
-                    raise ValueError(f"SDO Segment received before initiate")
+                    raise ValueError("SDO Segment received before initiate")
 
                 return self.__parse_segment_no_data(data)
 
@@ -1091,7 +1091,7 @@ class SDOParser:
         return "Block downloading - " + self.__inProgressName
 
     def __parse_block_no_data(self, data):
-        download_segment = SDOBlockSegmentNoData(data)
+        # download_segment = SDOBlockSegmentNoData(data)  # Unused
         self.__awaiting_conf = False
         if not self.__last_sequence:
             self.__block_download = True
@@ -1103,7 +1103,7 @@ class SDOParser:
             return self.__inProgressName + " XXX%"
 
     def __parse_block_end_data(self, data):
-        download_segment = SDOBlockEndData(data)
+        # download_segment = SDOBlockEndData(data)  # Unused
 
         return self.__inProgressName + " 100%"
 
