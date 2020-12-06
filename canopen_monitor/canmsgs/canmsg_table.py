@@ -3,9 +3,7 @@ from .canmsg import CANMsg
 
 class CANMsgTable:
     def __init__(self,
-                 name: str = "message_table",
                  capacity: int = None):
-        self.name = name
         self.message_table = {}
         self.capacity = capacity
 

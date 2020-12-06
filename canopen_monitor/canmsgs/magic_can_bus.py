@@ -13,15 +13,19 @@ class MagicCANBus:
     Parameters
     ----------
     interfaces `[pyvit.bus.Bus]`: A list of Bus objects that the Magic CAN Bus
-                                  will monitor.
+    will monitor.
+
     frames `queue.Queue`: The thread-safe queue of CANMsg objects to pull from.
+
     failed_interfaces `[str]`: A list of interface names that the Magic CAN Bus
-                               failed to connect to.
+    failed to connect to.
+
     stop_listening `threading.Event`: A thread-safe event that triggers when
-                                      it's time to shut down all of the bus
-                                      listeners.
+    it's time to shut down all of the bus listeners.
+
     block `bool`: A flag for determining whether or not the Magic CAN Bus
-                  should block when checking for CAN messages.
+    should block when checking for CAN messages.
+
     threads `[threading.Thread]`: A list of bus-listener worker threads.
     """
 

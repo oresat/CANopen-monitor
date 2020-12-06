@@ -12,9 +12,6 @@ from .canmsgs.magic_can_bus import MagicCANBus
 class MonitorApp:
     """The top-level application of Can Monitor that manages the middleware
     resoruces and the UI elements.
-
-    Attributes
-    ---------
     """
 
     def __init__(self,

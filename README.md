@@ -34,7 +34,7 @@ A utility for displaying and tracking activity over the CAN bus.
 
 `$` `pip install -e .[dev]`
 
-*(The `-e` flag creates a live-link to your local development version, so there's no need to uninstall and reinstall every time. Set it and forget it.)*
+*(The `-e` flag creates a symbolic-link to your local development version, so there's no need to uninstall and reinstall every time. Set it and forget it.)*
 
 ## Create or Update Manifest
 
