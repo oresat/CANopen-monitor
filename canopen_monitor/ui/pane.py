@@ -1,18 +1,20 @@
 from __future__ import annotations
+from ..canmsgs import CANMsgTable
 import curses
-import meta
+import typing
 
 
-class Pane(meta.ABC):
-    def __init__(self: Pane):
+class Pane(typing.ABCMeta):
+    def __init__(self: Pane, capacity: int = None):
         self.__pad = curses.newpad(0, 0)
         self.__cols = {}
+        self.__table = CANMsgTable(capacity=capacity)
 
-    @meta.abstractmethod
+    @typing.abstractmethod
     def draw(self: Pane):
         ...
 
-    @meta.abstractmethod
+    @typing.abstractmethod
     def add(self: Pane, msg):
         ...
 
