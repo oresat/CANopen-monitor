@@ -1,4 +1,5 @@
 from .canmsg import CANMsg
+from ..utilities import accepts
 
 
 class CANMsgTable:
@@ -9,6 +10,7 @@ class CANMsgTable:
         self.message_table = {}
         self.capacity = capacity
 
+    @accepts(CANMsg)
     def add(self, frame: CANMsg) -> None:
         if(self.capacity is not None):
             if(len(self.message_table) < self.capacity

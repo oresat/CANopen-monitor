@@ -28,7 +28,8 @@ setuptools.setup(
         "pyvit",
         "python-dateutil",
         "ConfigArgParse",
-        "canopen"
+        "canopen",
+        "typecheck-decorator"
     ],
     extras_require={
         "dev": [
@@ -39,6 +40,7 @@ setuptools.setup(
             "twine",
             "sphinx",
             "sphinx_rtd_theme",
+            "python-can"
         ]
     },
     python_requires='>=3.8.5',

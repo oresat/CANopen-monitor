@@ -64,10 +64,9 @@ class MonitorApp:
 
     def start(self):
         while not self.stop_listening.is_set():
-            # Get CanBus input
-            data = self.bus.receive()
-            if(data is not None):
-                self.parent.add_frame(data)
+            # Grab all of the queued messages in the MCB
+            for frame in self.bus:
+                self.parent.add_frame(frame)
 
             # Get user input
             self.read_input()

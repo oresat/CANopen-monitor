@@ -1,6 +1,6 @@
+from __future__ import annotations
 import queue as q
 import threading as t
-from typing import Union
 import pyvit.hw.socketcan as phs
 from .. import DEBUG, TIMEOUT, canmsgs
 
@@ -55,6 +55,16 @@ class MagicCANBus:
         for name in interface_names:
             self.start(name)
 
+    def __iter__(self: MagicCANBus):
+        self.__pos = 0
+        return self
+
+    def __next__(self: MagicCANBus) -> canmsgs.CANMsg:
+        if(self.__pos < self.frames.qsize()):
+            return self.frames.get_nowait()
+        else:
+            raise StopIteration()
+
     def start(self, dev_name):
         try:
             dev = phs.SocketCanDev(dev_name)
@@ -106,21 +116,6 @@ class MagicCANBus:
             pass
         except OSError:
             self._stop(dev)
-
-    def receive(self) -> Union[canmsgs.CANMsg, None]:
-        """
-        Returns the first available CANMsg retrieved from the bus if any.
-        If no messages are available on the bus, None is returned
-        """
-        try:
-            res = self.frames.get(block=self.block,
-                                  timeout=TIMEOUT)
-            return canmsgs.CANMsg(res[0],
-                                  res[1],
-                                  self.stale_timeout,
-                                  self.dead_timeout)
-        except q.Empty:
-            return None
 
     def running(self) -> [str]:
         return list(filter(lambda x: x.running, self.interfaces))
