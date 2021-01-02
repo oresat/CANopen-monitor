@@ -2,7 +2,7 @@ import time
 import curses
 import threading
 import canopen_monitor
-from .ui.pane import HeartBeatPane, InfoPane, Pane
+from .ui.pane import HeartBeatPane, InfoPane, MiscPane
 from .ui.windows import PopupWindow
 from .ui.grid import Grid, Split
 from .parser.canopen import CANOpenParser
@@ -156,6 +156,10 @@ class MonitorApp:
             self.selected.scroll_up(rate=10)
         elif(key == 526 or key == 561):  # Ctrl+Down or Ctrl+Right
             self.selected.scroll_down(rate=10)
+        elif(key == curses.KEY_LEFT):
+            self.selected.scroll_left()
+        elif(key == curses.KEY_RIGHT):
+            self.selected.scroll_right()
 
     def draw_banner(self):
         _, width = self.screen.getmaxyx()
@@ -214,7 +218,7 @@ class MonitorApp:
                                           fields=fields,
                                           frame_types=frame_types)
             elif(type == 'misc_table'):
-                component = Pane(name,
+                component = MiscPane(name,
                                  self.parser,
                                  capacity=capacity,
                                  fields=fields,
