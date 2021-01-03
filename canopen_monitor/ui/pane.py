@@ -6,48 +6,108 @@ from abc import ABC, abstractmethod
 
 
 class Pane(ABC):
-    def __init__(self: Pane, name: str, parser: CANOpenParser, capacity: int =
-    None):
-        self.pad = curses.newpad(1, 1)
-        self.cols = {}
-        self.capacity = capacity
-        self.table = CANMsgTable(capacity=capacity)
-        self.__parser = parser
+    def __init__(self: Pane, border: bool = True, color_pair: int = 4):
+        self._pad = curses.newpad(1, 1)
         self.parent = curses.newwin(0, 0)
-        self.name = name
+        self.border = border
 
-        # Pane states
-        self.__needs_refresh = False
-        self.__scroll_position_y = 0
-        self.__scroll_position_x = 0
+        # Pane state
+        self._needs_refresh = False
+        self._scroll_position_y = 0
+        self._scroll_position_x = 0
         self.selected = False
-        self.pad = curses.newpad(1, 1)
-        self.pad.scrollok(True)
-        self.vwidth = 0
+        self._pad.scrollok(True)
+        self.v_width = 0
+        self.v_height = 0
+        self.scroll_limit_y = 0
+        self.scroll_limit_x = 0
 
         # Draw Style
-        self.__style = curses.color_pair(4)
+        self._style = curses.color_pair(color_pair)
 
     @abstractmethod
     def draw(self: Pane):
+        if self._needs_refresh:
+            self.clear()
+
+        self.parent.attron(self._style)
+        self._pad.attron(self._style)
+
+        if self.border:
+            self.parent.box()
+
+    def clear(self):
+        self._pad.clear()
+        self.parent.clear()
+        self._needs_refresh = False
+
+    @abstractmethod
+    def add(self: Pane, item: any):
+        ...
+
+    def scroll_up(self, rate=1):
+        self._scroll_position_y -= rate
+        if self._scroll_position_y < 0:
+            self._scroll_position_y = 0
+
+    def scroll_down(self, rate=1):
+        self._scroll_position_y += rate
+        if self._scroll_position_y > self.scroll_limit_y:
+            self._scroll_position_y = self.scroll_limit_y
+
+    def scroll_left(self, rate=1):
+        self._scroll_position_x -= rate
+        if self._scroll_position_x < 0:
+            self._scroll_position_x = 0
+
+    def scroll_right(self, rate=1):
+        self._scroll_position_x += rate
+        if self._scroll_position_x > self.scroll_limit_x:
+            self._scroll_position_x = self.scroll_limit_x
+
+
+class CANMsgPane(Pane, ABC):
+    def __init__(self: CANMsgPane, name: str, parser: CANOpenParser,
+                 capacity: int = None, fields: dict = None, frame_types: list
+                 = None):
+        super().__init__()
+        if fields is None:
+            fields = {}
+
+        if frame_types is None:
+            frame_types = []
+
+        self.name = name
+        self._parser = parser
+        self.capacity = capacity
+        self._cols = {}
+        self.table = CANMsgTable(capacity=capacity)
+
+        # set width to column + 2 padding for each field
+        for field in fields:
+            self._cols[field] = [fields[field], len(field) + 2]
+            self.v_width += self._cols[field][1]
+
+        # Turn the frame-type strings into enumerations
+        self.frame_types = []
+        for ft in frame_types:
+            self.frame_types.append(MessageType[ft])
+
+    def draw(self: CANMsgPane):
+        super().draw()
         height, width = self.parent.getmaxyx()
         y_offset, x_offset = self.parent.getbegyx()
 
-        vheight = len(self.table) + 50
-        vheight = height if vheight < height else vheight
+        self.v_height = len(self.table) + 50
+        self.v_height = height if self.v_height < height else self.v_height
+        self.scroll_limit_y = len(self.table) - 1
 
-        self.vwidth = width if self.vwidth < width else self.vwidth
+        self.v_width = width if self.v_width < width else self.v_width
+        self.scroll_limit_x = self.v_width - 2
 
-        self.pad.resize(vheight - 1, self.vwidth)
+        self._pad.resize(self.v_height - 1, self.v_width)
 
-        if self.__needs_refresh:
-            self.clear()
-
-        # needed?
-        self.parent.attron(self.__style)
-        self.pad.attron(self.__style)
-
-        self.parent.box()
+        # Update parent
         out_of = '/{}'.format(self.capacity) \
             if self.capacity is not None else ''
         banner = '{} ({}{})'.format(self.name,
@@ -55,27 +115,30 @@ class Pane(ABC):
                                     out_of)
 
         if self.selected:
-            self.parent.attron(self.__style | curses.A_REVERSE)
+            self.parent.attron(self._style | curses.A_REVERSE)
 
         self.parent.addstr(0, 1, banner)
 
-        self.parent.attroff(self.__style | curses.A_REVERSE)
+        self.parent.attroff(self._style | curses.A_REVERSE)
 
-        # Draw Header
-        line = ""
-        for col in self.cols:
-            line += col.ljust(self.cols[col][1], ' ')
+        # Add fields header or directions to add fields
+        if len(self._cols) == 0:
+            if self.v_height < 2:
+                self.v_height = 2
 
-        self.pad.attron(self.__style | curses.A_BOLD)
-        self.pad.addstr(0, 1, line)
-        self.pad.attroff(self.__style | curses.A_BOLD)
-        # self.pad.attron(self.__style)
+            self.add_line(1, 1, "No fields added for this pane!", bold=True)
+            self.add_line(2, 1, "Add fields in "
+                                "~/.config/canopen-monitor/layout.json",
+                          bold=True)
+
+        else:
+            self.draw_header()
 
         for i, arb_id in enumerate(self.table):
             msg = self.table[arb_id]
             attributes = dir(msg)
             line = ""
-            for col in self.cols.values():
+            for col in self._cols.values():
                 if col[0] in attributes:
                     if col[0] == 'arb_id':
                         value = hex(msg.arb_id)
@@ -86,91 +149,64 @@ class Pane(ABC):
 
                 line += value.ljust(col[1], ' ')
 
-            if len(line) > self.vwidth:
-                self.vwidth = len(line) + 2
-                self.pad.resize(vheight - 1, self.vwidth)
-            if i == self.__scroll_position_y and self.selected:
-                self.pad.attron(self.__style | curses.A_REVERSE)
-            self.pad.addstr(i + 1, 1, line)
-            if i == self.__scroll_position_y and self.selected:
-                self.pad.attroff(self.__style | curses.A_REVERSE)
-                # self.pad.attron(self.__style)
+            is_selected = self.selected and self._scroll_position_y == i
+            self.add_line(i + 1, 1, line, selected=is_selected)
 
-        self.parent.refresh()
-
-        if self.__scroll_position_y < height - 3:
+        # Don't Scroll down until after scrolling past last item
+        if self._scroll_position_y < height - 3:
             scroll_offset_y = 0
         else:
-            scroll_offset_y = self.__scroll_position_y - (height - 4)
+            scroll_offset_y = self._scroll_position_y - (height - 4)
 
-        if self.__scroll_position_x + width > self.vwidth:
-            self.__scroll_position_x = self.vwidth - width
+        # Don't allow for for pad to be seen past v_width
+        if self._scroll_position_x + width > self.v_width:
+            self._scroll_position_x = self.v_width - width
 
-        scroll_offset_x = self.__scroll_position_x
+        scroll_offset_x = self._scroll_position_x
 
-        self.pad.refresh(scroll_offset_y,
-                         scroll_offset_x,
-                         y_offset + 1,
-                         x_offset + 1,
-                         y_offset + height - 2,
-                         x_offset + width - 2)
+        self.parent.refresh()
+        self._pad.refresh(scroll_offset_y,
+                          scroll_offset_x,
+                          y_offset + 1,
+                          x_offset + 1,
+                          y_offset + height - 2,
+                          x_offset + width - 2)
 
-    def clear(self):
-        self.pad.clear()
-        self.parent.clear()
-        self.__needs_refresh = False
+    def add_line(self, y: int, x: int, line: str = "", bold: bool = False,
+                 selected: bool = False) \
+            -> None:
 
-    @abstractmethod
-    def add(self: Pane, msg: CANMsg):
-        if self.table is not None:
-            msg.parsed_msg = self.__parser.parse(msg)[0]
-            self.table += msg
-        self.__needs_refresh = True
-        ...
+        # Widen pad when line length is larger than current v_width
+        if len(line) + 2 > self.v_width:
+            self.v_width = len(line) + 2
+            self._pad.resize(self.v_height - 1, self.v_width)
 
-    def scroll_up(self, rate=1):
-        self.__scroll_position_y -= rate
-        if self.__scroll_position_y < 0:
-            self.__scroll_position_y = 0
+        if bold:
+            self._pad.attron(self._style | curses.A_BOLD)
+        if selected:
+            self._pad.attron(self._style | curses.A_REVERSE)
 
-    def scroll_down(self, rate=1):
-        self.__scroll_position_y += rate
-        if self.__scroll_position_y > len(self.table) - 1:
-            self.__scroll_position_y = len(self.table) - 1
+        self._pad.addstr(y, x, line)
 
-    def scroll_left(self, rate=1):
-        self.__scroll_position_x -= rate
-        if self.__scroll_position_x < 0:
-            self.__scroll_position_x = 0
+        if bold:
+            self._pad.attroff(self._style | curses.A_BOLD)
+        if selected:
+            self._pad.attroff(self._style | curses.A_REVERSE)
 
-    def scroll_right(self, rate=1):
-        self.__scroll_position_x += rate
-        if self.__scroll_position_x > self.vwidth:
-            self.__scroll_position_x = self.vwidth - 2
+    def draw_header(self) -> None:
+        line = ""
+        for col in self._cols:
+            line += col.ljust(self._cols[col][1], ' ')
 
-class HeartBeatPane(Pane):
+        self.add_line(0, 1, line, bold=True)
 
-    def __init__(self: HeartBeatPane, name, parser: CANOpenParser,
-                 capacity: int = None, fields=[], frame_types=[]):
-        super().__init__(name, parser, capacity)
-        self.cols['COB ID'] = ['arb_id', 0]
-        self.cols['Node Name'] = ['node_name', 0]
-        self.cols['Interface'] = ['interface', 0]
-        self.cols['State'] = ['status', 0]
-        self.cols['Status'] = ['parsed_msg', 0]
-
-        # Turn the frame-type strings into enumerations
-        self.frame_types = []
-        for ft in frame_types:
-            self.frame_types.append(MessageType[ft])
-
-        for col in self.cols:
-            self.cols[col][1] = len(col) + 2
-
-    def add(self: Pane, msg: CANMsg):
+    def add(self: CANMsgPane, msg: CANMsg):
         super().add(msg)
+        msg.parsed_msg = self._parser.parse(msg)[0]
+        self.table += msg
+
         attributes = dir(msg)
-        for col in self.cols.values():
+        for col in self._cols.values():
             if col[0] in attributes:
                 value = str(getattr(msg, col[0]))
             else:
@@ -178,29 +214,5 @@ class HeartBeatPane(Pane):
 
             col[1] = len(value) + 2 if len(value) + 2 > col[1] else col[1]
 
-    def draw(self: HeartBeatPane):
-        super().draw()
-
-
     def has_frame_type(self, frame):
         return frame.message_type in self.frame_types
-
-
-class MiscPane(HeartBeatPane):
-    def __init__(self, name, parser: CANOpenParser, capacity: int = None,
-                 fields=[], frame_types=[]):
-        super().__init__(name, parser, capacity, fields, frame_types)
-        # self.cols += [
-        #    "COB ID",
-        #    "Message"
-        #]
-
-
-class InfoPane(HeartBeatPane):
-    def __init__(self, name, parser: CANOpenParser, capacity: int = None,
-                 fields=[], frame_types=[]):
-        super().__init__(name, parser, capacity, fields, frame_types)
-        # self.cols += [
-        #    "COB ID",
-        #    "Message"
-        #]

@@ -2,7 +2,7 @@ import time
 import curses
 import threading
 import canopen_monitor
-from .ui.pane import HeartBeatPane, InfoPane, MiscPane
+from .ui.pane import CANMsgPane
 from .ui.windows import PopupWindow
 from .ui.grid import Grid, Split
 from .parser.canopen import CANOpenParser
@@ -211,20 +211,12 @@ class MonitorApp:
 
                 for entry in data:
                     self.construct_grid(entry, component)
-            elif(type == 'heartbeat_table'):
-                component = HeartBeatPane(name,
-                                          self.parser,
-                                          capacity=capacity,
-                                          fields=fields,
-                                          frame_types=frame_types)
-            elif(type == 'misc_table'):
-                component = MiscPane(name,
-                                 self.parser,
-                                 capacity=capacity,
-                                 fields=fields,
-                                 frame_types=frame_types)
-            elif(type == 'info_table'):
-                component = InfoPane(name, self.parser)
+            elif(type == 'message_table'):
+                component = CANMsgPane(name,
+                                       self.parser,
+                                       capacity=capacity,
+                                       fields=fields,
+                                       frame_types=frame_types)
             else:
                 raise ValueError('Failed to parse layout! Invalid table type: {}'
                                  .format(type))
