@@ -188,6 +188,7 @@ class CANMsgPane(Pane):
         self._parser = parser
         self._cols = {}
         self.table = CANMsgTable(capacity=capacity)
+        self.__top = 0
 
         # set width to column + 2 padding for each field
         for field in fields:
@@ -242,8 +243,7 @@ class CANMsgPane(Pane):
                                   "~/.config/canopen-monitor/layout.json",
                             bold=True)
 
-        else:
-            self.__draw_header()
+        self._pad.attroff(self._style)
 
         for i, arb_id in enumerate(self.table):
             msg = self.table[arb_id]
@@ -264,19 +264,20 @@ class CANMsgPane(Pane):
             self.__add_line(i + 1, 1, line, selected=is_selected)
 
         # Don't Scroll down until after scrolling past last item
-        if self.scroll_position_y < height - 3:
-            scroll_offset_y = 0
-        else:
-            scroll_offset_y = self.scroll_position_y - (height - 4)
+        if self.scroll_position_y - (height - 4) > self.__top:
+            self.__top = self.scroll_position_y - (height - 4)
+        if self.scroll_position_y < self.__top:
+            self.__top = self.scroll_position_y
 
         # Don't allow for for pad to be seen past v_width
         if self.scroll_position_x + width > self.v_width:
             self.scroll_position_x = self.v_width - width
 
         scroll_offset_x = self.scroll_position_x
+        self.__draw_header(self.__top, 1)
 
         self.parent.refresh()
-        self._pad.refresh(scroll_offset_y,
+        self._pad.refresh(self.__top,
                           scroll_offset_x,
                           y_offset + 1,
                           x_offset + 1,
@@ -314,7 +315,7 @@ class CANMsgPane(Pane):
         if selected:
             self._pad.attroff(self._style | curses.A_REVERSE)
 
-    def __draw_header(self: CANMsgPane) -> None:
+    def __draw_header(self: CANMsgPane, y: int, x: int) -> None:
         """
         Draw the table header to the top of the pane
         """
@@ -322,7 +323,7 @@ class CANMsgPane(Pane):
         for col in self._cols:
             line += col.ljust(self._cols[col][1], ' ')
 
-        self.__add_line(0, 1, line, bold=True)
+        self.__add_line(y, x, line, bold=True)
 
     def add(self: CANMsgPane, msg: CANMsg) -> None:
         """
