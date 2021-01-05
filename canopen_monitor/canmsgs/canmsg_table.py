@@ -8,6 +8,7 @@ class CANMsgTable(Iterable):
     """
     Table of CAN Messages
     """
+
     def __init__(self: CANMsgTable, capacity: int = None):
         self.__message_table = {}
         self.capacity = capacity
@@ -96,4 +97,3 @@ class CANMsgTable(Iterable):
         Iterator[CANMsg]: iterator for contained messages
         """
         return self.__message_table.__iter__()
-
