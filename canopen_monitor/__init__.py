@@ -1,8 +1,8 @@
 import os
 
 MAJOR = 3
-MINOR = 1
-PATCH = 4
+MINOR = 2
+PATCH = 0
 
 APP_NAME = 'canopen-monitor'
 APP_DESCRIPTION \
@@ -13,6 +13,7 @@ APP_EMAIL = 'dmitri3@pdx.edu'
 APP_URL = "https://github.com/oresat/CANopen-monitor"
 APP_LICENSE = 'GPL-3.0'
 
+CONFIG_FORMAT_VERSION = 1
 CONFIG_DIR = os.path.expanduser('~/.config/{}'.format(APP_NAME)) + os.sep
 CACHE_DIR = os.path.expanduser('~/.cache/{}'.format(APP_NAME)) + os.sep
 ASSETS_DIR \

@@ -34,7 +34,7 @@ A utility for displaying and tracking activity over the CAN bus.
 
 `$` `pip install -e .[dev]`
 
-*(The `-e` flag creates a live-link to your local development version, so there's no need to uninstall and reinstall every time. Set it and forget it.)*
+*(The `-e` flag creates a symbolic-link to your local development version, so there's no need to uninstall and reinstall every time. Set it and forget it.)*
 
 ## Create or Update Manifest
 
@@ -74,19 +74,25 @@ A set of devices configs including a list of CAN Buses that CAN Monitor will try
       "data": [
         {
           "capacity": null,
-          "fields": [],
+          "fields": {
+            "COB ID": "arb_id", 
+            "Node Name": "node_name", 
+            "Interface": "interface", 
+            "State": "status", 
+            "Status": "parsed_msg"
+            },
           "frame_types": [
             "HEARTBEAT"
           ],
           "name": "Hearbeats",
-          "type": "heartbeat_table"
+          "type": "message_table"
         },
         {
         "capacity": null,
         "fields": [],
         "frame_types": [],
         "name": "Info",
-        "type": "info_table"
+        "type": "message_table"
         }
       ],
       "split": "vertical",
@@ -94,7 +100,14 @@ A set of devices configs including a list of CAN Buses that CAN Monitor will try
     },
     {
       "capacity": null,
-      "fields": [],
+      "fields": {
+            "COB ID": "arb_id", 
+            "Node Name": "node_name", 
+            "Interface": "interface", 
+            "Type": "message_type", 
+            "Time Stamp": "timestamp",
+            "Message": "parsed_msg"
+            },
       "frame_types": [
         "NMT",
         "SYNC",
@@ -113,7 +126,7 @@ A set of devices configs including a list of CAN Buses that CAN Monitor will try
         "UKNOWN"
       ],
       "name": "Misc",
-      "type": "misc_table"
+      "type": "message_table"
     }
   ],
   "split": "horizontal",
