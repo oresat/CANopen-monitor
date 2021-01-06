@@ -2,7 +2,7 @@ import time
 import curses
 import threading
 import canopen_monitor
-from .ui.pane import HeartBeatPane, InfoPane, Pane
+from .ui.pane import CANMsgPane
 from .ui.windows import PopupWindow
 from .ui.grid import Grid, Split
 from .parser.canopen import CANOpenParser
@@ -12,9 +12,6 @@ from .canmsgs.magic_can_bus import MagicCANBus
 class MonitorApp:
     """The top-level application of Can Monitor that manages the middleware
     resoruces and the UI elements.
-
-    Attributes
-    ---------
     """
 
     def __init__(self,
@@ -158,6 +155,10 @@ class MonitorApp:
             self.selected.scroll_up(rate=10)
         elif(key == 526 or key == 561):  # Ctrl+Down or Ctrl+Right
             self.selected.scroll_down(rate=10)
+        elif(key == curses.KEY_LEFT):
+            self.selected.scroll_left()
+        elif(key == curses.KEY_RIGHT):
+            self.selected.scroll_right()
 
     def draw_banner(self):
         _, width = self.screen.getmaxyx()
@@ -209,20 +210,12 @@ class MonitorApp:
 
                 for entry in data:
                     self.construct_grid(entry, component)
-            elif(type == 'heartbeat_table'):
-                component = HeartBeatPane(name,
-                                          self.parser,
-                                          capacity=capacity,
-                                          fields=fields,
-                                          frame_types=frame_types)
-            elif(type == 'misc_table'):
-                component = Pane(name,
-                                 self.parser,
-                                 capacity=capacity,
-                                 fields=fields,
-                                 frame_types=frame_types)
-            elif(type == 'info_table'):
-                component = InfoPane(name, self.parser)
+            elif(type == 'message_table'):
+                component = CANMsgPane(name,
+                                       self.parser,
+                                       capacity=capacity,
+                                       fields=fields,
+                                       frame_types=frame_types)
             else:
                 raise ValueError('Failed to parse layout! Invalid table type: {}'
                                  .format(type))

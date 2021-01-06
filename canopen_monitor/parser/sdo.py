@@ -1105,7 +1105,10 @@ class SDOParser:
     def __parse_block_end_data(self, data):
         # download_segment = SDOBlockEndData(data)  # Unused
 
-        return self.__inProgressName + " 100%"
+        if self.__inProgressName is not None:
+            return self.__inProgressName + " 100%"
+        else:
+            return "100%"
 
     def __parse_block_end_no_data(self, data):
         download_segment = SDOBlockEndNoData(data)

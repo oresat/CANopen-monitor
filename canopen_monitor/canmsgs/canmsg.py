@@ -124,6 +124,7 @@ class CANMsg(pc.Frame):
         node_name = MessageType.cob_id_to_node_id(src.arb_id)
         self.node_name = hex(node_name) \
             if node_name is not None else hex(src.arb_id)
+        self.parsed_msg = ""
 
     def __str__(self):
         """
@@ -138,7 +139,7 @@ class CANMsg(pc.Frame):
             attrs += ['{}={}'.format(k, v)]
         return "<CANMsg {} {} {}>".format(self.message_type,
                                           self.arb_id,
-                                          self.status())
+                                          self.status)
 
     def __le__(self, operand) -> bool:
         """
@@ -153,6 +154,7 @@ class CANMsg(pc.Frame):
         """
         return self.arb_id <= operand.arb_id
 
+    @property
     def status(self) -> str:
         """
         Returns
