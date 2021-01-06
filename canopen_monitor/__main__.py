@@ -1,21 +1,29 @@
 import os
+import json
+import shutil
 import argparse
 import canopen_monitor as cm
-import canopen_monitor.utilities as utils
 import canopen_monitor.parser.eds as eds
 from canopen_monitor.monitor_app import MonitorApp
 
 
-def ensure_config_load(filepath: str) -> dict:
-    # Attempt to load config from file
+def load_config(filepath: str) -> dict:
+    with open(filepath, 'r') as file:
+        return json.load(file)
+
+
+def guarentee_load_config(filepath: str) -> dict:
     try:
-        config = utils.load_config(filepath)
-    # If it doesn't exist, call the config factory to generate it, then load it
+        return load_config(filepath)
     except FileNotFoundError:
-        utils.config_factory(filepath)
-        config = utils.load_config(filepath)
+        filename = os.path.basename(filepath)
+        asset_path = f'{cm.ASSETS_DIR}/{filename}'
+        config_path = f'{cm.CONFIG_DIR}/{filename}'
+        if(os.path.exists(config_path)):
+            shutil.move(config_path, f'{config_path}.old')
+        shutil.copy(asset_path, config_path)
     finally:
-        return config
+        return load_config(filepath)
 
 
 def load_eds_configs(eds_path: str) -> dict:
@@ -26,10 +34,8 @@ def load_eds_configs(eds_path: str) -> dict:
         node_id = eds_config[2101].default_value
 
         if(cm.DEBUG):
-            print('Loaded config for {}({}) witn {} registered subindicies!'
-                  .format(eds_config.device_info.product_name,
-                          node_id,
-                          len(eds_config)))
+            print(f'Loaded config for {eds_config.device_info.product_name}'
+                  '({node_id}) with {len(eds_config)} registered subindicies!')
         configs[node_id] = eds_config
     return configs
 
@@ -70,10 +76,11 @@ def main():
     cm.DEBUG = args.debug
 
     # Guarentee the config directory exists
-    utils.generate_dirs()
+    os.makedirs(cm.CONFIG_DIR, exist_ok=True)
+    os.makedirs(cm.CACHE_DIR, exist_ok=True)
 
     # Fetch the devices configurations
-    devices_cfg = ensure_config_load(cm.DEVICES_CONFIG)
+    devices_cfg = guarentee_load_config(f'{cm.CONFIG_DIR}/devices.json')
     dev_names = devices_cfg['devices']
     timeouts = (devices_cfg['stale_timeout'], devices_cfg['dead_timeout'])
 
@@ -82,13 +89,13 @@ def main():
         dev_names += args.interfaces[0].split(' ')
 
     # Fetch the table schemas
-    table_schema = ensure_config_load(cm.LAYOUT_CONFIG)
+    table_schema = guarentee_load_config(f'{cm.CONFIG_DIR}/layout.json')
 
     # Fetch all of the EDS files that exist
     eds_configs = load_eds_configs(cm.EDS_DIR)
 
     # Fetch all of the node-name overrides
-    node_names = ensure_config_load(cm.NODES_CONFIG)
+    node_names = guarentee_load_config(f'{cm.CONFIG_DIR}/nodes.json')
 
     # Overwrite the node names
     overwrite_node_names(node_names, eds_configs)
