@@ -1,8 +1,7 @@
 from __future__ import annotations
 import queue as q
 import threading as t
-import pyvit.hw.socketcan as phs
-from .. import DEBUG, TIMEOUT, canmsgs
+from . import CANMsg, Interface
 
 
 class MagicCANBus:
@@ -17,10 +16,7 @@ class MagicCANBus:
 
     frames `queue.Queue`: The thread-safe queue of CANMsg objects to pull from.
 
-    failed_interfaces `[str]`: A list of interface names that the Magic CAN Bus
-    failed to connect to.
-
-    stop_listening `threading.Event`: A thread-safe event that triggers when
+    stop_listeners `threading.Event`: A thread-safe event that triggers when
     it's time to shut down all of the bus listeners.
 
     block `bool`: A flag for determining whether or not the Magic CAN Bus
@@ -46,7 +42,7 @@ class MagicCANBus:
         # Bus things
         self.interfaces = []
         self.frames = q.Queue()
-        self.failed_interfaces = []
+
         self.stale_timeout = stale_timeout
         self.dead_timeout = dead_timeout
 
@@ -63,63 +59,67 @@ class MagicCANBus:
         self.__pos = 0
         return self
 
-    def __next__(self: MagicCANBus) -> canmsgs.CANMsg:
+    def __next__(self: MagicCANBus) -> CANMsg:
         if(self.__pos < self.frames.qsize()):
             return self.frames.get_nowait()
         else:
             raise StopIteration()
 
-    def start(self, dev_name):
-        try:
-            dev = phs.SocketCanDev(dev_name)
-            dev.start()
-            self.interfaces.append(dev)
-            dev_listener = t.Thread(target=self._listen,
-                                    args=[dev])
-            dev_listener.setDaemon(True)
-            dev_listener.start()
-            self.threads.append(dev_listener)
-        except OSError:
-            self.failed_interfaces.append(dev_name)
+    def start(self: MagicCANBus, if_name: str) -> None:
+        iface = Interface(if_name)
+        iface.start()
+        self.interfaces.append(iface)
 
-    def _stop(self, dev):
-        self.interfaces.remove(dev)
+        # try:
+        #     new_iface = Interface(if_name)
+        #     new_iface.start()
+        #     self.interfaces.append(new_iface)
+        #     iface_listener = t.Thread(target=self._listen,
+        #                             args=[dev])
+        #     dev_listener.setDaemon(True)
+        #     dev_listener.start()
+        #     self.threads.append(dev_listener)
+        # except OSError:
+        #     self.failed_interfaces.append(dev_name)
 
-    def stop_all(self) -> None:
-        """
-        Remove all devices from the device table
-        """
-        for dev in self.interfaces:
-            self._stop(dev)
+    # def _stop(self, dev):
+    #     self.interfaces.remove(dev)
 
-        self.stop_listening.set()
+    # def stop_all(self) -> None:
+    #     """
+    #     Remove all devices from the device table
+    #     """
+    #     for dev in self.interfaces:
+    #         self._stop(dev)
+    #
+    #     self.stop_listening.set()
+    #
+    #     if(DEBUG):
+    #         print('waiting for '
+    #               + str(len(self.threads))
+    #               + ' bus-threads to close.')
+    #     if(len(self.threads) > 0):
+    #         for thread in self.threads:
+    #             thread.join(TIMEOUT)
+    #             if(thread.is_alive() and DEBUG):
+    #                 print('the bus thread listener with pid ({}) took too long'
+    #                       ' to close, will try again in {}s!'
+    #                       .format(thread.native_id,
+    #                               round(TIMEOUT * len(self.threads), 3)))
+    #         if(DEBUG):
+    #             print('all bus threads closed gracefully!')
+    #     else:
+    #         if(DEBUG):
+    #             print('no child bus threads were spawned!')
 
-        if(DEBUG):
-            print('waiting for '
-                  + str(len(self.threads))
-                  + ' bus-threads to close.')
-        if(len(self.threads) > 0):
-            for thread in self.threads:
-                thread.join(TIMEOUT)
-                if(thread.is_alive() and DEBUG):
-                    print('the bus thread listener with pid ({}) took too long'
-                          ' to close, will try again in {}s!'
-                          .format(thread.native_id,
-                                  round(TIMEOUT * len(self.threads), 3)))
-            if(DEBUG):
-                print('all bus threads closed gracefully!')
-        else:
-            if(DEBUG):
-                print('no child bus threads were spawned!')
-
-    def _listen(self, dev: phs.SocketCanDev) -> None:
+    def __listen(self, iface: Interface) -> None:
         try:
             while not self.stop_listening.is_set():
-                self.frames.put([dev.recv(), dev.ndev], block=self.block)
+                self.frames.put([iface.recv(), iface.ndev], block=self.block)
         except q.Full:
             pass
         except OSError:
-            self._stop(dev)
+            self._stop(iface)
 
     def running(self) -> [str]:
         return list(filter(lambda x: x.running, self.interfaces))
