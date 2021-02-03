@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'CANOpen Monitor'
-copyright = '2020, Portland State Aerospace Society'
+copyright = '2021, Portland State Aerospace Society'
 author = 'Portland State Aerospace Society'
 
 

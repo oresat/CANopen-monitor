@@ -1,7 +1,5 @@
-canopen_monitor
-===============
+Data Classes
+============
 
-.. toctree::
-   :maxdepth: 4
-
-   canopen_monitor
+.. automodule:: canopen_monitor
+    :members:

@@ -27,7 +27,7 @@ class MonitorApp:
 
         # Bus things
         self.devices = devices
-        self.bus = MagicCANBus(interface_names=self.devices,
+        self.bus = MagicCANBus(iface_names=self.devices,
                                stale_timeout=timeouts[0],
                                dead_timeout=timeouts[1])
         self.parser = CANOpenParser(eds_configs)
@@ -62,8 +62,8 @@ class MonitorApp:
     def start(self):
         while not self.stop_listening.is_set():
             # Grab all of the queued messages in the MCB
-            for frame in self.bus:
-                self.parent.add_frame(frame)
+            # for frame in self.bus:
+            #     self.parent.add_frame(frame)
 
             # Get user input
             self.read_input()
@@ -84,8 +84,6 @@ class MonitorApp:
 
         if(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
             print('stopping bus-listeners from the app-layer...')
-
-        self.bus.stop_all()         # Wait for all CanBus threads to stop
 
         if(canopen_monitor.DEBUG):  # Extra canopen_monitor.DEBUG info
             print('stopped all bus-listeners!')
@@ -165,15 +163,6 @@ class MonitorApp:
         self.screen.addstr(0, 0, time.ctime(), curses.color_pair(0))
         self.screen.addstr(" | ")
 
-        running = list(map(lambda x: x.ndev, self.bus.running()))
-        for dev in self.devices:
-            if(dev in running):
-                color = 1
-            else:
-                color = 3
-
-            self.screen.addstr(dev + " ", curses.color_pair(color))
-
         hottip = '<F1: Info> <F2: Controls>'
         self.screen.addstr(0, width - len(hottip), hottip)
 
@@ -217,6 +206,6 @@ class MonitorApp:
                                        fields=fields,
                                        frame_types=frame_types)
             else:
-                raise ValueError('Failed to parse layout! Invalid table type: {}'
-                                 .format(type))
+                raise ValueError('Failed to parse layout! Invalid table type:'
+                                 f' {type}')
             parent.add_panel(component)

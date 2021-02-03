@@ -28,8 +28,7 @@ setuptools.setup(
         "pyvit",
         "python-dateutil",
         "ConfigArgParse",
-        "canopen",
-        "typecheck-decorator"
+        "canopen"
     ],
     extras_require={
         "dev": [
@@ -46,7 +45,7 @@ setuptools.setup(
     python_requires='>=3.8.5',
     entry_points={
         "console_scripts": [
-            '{} = canopen_monitor.__main__:main'.format(cm.APP_NAME),
+            f'{cm.APP_NAME} = canopen_monitor.__main__:main'
         ]
     }
 )

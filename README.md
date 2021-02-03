@@ -2,53 +2,50 @@
 
 [![license](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
 [![pypi](https://img.shields.io/pypi/v/canopen-monitor)](https://pypi.org/project/canopen-monitor)
-[![read the docs](https://readthedocs.org/projects/canopen-monitor/badge/?version=latest)](https://canopen-monitor.readthedocs.io/en/latest/?badge=latest)
+[![read the docs](https://readthedocs.org/projects/canopen-monitor/badge/?version=latest)](https://canopen-monitor.readthedocs.io)
 [![issues](https://img.shields.io/github/issues/oresat/CANopen-monitor/bug?label=issues)](https://github.com/oresat/CANopen-monitor/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 [![unit tests](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Unit%20Tests?label=unit%20tests)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Unit+Tests%22)
 [![deployment](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Deploy%20to%20PyPi?label=deployment)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Deploy+to+PyPi%22)
 
-A utility for displaying and tracking activity over the CAN bus.
+An NCurses-based TUI application for tracking activity over the CAN bus and decoding messages with provided EDS/OD files.
 
 ***
 
-# Quick Start *(Usage)*
+# Quick Start
 
-## Install *(from PyPi)*
+### Install
 
-`$` `pip install package-demo`
+`$` `pip install canopen-monitor`
 
-
-## Run
+### Run
 
 `$` `canopen-monitor`
 
 ***
 
-# Development and Contribution
+# Configuration
 
-## Build
-
-`$` `python setup.py bdist_wheel sdist`
-
-## Install Locally
-
-`$` `pip install -e .[dev]`
-
-*(The `-e` flag creates a symbolic-link to your local development version, so there's no need to uninstall and reinstall every time. Set it and forget it.)*
-
-## Create or Update Manifest
-
-`$` `rm -f MANIFEST.in && check-manifest --update`
-
-## Create or Update Sphinx Documentation
-
-`$` `sphinx-apidoc -f -o docs canopen_monitor && make -C docs html`
+The default configurations provided by CANOpen Monitor can be found in [canopen_monitor/assets](./canopen_monitor/assets). These are the default assets provided. At runtime these configs are copied to `~/.config/canopen-monitor` where they can be modified and the changes will persist.
 
 ***
 
-# Configuration
+# Development and Contribution
 
-The default configurations provided by CANOpen Monitor can be found in [canopen_monitor/assets](./canopen_monitor/assets). These are the default assets provided, at runtime these configs are copied to `~/.config/canopen-monitor` where they can be changed persistently.
+### Documentation
+
+Check out our [Read The Docs](https://canopen-monitor.readthedocs.io) pages for more info on the application sub-components and methods.
+
+### Install Locally
+
+`$` `pip install -e .[dev]`
+
+*(Note: the `-e` flag creates a symbolic-link to your local development version. Set it once, and forget it)*
+
+### Create Documentation Locally
+
+`$` `make -C docs clean html`
+
+*(Note: documentation is configured to auto-build with ReadTheDocs on every push to master)*
 
 ***
 
