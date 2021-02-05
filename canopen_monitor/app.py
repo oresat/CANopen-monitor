@@ -28,6 +28,10 @@ class App:
     def write(self: App, msg: str, x: int = 0, y: int = 0) -> None:
         self.screen.addstr(y, x, msg)
 
+    def clear_line(self: App, y: int):
+        self.screen.addstr(y, 0, "")
+        self.screen.clrtoeol()
+
     def refresh(self: App):
         self.screen.refresh()
 

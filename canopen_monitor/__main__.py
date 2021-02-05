@@ -28,6 +28,8 @@ def main():
                     app.write(f'Type: {message.type}', x=4, y=pos)
                     pos += 1
                     app.write(f'Interface: {message.interface}', x=4, y=pos)
+                app.clear_line(1)
+                # import time; time.sleep(1)
                 app.refresh()
 
     except KeyboardInterrupt:

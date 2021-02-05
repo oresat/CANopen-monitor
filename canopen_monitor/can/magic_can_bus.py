@@ -34,7 +34,7 @@ class MagicCANBus:
                 iface.start()
                 while(self.keep_alive.is_set() and iface.is_up):
                     self.message_queue.put(iface.recv(), block=True)
-            iface.stop()
+                iface.stop()
 
     def __enter__(self: MagicCANBus) -> MagicCANBus:
         self.threads = list(map(lambda x: self.start_handler(x),
@@ -59,5 +59,7 @@ class MagicCANBus:
         return self.message_queue.get(block=True)
 
     def __repr__(self: MagicCANBus) -> str:
+        alive_threads = sum(map(lambda x: 1 if x.is_alive() else 0, self.threads))
         return f"Magic Can Bus: {self.interfaces}," \
-               f" messages: {self.message_queue.qsize()}"
+               f" messages: {self.message_queue.qsize()}" \
+               f" threads: {alive_threads}"

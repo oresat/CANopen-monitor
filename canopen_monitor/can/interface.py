@@ -15,11 +15,11 @@ class Interface(SocketCanDev):
     Used to manage a singular interface and any encoded messages streaming
     across it
 
-    :param if_name: Interface name to bind to
-    :type if_name: str
+    :param name: Name of the interface bound to
+    :type name: str
 
-    :param other_thing: Some thing
-    :type other_thing: bool
+    :param last_activity: Timestamp of the last activity on the interface
+    :type last_activity: datetime.datetime
     """
 
     def __init__(self: Interface, if_name: str):
@@ -80,27 +80,19 @@ class Interface(SocketCanDev):
         :rtype: Message, None
         """
         try:
-            if(self.exists):
-                frame = super().recv()
-                return Message(frame.arb_id,
-                               data=list(frame.data),
-                               frame_type=frame.frame_type,
-                               interface=self.name,
-                               timestamp=dt.datetime.now(),
-                               extended=frame.is_extended_id)
-            else:
-                return None
+            frame = super().recv()
+            if frame is not None:
+                self.last_activity = dt.datetime.now()
+            return Message(frame.arb_id,
+                           data=list(frame.data),
+                           frame_type=frame.frame_type,
+                           interface=self.name,
+                           timestamp=dt.datetime.now(),
+                           extended=frame.is_extended_id)
+        except OSError:
+            return None
         except socket.timeout:
             return None
-
-    @property
-    def exists(self: Interface) -> bool:
-        """Determines if the interface currently exists
-
-        :returns: `True` if the interface was found, otherwise `False`
-        :rtype: bool
-        """
-        return self.name in psutil.net_if_stats()
 
     @property
     def is_up(self: Interface) -> bool:
@@ -109,7 +101,9 @@ class Interface(SocketCanDev):
         :returns: `True` if in the `UP` state `False` if in the `DOWN` state
         :rtype: bool
         """
-        return psutil.net_if_stats()[self.name].isup if self.exists else False
+        if_dev = psutil.net_if_stats().get(self.name)
+        if(if_dev is not None):
+            return if_dev.isup
 
     @property
     def duplex(self: Interface) -> int:
@@ -135,9 +129,9 @@ class Interface(SocketCanDev):
 
     @property
     def mtu(self: Interface) -> int:
-        """MTU
+        """Maximum Transmission Unit
 
-        :return: MTU
+        :return: Maximum size of a packet
         :rtype: int
         """
         val = Interface.__get_if_data(self.name)
@@ -150,8 +144,9 @@ class Interface(SocketCanDev):
         :return: Age of the message
         :rtype: datetime.timedelta
         """
-        return dt.datetime.now() - self.last_activity
+        return dt.datetime.now() - dt.datetime.fromtimestamp(self.start_time)
 
     def __repr__(self: Interface) -> str:
         return f'({self.name}:' \
-               f' {"UP" if self.is_up else "DOWN"})'
+               f' {"UP" if self.is_up else "DOWN"},' \
+               f' {dt.datetime.now() - self.last_activity}'
