@@ -3,8 +3,8 @@ import datetime as dt
 from enum import Enum
 from pyvit.can import Frame
 
-STALE_TIME = dt.timedelta(seconds=60)
-DEAD_TIME = dt.timedelta(seconds=120)
+STALE_TIME = dt.timedelta(seconds=6)
+DEAD_TIME = dt.timedelta(seconds=12)
 
 
 class MessageType(Enum):
@@ -103,7 +103,7 @@ class MessageType(Enum):
         return MessageType['UKNOWN']
 
     def __str__(self) -> str:
-        return self.name
+        return self.name.ljust(9, ' ')
 
 
 class MessageState(Enum):
@@ -123,22 +123,26 @@ class MessageState(Enum):
     STALE = 'Stale'
     DEAD = 'Dead'
 
+    def __str__(self: MessageState) -> str:
+        """ Overloaded `str()` operator
+        """
+        return self.value + ' '
+
 
 class Message(Frame):
     """This class is a wrapper class for the `pyvit.can.Frame` class
 
+    :ref: `See this for documentation on a PyVit Frame
+        <https://github.com/linklayer/pyvit/blob/master/pyvit/can.py>`_
+
     It's primary purpose is to carry all of the same CAN message data as a
     frame, while adding age and state attributes as well.
-
-    :param arb_id: Arbitration id, the agreed upon ID of the sending-node
-    :type arb_id: int
     """
 
     def __init__(self: Message, arb_id: int, **kwargs):
         super().__init__(arb_id, **kwargs)
-
-    def to_dict(self: Message) -> dict:
-        return self.__dict__
+        self.node_name = MessageType.cob_to_node(self.type, self.arb_id)
+        self.message = self.data
 
     @property
     def age(self: Message) -> dt.timedelta:
@@ -157,11 +161,11 @@ class Message(Frame):
         :rtype: MessageState
         """
         if(self.age >= DEAD_TIME):
-            return MessageState('Dead')
+            return MessageState['DEAD']
         elif(self.age >= STALE_TIME):
-            return MessageState('Stale')
+            return MessageState['STALE']
         else:
-            return MessageState('Alive')
+            return MessageState['ALIVE']
 
     @property
     def type(self: Message) -> MessageType:
@@ -188,3 +192,16 @@ class Message(Frame):
         :rtype: int
         """
         return MessageType.cob_to_node(self.type, self.arb_id)
+
+        def __lt__(self: Message, src: Message):
+            """Overloaded less-than operator, primarilly to support `sorted()`
+            on a list of `Message`, such that it's sorted by COB ID
+
+            :param src: The right-hand message to compare against
+            :type src: Message
+
+            .. example::
+
+                self < src
+            """
+            return self._arb_id < src._arb_id

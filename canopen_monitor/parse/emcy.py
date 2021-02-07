@@ -1,5 +1,5 @@
-from canopen_monitor.parser.eds import EDS
-from canopen_monitor.parser.utilities import FailedValidationError
+from .eds import EDS
+from .utilities import FailedValidationError
 
 
 def parse(cob_id: int, data: list, eds: EDS):

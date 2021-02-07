@@ -32,11 +32,16 @@ class Interface(SocketCanDev):
         self.name = if_name
         self.last_activity = dt.datetime.now()
         self.socket.settimeout(SOCK_TIMEOUT)
+        self.listening = False
 
     def __enter__(self: Interface) -> Interface:
         """The entry point of an `Interface` in a `with` statement
 
-        This binds to the socket interface name specified
+        This binds to the socket interface name specified.
+
+        .. warning::
+            This block-waits until the provided interface comes up before
+            binding to the socket.
 
         :returns: Itself
         :rtype: Interface
@@ -46,11 +51,8 @@ class Interface(SocketCanDev):
         >>> with canopen_monitor.Interface('vcan0') as dev:
         >>>     print(f'Message: {dev.recv()}')
         """
-        if(self.exists):
-            self.start()
-            return self
-        else:
-            return None
+        self.start()
+        return self
 
     def __exit__(self: Interface, etype, evalue, traceback) -> None:
         """The exit point of an `Interface` in a `with` statement
@@ -68,8 +70,40 @@ class Interface(SocketCanDev):
         """
         self.stop()
 
+    def start(self: Interface, block_wait: bool = True) -> None:
+        """A wrapper for `pyvit.hw.SocketCanDev.start()`
+
+        If block-waiting is enabled, then instead of imediately binding to the
+        interface, it waits for the state to change to `UP` first before
+        binding.
+
+        :param block_wait: Enables block-waiting
+        :type block_wait: bool
+        """
+        while(block_wait and not self.is_up):
+            pass
+        super().start()
+        self.listening = True
+
+    def stop(self: Interface) -> None:
+        """A wrapper for `pyvit.hw.SocketCanDev.stop()`
+        """
+        super().stop()
+        self.listening = False
+
+    def restart(self: Interface) -> None:
+        """A macro-fuction for restarting the interface connection
+
+        This is the same as doing:
+
+        >>> iface.stop()
+        >>> iface.start()
+        """
+        self.stop()
+        self.start()
+
     def recv(self: Interface) -> Message:
-        """A wrapper for `recv()` defined on `pyvit.hw.SocketCanDev`
+        """A wrapper for `pyvit.hw.SocketCanDev.recv()`
 
         Instead of returning a `can.Frame`, it intercepts the `recv()` and
         converts it to a `canopen_monitor.Message` at the last minute.
@@ -104,6 +138,7 @@ class Interface(SocketCanDev):
         if_dev = psutil.net_if_stats().get(self.name)
         if(if_dev is not None):
             return if_dev.isup
+        return False
 
     @property
     def duplex(self: Interface) -> int:
@@ -149,4 +184,5 @@ class Interface(SocketCanDev):
     def __repr__(self: Interface) -> str:
         return f'({self.name}:' \
                f' {"UP" if self.is_up else "DOWN"},' \
-               f' {dt.datetime.now() - self.last_activity}'
+               f' {dt.datetime.now() - self.last_activity},' \
+               f' Bound: {self.listening}'

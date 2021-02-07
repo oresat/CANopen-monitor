@@ -1,6 +1,6 @@
 from .eds import EDS
 from .utilities import FailedValidationError
-from ..canmsgs import MessageType
+from ..can import MessageType
 
 
 def parse(cob_id: int, data: list, eds_config: EDS):

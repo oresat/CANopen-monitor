@@ -1,7 +1,7 @@
 import array
 import datetime
 from struct import unpack
-from canopen_monitor.parser.eds import EDS
+from .eds import EDS
 from typing import List
 
 

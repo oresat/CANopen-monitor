@@ -1,8 +1,6 @@
-"""EDS File Parser Interface"""
 import string
 from typing import Union
-
-import canopen_monitor.parser as cmp
+import canopen_monitor.parse as cmp
 from dateutil.parser import parse as dtparse
 
 

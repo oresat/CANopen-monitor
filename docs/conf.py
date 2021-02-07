@@ -30,7 +30,8 @@ author = 'Portland State Aerospace Society'
 extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosectionlabel'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

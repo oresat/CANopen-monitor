@@ -1,4 +1,4 @@
-from ..canmsgs import CANMsg, MessageType
+from ..can import Message, MessageType
 from . import hb as HBParser, \
     pdo as PDOParser, \
     sync as SYNCParser, \
@@ -13,7 +13,7 @@ class CANOpenParser:
         self.sdo_parser = SDOParser()
         self.eds_configs = eds_configs
 
-    def parse(self, msg: CANMsg) -> [str, str]:
+    def parse(self, msg: Message) -> [str, str]:
         node_id = MessageType.cob_id_to_node_id(msg.arb_id)
         eds_config = self.eds_configs.get(hex(node_id)) \
             if node_id is not None else None

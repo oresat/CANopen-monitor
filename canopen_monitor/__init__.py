@@ -1,6 +1,12 @@
 import os
 from .app import App
-from .can import MagicCANBus, Interface, Message, MessageState, MessageType
+from .can import MagicCANBus, \
+                 Interface, \
+                 Message, \
+                 MessageState, \
+                 MessageType, \
+                 MessageTable
+from .ui import Pane
 
 MAJOR = 3
 MINOR = 2
@@ -30,5 +36,7 @@ __all__ = [
     "Interface",
     "Message",
     "MessageState",
-    "MessageType"
+    "MessageType",
+    "MessageTable",
+    "Pane"
 ]

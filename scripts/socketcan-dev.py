@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import can
 import time
+import random
 import argparse
 import subprocess
 
@@ -74,10 +75,18 @@ def main():
                         default=False,
                         help='Repeat sending the message indefinitely, every'
                              ' given seconds, used in conjunction with `-d`')
+    parser.add_argument('--random-id',
+                        dest='random_id',
+                        action='store_true',
+                        default=False,
+                        help='Use a randomly generated ID (this disables -i)')
     args = parser.parse_args()
 
     # Interpret ID as hex
-    args.id = int(args.id, 16)
+    if(args.random_id):
+        args.id = random.randint(0x0, 0x7ff)
+    else:
+        args.id = int(args.id, 16)
 
     # Interpret message as hex
     args.message = list(map(lambda x: int(x, 16), args.message))
@@ -89,6 +98,9 @@ def main():
             up.append(create_vdev(c))
 
         while(args.repeat):
+            if(args.random_id):
+                args.id = random.randint(0x0, 0x7ff)
+
             for i, c in enumerate(args.channels):
                 if(up[i]):
                     id = args.id + i
