@@ -104,9 +104,9 @@ class Pane(ABC):
 
         .. warning::
 
-            This should only be used if an event that changes the draw layout
-            of the entire pane happens. If used on every cycle, flickering will
-            likely occur due to the slowness of the operation.
+            This should only be used if an event changing the entire pane
+            occurs. If used on every cycle, a flickering effect will occur,
+            due to the slowness of the operation.
         """
         self._pad.clear()
         self.parent.clear()
@@ -118,8 +118,7 @@ class Pane(ABC):
         :param y: The line to clear
         :type y: int
 
-        :param style: The style to clear the line with. Only the background
-            color of the style will affect the line-clear.
+        :param style: The background color to set when clearing the line
         :type style: int
         """
         style = style or curses.color_pair(0)
@@ -143,7 +142,7 @@ class Pane(ABC):
 
             Scroll limit must be set by child class
 
-        :param rate: number of lines to scroll by
+        :param rate: Number of lines to scroll by
         :type rate: int
         :value: 1
 
@@ -165,7 +164,7 @@ class Pane(ABC):
 
             Scroll limit must be set by child class
 
-        :param rate: number of lines to scroll by
+        :param rate: Number of lines to scroll by
         :type rate: int
         :value: 1
 
@@ -187,7 +186,7 @@ class Pane(ABC):
 
             Scroll limit must be set by child class
 
-        :param rate: number of lines to scroll by
+        :param rate: Number of lines to scroll by
         :type rate: int
         :value: 1
 
@@ -209,7 +208,7 @@ class Pane(ABC):
 
             Scroll limit must be set by child class
 
-        :param rate: number of lines to scroll by
+        :param rate: Number of lines to scroll by
         :type rate: int
         :value: 1
 

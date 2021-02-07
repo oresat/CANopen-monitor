@@ -1,3 +1,7 @@
+"""This module is primarily responsible for providing a high-level interface
+for parsing CANOpen messages according to Ojbect Definiton files or Electronic
+Data Sheet files, provided by the end user.
+"""
 import enum
 from re import finditer
 from .eds import load_eds_file

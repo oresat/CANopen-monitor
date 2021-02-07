@@ -154,7 +154,9 @@ class Interface(SocketCanDev):
     def speed(self: Interface) -> int:
         """Determines the Baud Rate of the bus, if any
 
-        This will appear as 0 for virtual can interfaces.
+        .. warning::
+
+            This will appear as `0` for virtual can interfaces.
 
         :return: Baud rate
         :rtype: int
