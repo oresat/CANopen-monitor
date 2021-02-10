@@ -21,7 +21,7 @@ def parse(cob_id: int, data: list, eds_config: EDS):
         0x05: "Operational",
         0x7F: "Pre-operational"
     }
-    node_id = MessageType.cob_id_to_node_id(cob_id)
+    node_id = MessageType.cob_to_node(MessageType.HEARTBEAT, cob_id)
     if len(data) < 1 or data[0] not in states:
         raise FailedValidationError(data, node_id, cob_id, __name__,
                                     "Invalid heartbeat state detected")

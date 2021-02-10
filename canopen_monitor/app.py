@@ -1,6 +1,6 @@
 from __future__ import annotations
 import curses
-from .can import MessageTable
+from .can import MessageTable, MessageType
 from .ui import MessagePane
 
 
@@ -24,13 +24,53 @@ class App:
         #   been initialized
         self.misc_pane = MessagePane(cols={'COB ID': ('arb_id', 0, hex),
                                            'Node ID': ('node_name', 0, hex),
-                                           'Type': ('type', 0, None),
-                                           'State': ('state', 0, None),
-                                           'Message': ('message', 0, None)},
+                                           'Type': ('type', 0),
+                                           'Message': ('message', 0)},
+                                     types=[MessageType.NMT,
+                                            MessageType.SYNC,
+                                            MessageType.TIME,
+                                            MessageType.EMER,
+                                            MessageType.SDO,
+                                            MessageType.PDO],
                                      parent=self.screen,
                                      name='Miscellaneous',
                                      message_table=self.table)
+        self.hb_pane = MessagePane(cols={'COB ID': ('arb_id', 0, hex),
+                                         'Node ID': ('node_name', 0, hex),
+                                         'State': ('state', 0)},
+                                   types=[MessageType.HEARTBEAT],
+                                   parent=self.screen,
+                                   name='Heartbeats',
+                                   message_table=self.table)
         return self
+
+    def _handle_keyboard_input(self: App) -> None:
+        """This is only a temporary implementation
+
+        .. deprecated::
+
+            Soon to be removed
+        """
+        # Grab user input
+        input = self.screen.getch()
+        curses.flushinp()
+
+        if(input == curses.KEY_UP):
+            self.misc_pane.scroll_up()
+        elif(input == curses.KEY_DOWN):
+            self.misc_pane.scroll_down()
+        elif(input == 567 or input == 546):  # Ctrl+Up or Ctrl+Left
+            self.misc_pane.scroll_up(rate=16)
+        elif(input == 526 or input == 561):  # Ctrl+Down or Ctrl+Right
+            self.misc_pane.scroll_down(rate=16)
+        elif(input == curses.KEY_LEFT):
+            self.misc_pane.scroll_left(rate=4)
+        elif(input == curses.KEY_RIGHT):
+            self.misc_pane.scroll_right(rate=4)
+        elif(input == curses.KEY_RESIZE):
+            self.misc_pane._reset_scroll_positions()
+            self.screen.clear()
+            # self.misc_pane.clear()
 
     def __init_color_pairs(self: App) -> None:
         curses.start_color()

@@ -4,11 +4,12 @@ Data Sheet files, provided by the end user.
 """
 import enum
 from re import finditer
-from .eds import load_eds_file
+from .eds import EDS, load_eds_file
 from .canopen import CANOpenParser
 
 __all__ = [
     'CANOpenParser',
+    'EDS',
     'load_eds_file',
 ]
 

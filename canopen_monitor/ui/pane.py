@@ -26,6 +26,8 @@ class Pane(ABC):
                  parent: any = None,
                  height: int = 1,
                  width: int = 1,
+                 y: int = 0,
+                 x: int = 0,
                  border: bool = True,
                  color_pair: int = 0):
         """Abstract pane initialization
@@ -41,6 +43,8 @@ class Pane(ABC):
         # Set virtual dimensions
         self.v_height = height
         self.v_width = width
+        self.y = y
+        self.x = x
 
         # Set or create the parent window
         self.parent = parent or curses.newwin(self.v_height, self.v_width)
@@ -57,8 +61,14 @@ class Pane(ABC):
         self.needs_refresh = False
         self.scroll_position_y = 0
         self.scroll_position_x = 0
-        self.scroll_limit_y = 0
-        self.scroll_limit_x = 0
+
+    @property
+    def scroll_limit_y(self: Pane) -> int:
+        return 0
+
+    @property
+    def scroll_limit_x(self: Pane) -> int:
+        return 0
 
     @abstractmethod
     def draw(self: Pane) -> None:
@@ -94,7 +104,7 @@ class Pane(ABC):
         self.__reset_draw_dimensions()
         self._pad.resize(self.v_height, self.v_width)
 
-    def __reset_draw_dimensions(self: Pane):
+    def __reset_draw_dimensions(self: Pane) -> None:
         p_height, p_width = self.parent.getmaxyx()
         self.d_height = min(self.v_height, p_height - 1)
         self.d_width = min(self.v_width, p_width - 1)
@@ -110,7 +120,7 @@ class Pane(ABC):
         """
         self._pad.clear()
         self.parent.clear()
-        self.refresh()
+        # self.refresh()
 
     def clear_line(self: Pane, y: int, style: any = None) -> None:
         """Clears a single line of the Pane
@@ -121,18 +131,22 @@ class Pane(ABC):
         :param style: The background color to set when clearing the line
         :type style: int
         """
-        style = style or curses.color_pair(0)
-        self._pad.attron(self._style | style)
-        self._pad.move(y, 0)
+        line_style = style or self._style
+        self._pad.move(y, 1)
+        # self._pad.addstr(y, 1, ' ' * (self.d_width - 2), curses.COLOR_BLUE)
+        self._pad.attron(line_style)
         self._pad.clrtoeol()
-        self._pad.attroff(self._style | style)
-        if(self.border):
-            self._pad.box()
+        self._pad.attroff(line_style)
 
     def refresh(self: Pane) -> None:
         """Refresh the pane based on configured draw dimensions
         """
-        self._pad.refresh(0, 0, 0, 0, self.d_height, self.d_width)
+        self._pad.refresh(self.scroll_position_y,
+                          self.scroll_position_x,
+                          0,
+                          0,
+                          self.d_height,
+                          self.d_width)
         self.needs_refresh = False
 
     def scroll_up(self: Pane, rate: int = 1) -> bool:
@@ -144,7 +158,6 @@ class Pane(ABC):
 
         :param rate: Number of lines to scroll by
         :type rate: int
-        :value: 1
 
         :return: Indication of whether a limit was reached. False indicates a
             limit was reached and the pane cannot be scrolled further in that
@@ -166,7 +179,6 @@ class Pane(ABC):
 
         :param rate: Number of lines to scroll by
         :type rate: int
-        :value: 1
 
         :return: Indication of whether a limit was reached. False indicates a
             limit was reached and the pane cannot be scrolled further in that
@@ -179,7 +191,7 @@ class Pane(ABC):
             return False
         return True
 
-    def scroll_left(self: Pane, rate: int = 1):
+    def scroll_left(self: Pane, rate: int = 1) -> bool:
         """Scroll pad left
 
         .. note::
@@ -188,7 +200,6 @@ class Pane(ABC):
 
         :param rate: Number of lines to scroll by
         :type rate: int
-        :value: 1
 
         :return: Indication of whether a limit was reached. False indicates a
             limit was reached and the pane cannot be scrolled further in that
@@ -196,12 +207,12 @@ class Pane(ABC):
         :rtype: bool
         """
         self.scroll_position_x -= rate
-        if self.scroll_position_x < 0:
+        if(self.scroll_position_x < 0):
             self.scroll_position_x = 0
             return False
         return True
 
-    def scroll_right(self: Pane, rate: int = 1):
+    def scroll_right(self: Pane, rate: int = 1) -> bool:
         """Scroll pad right
 
         .. note::
@@ -210,7 +221,6 @@ class Pane(ABC):
 
         :param rate: Number of lines to scroll by
         :type rate: int
-        :value: 1
 
         :return: Indication of whether a limit was reached. False indicates a
             limit was reached and the pane cannot be scrolled further in that
@@ -228,7 +238,8 @@ class Pane(ABC):
                  x: int,
                  line: str,
                  bold: bool = False,
-                 highlight: bool = False) -> None:
+                 highlight: bool = False,
+                 color: any = None) -> None:
         """Adds a line of text to the Pane and if needed, it handles the
         process of resizing the embedded pad
 
@@ -246,7 +257,13 @@ class Pane(ABC):
 
         :param highlight: A syle option to highlight the line writte
         :type highlight: bool
+
+        :param style: A color option for the line
+        :type style: curses.style
         """
+        # Set the color option to the pane default if none was specified
+        line_style = color or self._style
+
         # Widen pad when necessary
         new_width = len(line) + x
         if(new_width > self.v_width):
@@ -256,18 +273,12 @@ class Pane(ABC):
         if(y > self.v_height):
             self.resize(y + 1, self.v_width)
 
-        # Enable style options
-        if bold:
-            self._pad.attron(self._style | curses.A_BOLD)
-        if highlight:
-            self._pad.attron(self._style | curses.A_REVERSE)
+        # Add style options
+        if(bold):
+            line_style |= curses.A_BOLD
+        if(highlight):
+            line_style |= curses.A_REVERSE
 
         # Add the line
         if(y < self.d_height):
-            self._pad.addstr(y, x, line)
-
-        # Disable style options
-        if bold:
-            self._pad.attroff(self._style | curses.A_BOLD)
-        if highlight:
-            self._pad.attroff(self._style | curses.A_REVERSE)
+            self._pad.addstr(y, x, line, line_style)

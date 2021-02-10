@@ -38,6 +38,16 @@ def send(channel: str, id: int, message: [int]):
     bus.send(msg)
 
 
+def send_handle(args: dict, up: [str]):
+    for i, c in enumerate(args.channels):
+        if(up[i]):
+            id = args.id + i
+            send(c, id, args.message)
+            print(f'[{time.time()}]:'.ljust(22, ' ')
+                  + f'Sent {args.message} to {c} as'
+                  f' {hex(id)}')
+
+
 def main():
     parser = argparse.ArgumentParser(prog='socketcan-dev',
                                      description='A simple SocketCan wrapper'
@@ -80,6 +90,12 @@ def main():
                         action='store_true',
                         default=False,
                         help='Use a randomly generated ID (this disables -i)')
+    parser.add_argument('--random-message',
+                        dest='random_message',
+                        action='store_true',
+                        default=False,
+                        help='Use a randomly generated message (this disables'
+                             ' -m)')
     args = parser.parse_args()
 
     # Interpret ID as hex
@@ -89,7 +105,10 @@ def main():
         args.id = int(args.id, 16)
 
     # Interpret message as hex
-    args.message = list(map(lambda x: int(x, 16), args.message))
+    if(args.random_message):
+        args.message = [random.randint(0, 255) for _ in range(8)]
+    else:
+        args.message = list(map(lambda x: int(x, 16), args.message))
 
     try:
         up = []
@@ -97,18 +116,21 @@ def main():
         for c in args.channels:
             up.append(create_vdev(c))
 
+        # Send atleast once
+        send_handle(args, up)
+
+        # Send repeatedly in instructed to do so
         while(args.repeat):
+            # Regenerate the random things if flagged to do so
             if(args.random_id):
                 args.id = random.randint(0x0, 0x7ff)
+            if(args.random_message):
+                args.message = [random.randint(0, 255) for _ in range(8)]
 
-            for i, c in enumerate(args.channels):
-                if(up[i]):
-                    id = args.id + i
-                    send(c, id, args.message)
-                    print(f'[{time.time()}]:'.ljust(22, ' ')
-                          + f'Sent {args.message} to {c} as'
-                          f' {hex(id)}')
-                    time.sleep(args.delay)
+            # Send the things
+            send_handle(args, up)
+            time.sleep(args.delay)
+
     except KeyboardInterrupt:
         print('Goodbye!')
     finally:

@@ -9,6 +9,8 @@ class MessageTable:
         self.table = {}
 
     def __add__(self: MessageTable, message: Message) -> MessageTable:
+        if(self.parser is not None):
+            message.message = self.parser.parse(message)
         self.table[message.arb_id] = message
         return self
 

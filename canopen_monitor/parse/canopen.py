@@ -13,36 +13,35 @@ class CANOpenParser:
         self.sdo_parser = SDOParser()
         self.eds_configs = eds_configs
 
-    def parse(self, msg: Message) -> [str, str]:
-        node_id = MessageType.cob_id_to_node_id(msg.arb_id)
+    def parse(self, message: Message) -> str:
+        node_id = message.node_id
         eds_config = self.eds_configs.get(hex(node_id)) \
             if node_id is not None else None
 
-        if (eds_config is not None):
-            msg.node_name = eds_config.device_info.product_name
-
-        if (msg.message_type == MessageType.UKNOWN):
-            return [str(msg.message_type), str(hex(msg.arb_id))]
-        elif (msg.message_type == MessageType.SYNC):
+        if (message.type == MessageType.UKNOWN):
+            return [str(message.type), str(hex(message.arb_id))]
+        elif (message.type == MessageType.SYNC):
             parse = SYNCParser.parse
-        elif (msg.message_type == MessageType.EMER):
+        elif (message.type == MessageType.EMER):
             parse = EMCYParser.parse
-        elif (msg.message_type.super_type() == MessageType.PDO):
+        elif (message.supertype == MessageType.PDO):
             parse = PDOParser.parse
-        elif (msg.message_type.super_type() == MessageType.SDO):
+        elif (message.supertype == MessageType.SDO):
             if self.sdo_parser.is_complete:
                 self.sdo_parser = SDOParser()
             parse = self.sdo_parser.parse
-        elif (msg.message_type == MessageType.HEARTBEAT):
+        elif (message.type == MessageType.HEARTBEAT):
             parse = HBParser.parse
-        elif (msg.message_type == MessageType.TIME):
+        elif (message.type == MessageType.TIME):
             parse = TIMEParser.parse
         else:
-            return ["Unknown", str(hex(msg.arb_id))]
+            return "Unknown"
 
         try:
-            message = parse(msg.arb_id, msg.data, eds_config)
+            parsed_message = parse(message.arb_id, message.data, eds_config)
         except FailedValidationError:
-            message = str(list(map(lambda x: hex(x), msg.data)))
-
-        return [message, msg.node_name]
+            parsed_message = ' '.join(list(map(lambda x: hex(x)[2:]
+                                               .upper()
+                                               .rjust(2, '0'),
+                                               message.data)))
+        return parsed_message

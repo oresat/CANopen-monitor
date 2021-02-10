@@ -17,12 +17,19 @@ Glossary
     CAN
         Control area network. A message bus for embedded systems.
 
+    CAN ID
+        CAN Identifier. This is the 11-bit CAN message identifier which is at
+        the beginning of every CAN message on the bus.
+
     CANopen
         A communication protocol and device profile specification for a CAN
         bus defined by CAN in Automation. More info at https://can-cia.org/
 
     CFC
         Cirrus Flux Camera. One of OreSat1 payloads and a Linux board.
+
+    COB ID
+        Communication object identifier.
 
     CubeSat
         A CubeSat is small satellite is made up of multiples of 10cm × 10cm ×
@@ -34,6 +41,9 @@ Glossary
     DLC
         Data Length Code. The operational code dictating the size of the data
         frame.
+
+    EDS
+        Electronic Data Sheet. This is an INI style or XML style formatted file.
 
     NCurses
         New Curses. An application programming interface for manipulating the
@@ -60,9 +70,17 @@ Glossary
         It converts CANopen message into DBus messages and vice versa. See
         https://github.com/oresat/oresat-linux-manager
 
+    PDO
+        Process Data Object. Inputs and outputs. Values of type rotational
+        speed, voltage, frequency, electric current, etc.
+
     PSAS
         Portland State Aerosapce Society. A student aerospace group at
         Portland State University. See https://www.pdxaerospace.org/
+
+    SDO
+        Service Data Object. Configuration settings, possibly node ID, baud
+        rate, offset, gain, etc.
 
     SDR
         Software Define Radio. Radio communications that are traditionally

@@ -7,6 +7,7 @@ from .can import MagicCANBus, \
                  MessageType, \
                  MessageTable
 from .ui import Pane
+from .parse import CANOpenParser, EDS, load_eds_file
 
 MAJOR = 3
 MINOR = 2
@@ -31,12 +32,15 @@ TIMEOUT = 0.1
 CONFIG_FORMAT_VERSION = 2
 
 __all__ = [
-    "App",
-    "MagicCANBus",
-    "Interface",
-    "Message",
-    "MessageState",
-    "MessageType",
-    "MessageTable",
-    "Pane"
+    'App',
+    'MagicCANBus',
+    'Interface',
+    'Message',
+    'MessageState',
+    'MessageType',
+    'MessageTable',
+    'Pane',
+    'CANOpenParser',
+    'EDS',
+    'load_eds_file'
 ]

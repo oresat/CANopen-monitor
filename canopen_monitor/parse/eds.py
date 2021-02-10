@@ -77,12 +77,11 @@ class Index:
 
 class EDS:
     def __init__(self, eds_data: [str]):
-        """
-        Parse the array of EDS lines into a dictionary of Metadata/Index objects.
+        """Parse the array of EDS lines into a dictionary of Metadata/Index
+        objects.
 
-        Parameters
-        ----------
-        eds_data: `[str]` The list of raw lines from the EDS file.
+        :param eds_data: The list of raw lines from the EDS file.
+        :type eds_data: [str]
         """
         self.indices = {}
 
@@ -96,32 +95,33 @@ class EDS:
                     if len(id) == 1:
                         self.indices[hex(int(id[0], 16))] = Index(section[1:])
                     else:
-                        self.indices[hex(int(id[0], 16))].add(Index(section[1:], sub_id=int(id[1], 16)))
+                        self.indices[hex(int(id[0], 16))] \
+                            .add(Index(section[1:], sub_id=int(id[1], 16)))
                 else:
                     name = section[0][1:-1]
                     self.__setattr__(cmp.camel_to_snake(name),
                                      Metadata(section[1:]))
                 prev = i + 1
+        self.node_id = self[0x2101].default_value
 
     def __len__(self) -> int:
         return sum(map(lambda x: len(x), self.indices.values()))
 
     def __getitem__(self, key: Union[int, str]) -> Index:
-        return self.indices.get(hex(int(str(key), 16)))
+        callable = hex if type(key) == int else str
+        return self.indices.get(callable(key))
 
 
 def load_eds_file(filepath: str) -> EDS:
-    """
-    Read in the EDS file, grab the raw lines, strip them of all escaped
-    characters, then serialize into an `EDS` and return the resulpythting object.
+    """Read in the EDS file, grab the raw lines, strip them of all escaped
+    characters, then serialize into an `EDS` and return the resulpythting
+    object.
 
-    Parameters
-    ----------
-    filepath: `str` Path to an eds file.
+    :param filepath: Path to an eds file
+    :type filepath: str
 
-    Returns
-    -------
-    `EDS`: The succesfully serialized EDS file.
+    :return: The succesfully serialized EDS file.
+    :rtype: EDS
     """
     with open(filepath) as file:
         return EDS(list(map(lambda x: x.strip(), file.read().split('\n'))))

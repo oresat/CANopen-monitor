@@ -103,7 +103,7 @@ class MessageType(Enum):
         return MessageType['UKNOWN']
 
     def __str__(self) -> str:
-        return self.name.ljust(9, ' ')
+        return self.name
 
 
 class MessageState(Enum):
@@ -175,6 +175,15 @@ class Message(Frame):
         :rtype: MessageType
         """
         return MessageType.cob_id_to_type(self.arb_id)
+
+    @property
+    def supertype(self: Message) -> MessageType:
+        """Super-Type of CAN Message
+
+        :return: CAN Message Super-Type
+        :rtype: MessageType
+        """
+        return self.type.supertype
 
     @property
     def node_id(self: Message) -> int:
