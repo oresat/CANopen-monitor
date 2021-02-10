@@ -1,6 +1,5 @@
-import sys; sys.insert(0, '..')
-import canopen_monitor as cm
 import unittest
+import canopen_monitor as cm
 
 
 class MagicCanBus_Spec(unittest.TestCase):

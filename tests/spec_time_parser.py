@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import mock_open, patch
 
-from canopen_monitor.parser import time, eds
-from canopen_monitor.parser.utilities import FailedValidationError
+from canopen_monitor.parse import time, eds
+from canopen_monitor.parse.utilities import FailedValidationError
 from . import TEST_EDS
 
 

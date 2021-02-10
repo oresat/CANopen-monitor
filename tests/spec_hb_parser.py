@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import mock_open, patch
 
-from canopen_monitor.parser import eds
-from canopen_monitor.parser.hb import parse
-from canopen_monitor.parser.utilities import FailedValidationError
+from canopen_monitor.parse import eds
+from canopen_monitor.parse.hb import parse
+from canopen_monitor.parse.utilities import FailedValidationError
 from tests import TEST_EDS
 
 

@@ -2,9 +2,9 @@ import unittest
 from unittest.mock import MagicMock, patch, mock_open
 
 from canopen_monitor import ASSETS_DIR
-from canopen_monitor.parser import eds
-from canopen_monitor.parser.sdo import SDOParser
-from canopen_monitor.parser.utilities import FailedValidationError
+from canopen_monitor.parse import eds
+from canopen_monitor.parse.sdo import SDOParser
+from canopen_monitor.parse.utilities import FailedValidationError
 from tests import TEST_EDS
 
 

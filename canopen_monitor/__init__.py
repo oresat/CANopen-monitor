@@ -1,13 +1,4 @@
 import os
-from .app import App
-from .can import MagicCANBus, \
-                 Interface, \
-                 Message, \
-                 MessageState, \
-                 MessageType, \
-                 MessageTable
-from .ui import Pane
-from .parse import CANOpenParser, EDS, load_eds_file
 
 MAJOR = 3
 MINOR = 2
@@ -30,17 +21,3 @@ EDS_DIR = f'{ASSETS_DIR}/eds/'
 
 TIMEOUT = 0.1
 CONFIG_FORMAT_VERSION = 2
-
-__all__ = [
-    'App',
-    'MagicCANBus',
-    'Interface',
-    'Message',
-    'MessageState',
-    'MessageType',
-    'MessageTable',
-    'Pane',
-    'CANOpenParser',
-    'EDS',
-    'load_eds_file'
-]

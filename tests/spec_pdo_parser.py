@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch, mock_open
 
-from canopen_monitor.parser import eds
-from canopen_monitor.parser.pdo import parse
+from canopen_monitor.parse import eds
+from canopen_monitor.parse.pdo import parse
 from tests import TEST_EDS
 
 

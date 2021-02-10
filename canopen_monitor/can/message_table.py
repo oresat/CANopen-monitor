@@ -1,10 +1,9 @@
 from __future__ import annotations
 from .message import Message
-from ..parse import CANOpenParser
 
 
 class MessageTable:
-    def __init__(self: MessageTable, parser: CANOpenParser = None):
+    def __init__(self: MessageTable, parser=None):
         self.parser = parser
         self.table = {}
 

@@ -1,5 +1,5 @@
 import unittest
-import canopen_monitor.parser.eds as eds
+import canopen_monitor.parse.eds as eds
 from unittest.mock import mock_open, patch
 
 from canopen_monitor import ASSETS_DIR
@@ -74,10 +74,10 @@ class TestEDS(unittest.TestCase):
         """
         Integration test against real files
         """
-        self.eds = eds.load_eds_file(ASSETS_DIR + "CFC_OD.eds")
-        self.eds = eds.load_eds_file(ASSETS_DIR + "GPS_OD.eds")
-        self.eds = eds.load_eds_file(ASSETS_DIR + "live_OD.eds")
-        self.eds = eds.load_eds_file(ASSETS_DIR + "star_tracker_OD.eds")
+        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/CFC_OD.eds")
+        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/GPS_OD.eds")
+        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/live_OD.eds")
+        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/star_tracker_OD.eds")
 
 
 if __name__ == '__main__':

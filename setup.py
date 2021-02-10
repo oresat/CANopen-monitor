@@ -25,24 +25,22 @@ setuptools.setup(
         "Topic :: System :: Networking :: Monitoring :: Hardware Watchdog"
     ],
     install_requires=[
-        "curses",
-        "pyvit",
-        "canopen"
-        "psutil",
+        "pyvit >= 0.2.1",
+        "psutil >= 5.8.0",
+        "python-dateutil >= 2.8.1"
     ],
     extras_require={
         "dev": [
             "python-can",
             "setuptools",
             "wheel",
-            "pytest",
             "flake8",
             "twine",
             "sphinx",
-            "sphinx_rtd_theme"
+            "sphinx_rtd_theme",
         ]
     },
-    python_requires='>=3.8.0',
+    python_requires='>=3.9.0',
     entry_points={
         "console_scripts": [
             f'{cm.APP_NAME} = canopen_monitor.__main__:main'

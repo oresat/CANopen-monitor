@@ -4,6 +4,8 @@ on:
   release:
     types: [ created ]
 
+
+
 jobs:
   deploy:
 
@@ -14,10 +16,10 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
 
     - name: Update Pip
-      run: python -m pip install --upgrade pip
+      run: python3 -m pip install --upgrade pip
 
     - name: Install regular and dev dependencies
       run: pip install .[dev]

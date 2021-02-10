@@ -1,6 +1,6 @@
 import unittest
-from canopen_monitor.parser.emcy import parse
-from canopen_monitor.parser.utilities import FailedValidationError
+from canopen_monitor.parse.emcy import parse
+from canopen_monitor.parse.utilities import FailedValidationError
 
 
 class TestEMCY(unittest.TestCase):

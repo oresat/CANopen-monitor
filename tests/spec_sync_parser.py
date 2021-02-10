@@ -1,5 +1,5 @@
 import unittest
-from canopen_monitor.parser.sync import parse, FailedValidationError
+from canopen_monitor.parse.sync import parse, FailedValidationError
 
 
 class TestSYNC(unittest.TestCase):
