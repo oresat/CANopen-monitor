@@ -70,7 +70,8 @@ class MessagePane(Pane):
         :type width: int
         """
         super().resize(height, width)
-        self.cursor_max = self.d_height - 3
+        p_height = self.d_height - 3
+        self.cursor_max = len(self.table) if len(self.table) < p_height else p_height
         occluded = len(self.__filter_messages()) - self.__top - self.cursor_max
         self.__top_max = occluded if occluded > 0 else 0
 
@@ -123,7 +124,7 @@ class MessagePane(Pane):
                 self.__top += 1
 
     def __filter_messages(self: MessagePane) -> [Message]:
-        return self.table(self.__top, self.__top + self.d_height - 3)
+        return self.table.filter(self.types)(self.__top, self.__top + self.d_height - 3)
         # return list(filter(lambda x: (x.type in self.types)
         #                   or (x.supertype in self.types), messages))
 
@@ -134,7 +135,8 @@ class MessagePane(Pane):
         """
         self.add_line(0,
                       2,
-                      f'{self._name}: ({len(self.__filter_messages())} messages)'
+                      f'{self._name}: ({len(self.table)}'
+                      ' messages)'
                       f' ({self.cursor}/{self.d_height - 3})'
                       f' (top: {self.__top}/{self.__top_max})',
                       highlight=self.selected)
@@ -153,7 +155,7 @@ class MessagePane(Pane):
         """
         super().draw()
         p_height, p_width = self.parent.getmaxyx()
-        self.resize(int(p_height / 2) - 1, p_width)
+        self.resize(p_height, p_width)
 
         # Get the messages to be displayed based on scroll positioning,
         #   and adjust column widths accordingly

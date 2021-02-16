@@ -1,5 +1,5 @@
 from __future__ import annotations
-from .message import Message
+from .message import Message, MessageType
 
 
 class MessageTable:
@@ -15,6 +15,13 @@ class MessageTable:
 
     def __len__(self: MessageTable) -> int:
         return len(self.table)
+
+    def filter(self: MessageTable, types: MessageType) -> MessageTable:
+        filtered = MessageTable(parser=self.parser)
+        for k, v in self.table.items():
+            if(v.type in types or v.supertype in types):
+                filtered.table[k] = v
+        return filtered
 
     def __contains__(self: MessageTable, node_id: int) -> bool:
         return node_id in self.table

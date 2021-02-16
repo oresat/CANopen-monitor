@@ -18,9 +18,7 @@ class CANOpenParser:
         eds_config = self.eds_configs.get(hex(node_id)) \
             if node_id is not None else None
 
-        if (message.type == MessageType.UKNOWN):
-            return [str(message.type), str(hex(message.arb_id))]
-        elif (message.type == MessageType.SYNC):
+        if (message.type == MessageType.SYNC):
             parse = SYNCParser.parse
         elif (message.type == MessageType.EMER):
             parse = EMCYParser.parse
@@ -35,11 +33,11 @@ class CANOpenParser:
         elif (message.type == MessageType.TIME):
             parse = TIMEParser.parse
         else:
-            return "Unknown"
+            parse = None
 
         try:
             parsed_message = parse(message.arb_id, message.data, eds_config)
-        except FailedValidationError:
+        except (FailedValidationError, TypeError):
             parsed_message = ' '.join(list(map(lambda x: hex(x)[2:]
                                                .upper()
                                                .rjust(2, '0'),

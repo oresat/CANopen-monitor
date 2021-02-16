@@ -143,8 +143,8 @@ class Pane(ABC):
         """
         self._pad.refresh(self.scroll_position_y,
                           self.scroll_position_x,
-                          0,
-                          0,
+                          self.y,
+                          self.x,
                           self.d_height,
                           self.d_width)
         self.needs_refresh = False
