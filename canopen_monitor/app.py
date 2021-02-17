@@ -59,9 +59,9 @@ class App:
             self.misc_pane.scroll_up()
         elif(input == curses.KEY_DOWN):
             self.misc_pane.scroll_down()
-        elif(input == 567 or input == 546):  # Ctrl+Up or Ctrl+Left
+        elif(input == 337):  # Shift + Up
             self.misc_pane.scroll_up(rate=16)
-        elif(input == 526 or input == 561):  # Ctrl+Down or Ctrl+Right
+        elif(input == 336):  # Shift + Down
             self.misc_pane.scroll_down(rate=16)
         elif(input == curses.KEY_LEFT):
             self.misc_pane.scroll_left(rate=4)
@@ -70,7 +70,6 @@ class App:
         elif(input == curses.KEY_RESIZE):
             self.misc_pane._reset_scroll_positions()
             self.screen.clear()
-            # self.misc_pane.clear()
 
     def __init_color_pairs(self: App) -> None:
         curses.start_color()

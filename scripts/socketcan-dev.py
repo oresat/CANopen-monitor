@@ -43,9 +43,25 @@ def send_handle(args: dict, up: [str]):
         if(up[i]):
             id = args.id + i
             send(c, id, args.message)
-            print(f'[{time.time()}]:'.ljust(22, ' ')
-                  + f'Sent {args.message} to {c} as'
-                  f' {hex(id)}')
+            msg_str = ' '.join(list(map(lambda x: hex(x).upper()[2:]
+                                                        .rjust(2, '0'),
+                                        args.message)))
+            print(f'[{time.ctime()}]:'.ljust(30, ' ')
+                  + f'{c}'.ljust(8, ' ')
+                  + f'{hex(id)}'.ljust(10, ' ')
+                  + f'{msg_str}'.ljust(25, ' '))
+
+
+def send_handle_cycle(args: [any], up: [any]) -> None:
+    # Regenerate the random things if flagged to do so
+    if(args.random_id):
+        args.id = random.randint(0x0, 0x7ff)
+    if(args.random_message):
+        args.message = [random.randint(0, 255) for _ in range(8)]
+
+    # Send the things
+    send_handle(args, up)
+    time.sleep(args.delay)
 
 
 def main():
@@ -81,10 +97,13 @@ def main():
                         help='The 7 bytes to send as the CAN message')
     parser.add_argument('-r', '--repeat',
                         dest='repeat',
-                        action='store_true',
-                        default=False,
-                        help='Repeat sending the message indefinitely, every'
-                             ' given seconds, used in conjunction with `-d`')
+                        nargs='?',
+                        type=int,
+                        const=-1,
+                        default=None,
+                        help='Repeat sending the message N times, every so'
+                             ' often defined by -d, used in conjunction with'
+                             ' `-d`')
     parser.add_argument('--random-id',
                         dest='random_id',
                         action='store_true',
@@ -116,20 +135,20 @@ def main():
         for c in args.channels:
             up.append(create_vdev(c))
 
-        # Send atleast once
-        send_handle(args, up)
+        # Quick-n-dirty banner
+        print('Timestamp:'.ljust(30, ' ')
+              + 'Channel'.ljust(8, ' ')
+              + 'COB ID'.ljust(10, ' ')
+              + 'Message'.ljust(25, ' '))
+        print(''.ljust(73, '-'))
 
         # Send repeatedly in instructed to do so
-        while(args.repeat):
-            # Regenerate the random things if flagged to do so
-            if(args.random_id):
-                args.id = random.randint(0x0, 0x7ff)
-            if(args.random_message):
-                args.message = [random.randint(0, 255) for _ in range(8)]
-
-            # Send the things
-            send_handle(args, up)
-            time.sleep(args.delay)
+        if(args.repeat and args.repeat > 0):
+            for _ in range(args.repeat):
+                send_handle_cycle(args, up)
+        else:
+            while(args.repeat == -1):
+                send_handle_cycle(args, up)
 
     except KeyboardInterrupt:
         print('Goodbye!')

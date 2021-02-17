@@ -71,8 +71,9 @@ class MessagePane(Pane):
         """
         super().resize(height, width)
         p_height = self.d_height - 3
-        self.cursor_max = len(self.table) if len(self.table) < p_height else p_height
-        occluded = len(self.__filter_messages()) - self.__top - self.cursor_max
+        self.cursor_max = len(self.table) \
+            if len(self.table) < p_height else p_height
+        occluded = len(self.table.filter(self.types)) - self.__top - self.d_height + 3
         self.__top_max = occluded if occluded > 0 else 0
 
     def _reset_scroll_positions(self: MessagePane) -> None:
@@ -102,12 +103,23 @@ class MessagePane(Pane):
         :param rate: Number of messages to scroll by
         :type rate: int
         """
-        self.cursor -= 1
+        # Record current cursor info for later scroll calculations
+        prev = self.cursor
+        min = 0
+
+        # Move the cursor
+        self.cursor -= rate
+
+        # If the cursor is less than the minimum, reset it to the minimum then
+        #   do calculations for shifting the message table
         if(self.cursor < self.cursor_min):
             self.cursor = self.cursor_min
-            self.__top -= 1
-            if(self.__top < 0):
-                self.__top = 0
+
+            # Deduct the amount of cursor movement from the message table
+            #   movement and reset shift to bounds if need be
+            leftover = rate - prev
+            self.__top -= leftover
+            self.__top = min if(self.__top < min) else self.__top
 
     def scroll_down(self: MessagePane, rate: int = 1) -> None:
         """This overrides `Pane.scroll_up()`. Instead of shifting the
@@ -117,16 +129,23 @@ class MessagePane(Pane):
         :param rate: Number of messages to scroll by
         :type rate: int
         """
-        self.cursor += 1
+        # Record current cursor info for later scroll calculations
+        prev = self.cursor
+        max = self.__top + self.__top_max
+
+        # Move the cursor
+        self.cursor += rate
+
+        # If the cursor is greater than the maximum, reset it to the minimum
+        #   then do calculations for shifting the message table
         if(self.cursor > (self.cursor_max - 1)):
             self.cursor = self.cursor_max - 1
-            if(self.__top_max > 0):
-                self.__top += 1
 
-    def __filter_messages(self: MessagePane) -> [Message]:
-        return self.table.filter(self.types)(self.__top, self.__top + self.d_height - 3)
-        # return list(filter(lambda x: (x.type in self.types)
-        #                   or (x.supertype in self.types), messages))
+            # Deduct the amount of cursor movement from the message table
+            #   movement and reset shift to bounds if need be
+            leftover = rate - (self.cursor - prev)
+            self.__top += leftover
+            self.__top = max if(self.__top > max) else self.__top
 
     def __draw_header(self: Pane) -> None:
         """Draw the table header at the top of the Pane
@@ -135,9 +154,10 @@ class MessagePane(Pane):
         """
         self.add_line(0,
                       2,
-                      f'{self._name}: ({len(self.table)}'
+                      f'{self._name}: ({len(self.table.filter(self.types))}'
                       ' messages)'
-                      f' ({self.cursor}/{self.d_height - 3})'
+                      f' ({self.cursor}/{self.d_height - 4}'
+                      f' [{self.d_height - 3}])'
                       f' (top: {self.__top}/{self.__top_max})',
                       highlight=self.selected)
 
@@ -155,16 +175,14 @@ class MessagePane(Pane):
         """
         super().draw()
         p_height, p_width = self.parent.getmaxyx()
-        self.resize(p_height, p_width)
+        self.resize(int(p_height / 2), p_width)
 
         # Get the messages to be displayed based on scroll positioning,
         #   and adjust column widths accordingly
-        draw_messages = self.__filter_messages()
+        draw_messages = self.table.filter(self.types,
+                                          self.__top,
+                                          self.__top + self.d_height - 3)
         self.__check_col_widths(draw_messages)
-
-        # TODO: Figure out why __check_col_widths consumes draw_messages
-        #   Ergo: Why I have to do this again to re-fetch the list
-        draw_messages = self.__filter_messages()
 
         # Draw the header and messages
         self.__draw_header()
@@ -179,7 +197,7 @@ class MessagePane(Pane):
                                                    ' '),
                               highlight=(self.cursor == i))
                 pos += data[1] + self.__col_sep
-            self.add_line(i + 2, 60, f'{self.__top + i}')
+            self.add_line(i + 2, 60, f'{self.__top + i}'.rjust(3, '0'))
 
         # Refresh the Pane and end the draw cycle
         super().refresh()
