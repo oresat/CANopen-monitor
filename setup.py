@@ -8,11 +8,18 @@ setuptools.setup(
     name=cm.APP_NAME,
     version=cm.APP_VERSION,
     author=cm.APP_AUTHOR,
+    maintainer=cm.MAINTAINER_NAME,
+    maintainer_email=cm.MAINTAINER_EMAIL,
     license=cm.APP_LICENSE,
     description=cm.APP_DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
     url=cm.APP_URL,
+    project_urls={
+        'Documentation': 'https://canopen-monitor.readthedocs.io',
+        'Bug Tracking': 'https://github.com/oresat/CANopen-monitor/issues?q=is'
+                        '%3Aopen+is%3Aissue+label%3Abug'
+    },
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

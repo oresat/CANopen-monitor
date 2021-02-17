@@ -20,7 +20,35 @@ class MagicCANBus:
         self.message_queue = queue.SimpleQueue()
         self.threads = None
 
+    @property
+    def statuses(self: MagicCANBus) -> [tuple]:
+        """This property is simply an aggregate of all of the interfaces and
+        whether or not they both exist and are in the `UP` state
+
+        :return: a list of tuples containing the interface names and a bool
+            indication an `UP/DOWN` status
+        :rtype: [tuple]
+        """
+        return list(map(lambda x: (x.name, x.is_up), self.interfaces))
+
     def start_handler(self: MagicCANBus, iface: Interface) -> t.Thread:
+        """This is a wrapper for starting a single interface listener thread
+
+        .. warning::
+
+                If for any reason, the interface cannot be listened to, (either
+                it doesn't exist or there are permission issues in reading from
+                it), then the default behavior is to stop listening for
+                messages, block wait for the interface to come back up, then
+                resume. It is possible that a thread starts but no listener
+                starts due to a failure to bind to the interface.
+
+        :param iface: The interface to bind to when listening for messages
+        :type iface: Interface
+
+        :return: The new listener thread spawned
+        :rtype: threading.Thread
+        """
         tr = t.Thread(target=self.handler,
                       name=f'canopem-monitor-{iface.name}',
                       args=[iface],
@@ -29,6 +57,15 @@ class MagicCANBus:
         return tr
 
     def handler(self: MagicCANBus, iface: Interface) -> None:
+        """This is a handler for listening and block-waiting for messages on
+        the CAN bus
+
+        It will operate on the condition that the Magic Can Bus is still
+        active, using thread-safe events.
+
+        :param iface: The interface to bind to when listening for messages
+        :type iface: Interface
+        """
         iface.start()
 
         # The outer loop exists to enable interface recovery, if the interface

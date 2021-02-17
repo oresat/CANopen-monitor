@@ -1,11 +1,16 @@
 import os
+from . import CONFIG_DIR, CACHE_DIR
 from .app import App
 from .can import MagicCANBus, MessageTable
 from .parse import CANOpenParser, load_eds_file
 
 
-def load_eds_files(filepath: str =
-                   os.path.expanduser('~/.cache/canopen-monitor')) -> dict:
+def init_dirs():
+    os.makedirs(CONFIG_DIR, exist_ok=True)
+    os.makedirs(CACHE_DIR, exist_ok=True)
+
+
+def load_eds_files(filepath: str = CACHE_DIR) -> dict:
     configs = {}
     for file in os.listdir(filepath):
         full_path = f'{filepath}/{file}'
@@ -16,11 +21,12 @@ def load_eds_files(filepath: str =
 
 def main():
     try:
+        init_dirs()
         eds_configs = load_eds_files()
         mt = MessageTable(CANOpenParser(eds_configs))
 
         # Start the can bus and the curses app
-        with MagicCANBus(['vcan0']) as bus, \
+        with MagicCANBus(['vcan0', 'vcan1']) as bus, \
              App(mt) as app:
             while True:
                 # Bus updates
@@ -32,7 +38,7 @@ def main():
                 app._handle_keyboard_input()
 
                 # Draw update
-                app.draw()
+                app.draw(bus.statuses)
     except KeyboardInterrupt:
         print('Goodbye!')
 

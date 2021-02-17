@@ -145,8 +145,8 @@ class Pane(ABC):
                           self.scroll_position_x,
                           self.y,
                           self.x,
-                          self.d_height,
-                          self.d_width)
+                          self.y + self.d_height,
+                          self.x + self.d_width)
         self.needs_refresh = False
 
     def scroll_up(self: Pane, rate: int = 1) -> bool:

@@ -6,7 +6,8 @@ from .message import Message
 from pyvit.hw.socketcan import SocketCanDev
 
 
-SOCK_TIMEOUT = 0.3
+_SOCK_TIMEOUT = 0.3
+_STALE_INTERFACE = dt.timedelta(minutes=1)
 
 
 class Interface(SocketCanDev):
@@ -31,7 +32,7 @@ class Interface(SocketCanDev):
         super().__init__(if_name)
         self.name = if_name
         self.last_activity = dt.datetime.now()
-        self.socket.settimeout(SOCK_TIMEOUT)
+        self.socket.settimeout(_SOCK_TIMEOUT)
         self.listening = False
 
     def __enter__(self: Interface) -> Interface:
@@ -115,8 +116,7 @@ class Interface(SocketCanDev):
         """
         try:
             frame = super().recv()
-            if frame is not None:
-                self.last_activity = dt.datetime.now()
+            self.last_activity = dt.datetime.now()
             return Message(frame.arb_id,
                            data=list(frame.data),
                            frame_type=frame.frame_type,
@@ -137,7 +137,7 @@ class Interface(SocketCanDev):
         """
         if_dev = psutil.net_if_stats().get(self.name)
         if(if_dev is not None):
-            return if_dev.isup
+            return if_dev.isup and self.age < _STALE_INTERFACE
         return False
 
     @property
@@ -181,7 +181,7 @@ class Interface(SocketCanDev):
         :return: Age of the message
         :rtype: datetime.timedelta
         """
-        return dt.datetime.now() - dt.datetime.fromtimestamp(self.start_time)
+        return dt.datetime.now() - self.last_activity
 
     def __repr__(self: Interface) -> str:
         return f'({self.name}:' \

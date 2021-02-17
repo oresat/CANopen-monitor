@@ -71,9 +71,10 @@ class MessagePane(Pane):
         """
         super().resize(height, width)
         p_height = self.d_height - 3
-        self.cursor_max = len(self.table) \
-            if len(self.table) < p_height else p_height
-        occluded = len(self.table.filter(self.types)) - self.__top - self.d_height + 3
+        table_size = len(self.table.filter(self.types))
+        occluded = table_size - self.__top - self.d_height + 3
+
+        self.cursor_max = table_size if table_size < p_height else p_height
         self.__top_max = occluded if occluded > 0 else 0
 
     def _reset_scroll_positions(self: MessagePane) -> None:
@@ -154,11 +155,8 @@ class MessagePane(Pane):
         """
         self.add_line(0,
                       2,
-                      f'{self._name}: ({len(self.table.filter(self.types))}'
-                      ' messages)'
-                      f' ({self.cursor}/{self.d_height - 4}'
-                      f' [{self.d_height - 3}])'
-                      f' (top: {self.__top}/{self.__top_max})',
+                      f'{self._name}:'
+                      f' ({len(self.table.filter(self.types))} messages)',
                       highlight=self.selected)
 
         pos = 1
@@ -174,8 +172,7 @@ class MessagePane(Pane):
         """Draw all records from the MessageTable to the Pane
         """
         super().draw()
-        p_height, p_width = self.parent.getmaxyx()
-        self.resize(int(p_height / 2), p_width)
+        self.resize(self.v_height, self.v_width)
 
         # Get the messages to be displayed based on scroll positioning,
         #   and adjust column widths accordingly
@@ -195,9 +192,8 @@ class MessagePane(Pane):
                               pos,
                               callable(attr).ljust(data[1] + self.__col_sep,
                                                    ' '),
-                              highlight=(self.cursor == i))
+                              highlight=((self.cursor == i) and self.selected))
                 pos += data[1] + self.__col_sep
-            self.add_line(i + 2, 60, f'{self.__top + i}'.rjust(3, '0'))
 
         # Refresh the Pane and end the draw cycle
         super().refresh()
