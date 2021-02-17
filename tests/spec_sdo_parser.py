@@ -1,7 +1,6 @@
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import patch, mock_open
 
-from canopen_monitor import ASSETS_DIR
 from canopen_monitor.parse import eds
 from canopen_monitor.parse.sdo import SDOParser
 from canopen_monitor.parse.utilities import FailedValidationError
