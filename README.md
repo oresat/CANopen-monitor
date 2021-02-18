@@ -42,11 +42,31 @@ The default configurations provided by CANOpen Monitor can be found in [canopen_
 
 Check out our [Read The Docs](https://canopen-monitor.readthedocs.io) pages for more info on the application sub-components and methods.
 
+### Pre-Requisites
+* Ubuntu/Debian Linux System
+  
+* Python 3.8.5 or higher (may use pyenv, https://realpython.com/intro-to-pyenv/#build-dependencies)
+
 ### Install Locally
 
 `$` `pip install -e .[dev]`
 
 *(Note: the `-e` flag creates a symbolic-link to your local development version. Set it once, and forget it)*
+
+### Test
+
+#### How to setup a Virtual CAN Signal Generator
+`$` `sudo apt-get install can-utils`
+
+#### How to start a Virtual CAN
+`$` `sudo ip link add dev vcan0 type vcan`
+
+`$` `sudo ip link set up vcan0`
+
+#### Generate Random Messages with socketcan-dev
+`$` `chmod 700 socketcan-dev`
+
+`$` `./socketcan-dev.py --random-id --random-message -r`
 
 ### Create Documentation Locally
 
