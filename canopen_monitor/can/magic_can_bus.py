@@ -13,8 +13,9 @@ class MagicCANBus:
     :type interfaces: [Interface]
     """
 
-    def __init__(self: MagicCANBus, if_names: [str]):
+    def __init__(self: MagicCANBus, if_names: [str], no_block: bool = False):
         self.interfaces = list(map(lambda x: Interface(x), if_names))
+        self.no_block = no_block
         self.keep_alive = t.Event()
         self.keep_alive.set()
         self.message_queue = queue.SimpleQueue()
@@ -97,9 +98,15 @@ class MagicCANBus:
                  evalue: str,
                  traceback: any) -> None:
         self.keep_alive.clear()
-        for tr in self.threads:
-            print(f'Waiting for thread {tr} to end...')
-            tr.join()
+        if(self.no_block):
+            print('WARNING: Skipping wait-time for threads to close'
+                  ' gracefully.')
+        else:
+            print('Press <Ctrl + C> to quit without waiting.')
+            for tr in self.threads:
+                print(f'Waiting for thread {tr} to end... ', end='')
+                tr.join()
+                print('Done!')
 
     def __iter__(self: MagicCANBus) -> MagicCANBus:
         return self
@@ -109,10 +116,11 @@ class MagicCANBus:
             raise StopIteration
         return self.message_queue.get(block=True)
 
-    def __repr__(self: MagicCANBus) -> str:
-        alive_threads = sum(map(lambda x: 1 if x.is_alive() else 0,
-                                self.threads))
-        return f"Magic Can Bus: {self.interfaces}," \
+    def __str__(self: MagicCANBus) -> str:
+        # Subtract 1 since the parent thread should not be counted
+        alive_threads = t.active_count() - 1
+        if_list = ', '.join(list(map(lambda x: str(x), self.interfaces)))
+        return f"Magic Can Bus: {if_list}," \
                f" pending messages: {self.message_queue.qsize()}" \
                f" threads: {alive_threads}," \
                f" keep-alive: {self.keep_alive.is_set()}"

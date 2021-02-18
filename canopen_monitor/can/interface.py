@@ -6,7 +6,7 @@ from .message import Message
 from pyvit.hw.socketcan import SocketCanDev
 
 
-_SOCK_TIMEOUT = 0.3
+_SOCK_TIMEOUT = 0.1
 _STALE_INTERFACE = dt.timedelta(minutes=1)
 
 
@@ -183,8 +183,5 @@ class Interface(SocketCanDev):
         """
         return dt.datetime.now() - self.last_activity
 
-    def __repr__(self: Interface) -> str:
-        return f'({self.name}:' \
-               f' {"UP" if self.is_up else "DOWN"},' \
-               f' {dt.datetime.now() - self.last_activity},' \
-               f' Bound: {self.listening}'
+    def __str__(self: Interface) -> str:
+        return self.name

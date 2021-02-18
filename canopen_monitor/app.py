@@ -1,12 +1,30 @@
 from __future__ import annotations
 import curses
 import datetime as dt
+from enum import Enum
+from . import APP_NAME, APP_VERSION, APP_LICENSE, APP_AUTHOR, APP_DESCRIPTION, APP_URL
 from .can import MessageTable, MessageType
-from .ui import MessagePane
+from .ui import MessagePane, PopupWindow
 
 
 def pad_hex(value: int) -> str:
     return f'0x{hex(value).upper()[2:].rjust(3, "0")}'
+
+
+class KeyMap(Enum):
+    F1 = ('F1', 'Toggle app info menu', curses.KEY_F1)
+    F2 = ('F2', 'Toggle this menu', curses.KEY_F2)
+    UP_ARR = ('Up Arrow', 'Scroll pane up 1 row', curses.KEY_UP)
+    DOWN_ARR = ('Down Arrow', 'Scroll pane down 1 row', curses.KEY_DOWN)
+    LEFT_ARR = ('Left Arrow', 'Scroll pane left 4 cols', curses.KEY_LEFT)
+    RIGHT_ARR = ('Right Arrow', 'Scroll pane right 4 cols', curses.KEY_RIGHT)
+    S_UP_ARR = ('Shift + Up Arrow', 'Scroll pane up 16 rows', 337)
+    S_DOWN_ARR = ('Shift + Down Arrow', 'Scroll pane down 16 rows', 336)
+    C_UP_ARR = ('Ctrl + Up Arrow', 'Move pane selection up', 567)
+    C_DOWN_ARR = ('Ctrl + Down Arrow', 'Move pane selection down', 526)
+    RESIZE = ('Resize Terminal',
+              'Reset the dimensions of the app',
+              curses.KEY_RESIZE)
 
 
 class App:
@@ -27,10 +45,30 @@ class App:
         curses.curs_set(False)          # Disable the cursor
         self.__init_color_pairs()       # Enable colors and create pairs
 
-        # Don't initialize any sub-panes or grids until standard io screen has
-        #   been initialized
+        # Don't initialize any grids, sub-panes, or windows until standard io
+        #   screen has been initialized
         height, width = self.screen.getmaxyx()
         height -= 1
+        self.info_win = PopupWindow(self.screen,
+                                    header=f'{APP_NAME.title()}'
+                                           f' v{APP_VERSION}',
+                                    content=[f'author: {APP_AUTHOR}',
+                                             f'license: {APP_LICENSE}',
+                                             f'respository: {APP_URL}',
+                                             '',
+                                             'Description:',
+                                             f'{APP_DESCRIPTION}'],
+                                    footer='F1: exit window',
+                                    style=curses.color_pair(1))
+        self.hotkeys_win = PopupWindow(self.screen,
+                                       header='Hotkeys',
+                                       content=list(
+                                        map(lambda x:
+                                            f'{x.value[0]}: {x.value[1]}'
+                                            f' ({x.value[2]})',
+                                            list(KeyMap))),
+                                       footer='F2: exit window',
+                                       style=curses.color_pair(1))
         self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0, hex),
                                          'State': ('state', 0),
                                          'Status': ('message', 0)},
@@ -101,6 +139,16 @@ class App:
             self.__select_pane(self.hb_pane, 0)
         elif(input == 526):  # Ctrl + Down
             self.__select_pane(self.misc_pane, 1)
+        elif(input == curses.KEY_F1):
+            if(self.hotkeys_win.enabled):
+                self.hotkeys_win.toggle()
+                self.hotkeys_win.clear()
+            self.info_win.toggle()
+        elif(input == curses.KEY_F2):
+            if(self.info_win.enabled):
+                self.info_win.toggle()
+                self.info_win.clear()
+            self.hotkeys_win.toggle()
 
     def __init_color_pairs(self: App) -> None:
         curses.start_color()
@@ -140,10 +188,19 @@ class App:
         self.screen.addstr(height - 1, 1, footer)
 
     def draw(self: App, ifaces: [tuple]):
-        self.__draw_header(ifaces)
-        self.hb_pane.draw()
-        self.misc_pane.draw()
-        self.__draw__footer()
+        window_active = self.info_win.enabled or self.hotkeys_win.enabled
+        self.__draw_header(ifaces)  # Draw header info
+
+        # Draw panes
+        if(not window_active):
+            self.hb_pane.draw()
+            self.misc_pane.draw()
+
+        # Draw windows
+        self.info_win.draw()
+        self.hotkeys_win.draw()
+
+        self.__draw__footer()  # Draw footer info
 
     def refresh(self: App):
         self.screen.refresh()

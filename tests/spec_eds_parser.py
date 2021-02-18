@@ -1,14 +1,12 @@
 import unittest
 import canopen_monitor.parse.eds as eds
 from unittest.mock import mock_open, patch
-
-from canopen_monitor import ASSETS_DIR
 from tests import TEST_EDS
 
 
 class TestEDS(unittest.TestCase):
     def setUp(self):
-        with patch('builtins.open', mock_open(read_data=TEST_EDS)) as m:
+        with patch('builtins.open', mock_open(read_data=TEST_EDS)) as _:
             self.eds = eds.load_eds_file("star_tracker_OD.eds")
 
     def test_parse_index(self):
@@ -69,16 +67,3 @@ class TestEDS(unittest.TestCase):
         self.assertEqual("3",
                          self.eds.mandatory_objects.supported_objects,
                          "Error parsing Comments named section")
-
-    def test_real_files(self):
-        """
-        Integration test against real files
-        """
-        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/CFC_OD.eds")
-        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/GPS_OD.eds")
-        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/live_OD.eds")
-        self.eds = eds.load_eds_file(ASSETS_DIR + "/eds/star_tracker_OD.eds")
-
-
-if __name__ == '__main__':
-    unittest.main()

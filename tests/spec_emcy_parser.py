@@ -35,9 +35,4 @@ class TestEMCY(unittest.TestCase):
         with self.assertRaises(FailedValidationError) as context:
             parse(0, emcy_message, 0)
 
-        self.assertEqual("Invalid EMCY message length",
-        str(context.exception))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        self.assertEqual("Invalid EMCY message length", str(context.exception))

@@ -42,7 +42,3 @@ class TestTIME(unittest.TestCase):
 
         self.assertEqual("Invalid TIME message length",
                          str(context.exception))
-
-
-if __name__ == '__main__':
-    unittest.main()

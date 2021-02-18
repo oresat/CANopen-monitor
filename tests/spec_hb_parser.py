@@ -44,9 +44,4 @@ class TestHB(unittest.TestCase):
         with self.assertRaises(FailedValidationError) as context:
             parse(123, hb_message, self.eds)
 
-        self.assertEqual("Invalid heartbeat state detected",
-        str(context.exception))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        self.assertEqual("Invalid heartbeat state detected", str(context.exception))

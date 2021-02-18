@@ -546,7 +546,3 @@ class TestSDO(unittest.TestCase):
 
         self.assertEqual("Invalid SDO payload length, expected 8, received "
                           "0", str(context.exception))
-
-
-if __name__ == '__main__':
-    unittest.main()

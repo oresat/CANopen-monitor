@@ -40,7 +40,3 @@ class TestSYNC(unittest.TestCase):
         sync_message = b'\x01\xFF'
         with self.assertRaises(FailedValidationError):
             parse(None, sync_message, None)
-
-
-if __name__ == '__main__':
-    unittest.main()

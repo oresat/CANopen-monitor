@@ -62,7 +62,3 @@ class TestPDO(unittest.TestCase):
         self.assertEqual("Orientation orientation - 1.0",
                          parse(0x380, pdo_message, self.eds_data),
                          "Error on MPDO SAM Message parse")
-
-
-if __name__ == '__main__':
-    unittest.main()

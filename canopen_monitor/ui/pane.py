@@ -238,6 +238,7 @@ class Pane(ABC):
                  x: int,
                  line: str,
                  bold: bool = False,
+                 underline: bool = False,
                  highlight: bool = False,
                  color: any = None) -> None:
         """Adds a line of text to the Pane and if needed, it handles the
@@ -278,6 +279,8 @@ class Pane(ABC):
             line_style |= curses.A_BOLD
         if(highlight):
             line_style |= curses.A_REVERSE
+        if(underline):
+            line_style |= curses.A_UNDERLINE
 
         # Add the line
         if(y < self.d_height):
