@@ -8,11 +8,18 @@ setuptools.setup(
     name=cm.APP_NAME,
     version=cm.APP_VERSION,
     author=cm.APP_AUTHOR,
+    maintainer=cm.MAINTAINER_NAME,
+    maintainer_email=cm.MAINTAINER_EMAIL,
     license=cm.APP_LICENSE,
     description=cm.APP_DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
     url=cm.APP_URL,
+    project_urls={
+        'Documentation': 'https://canopen-monitor.readthedocs.io',
+        'Bug Tracking': 'https://github.com/oresat/CANopen-monitor/issues?q=is'
+                        '%3Aopen+is%3Aissue+label%3Abug'
+    },
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -25,26 +32,25 @@ setuptools.setup(
         "Topic :: System :: Networking :: Monitoring :: Hardware Watchdog"
     ],
     install_requires=[
-        "pyvit",
-        "python-dateutil",
-        "ConfigArgParse",
-        "canopen"
+        "pyvit >= 0.2.1",
+        "psutil >= 5.8.0",
+        "python-dateutil >= 2.8.1"
     ],
     extras_require={
         "dev": [
+            "python-can",
             "setuptools",
             "wheel",
-            "pytest",
             "flake8",
             "twine",
             "sphinx",
             "sphinx_rtd_theme",
         ]
     },
-    python_requires='>=3.8.5',
+    python_requires='>=3.9.0',
     entry_points={
         "console_scripts": [
-            '{} = canopen_monitor.__main__:main'.format(cm.APP_NAME),
+            f'{cm.APP_NAME} = canopen_monitor.__main__:main'
         ]
     }
 )
