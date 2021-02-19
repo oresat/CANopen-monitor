@@ -19,7 +19,13 @@ An NCurses-based TUI application for tracking activity over the CAN bus and deco
 
 ### Run
 
-`$` `canopen-monitor`
+**Run the monitor, binding to `can0`**
+
+`$` `canopen-monitor -i can0`
+
+**Use this for an extensive help menu**
+
+`$` `canopen-monitor --help`
 
 ***
 

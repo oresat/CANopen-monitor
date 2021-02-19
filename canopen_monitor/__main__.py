@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 from . import APP_NAME, APP_DESCRIPTION, CONFIG_DIR, CACHE_DIR
 from .app import App
@@ -28,7 +29,7 @@ def main():
                         dest='interfaces',
                         type=str,
                         nargs='+',
-                        default=['vcan0'],
+                        default=[],
                         help='A list of interfaces to bind to.')
     parser.add_argument('--no-block',
                         dest='no_block',
@@ -40,6 +41,20 @@ def main():
     args = parser.parse_args()
 
     try:
+        if(len(args.interfaces) == 0):
+            print('Warning: no interfaces config was found and you did not'
+                  ' specify any interface arguments')
+            print(f'\t(see {APP_NAME} -h for details)\n')
+            print('This means the monitor will not be listening to anything.')
+            while(True):
+                answer = input('Would you like to continue anyways? [y/N]: ')
+                if(answer.upper() == 'N' or answer == ''):
+                    sys.exit(0)
+                elif(answer.upper() == 'Y'):
+                    break
+                else:
+                    print(f'Invalid response: {answer}')
+
         init_dirs()
         eds_configs = load_eds_files()
         mt = MessageTable(CANOpenParser(eds_configs))
