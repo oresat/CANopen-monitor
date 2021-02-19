@@ -1,6 +1,7 @@
 import os
+import sys
 import argparse
-from . import APP_NAME, APP_DESCRIPTION, CONFIG_DIR, CACHE_DIR
+from . import APP_NAME, APP_VERSION, APP_DESCRIPTION, CONFIG_DIR, CACHE_DIR
 from .app import App
 from .can import MagicCANBus, MessageTable
 from .parse import CANOpenParser, load_eds_file
@@ -28,7 +29,7 @@ def main():
                         dest='interfaces',
                         type=str,
                         nargs='+',
-                        default=['vcan0'],
+                        default=[],
                         help='A list of interfaces to bind to.')
     parser.add_argument('--no-block',
                         dest='no_block',
@@ -37,9 +38,32 @@ def main():
                         help='Disable block-waiting for the Magic CAN Bus.'
                              ' (Warning, this may produce undefined'
                              ' behavior).')
+    parser.add_argument('-v', '--version',
+                        dest='version',
+                        action='store_true',
+                        default=False,
+                        help='Display the app version then exit.')
     args = parser.parse_args()
 
+    if(args.version):
+        print(f'{APP_NAME} v{APP_VERSION}\n\n{APP_DESCRIPTION}')
+        sys.exit(0)
+
     try:
+        if(len(args.interfaces) == 0):
+            print('Warning: no interfaces config was found and you did not'
+                  ' specify any interface arguments')
+            print(f'\t(see {APP_NAME} -h for details)\n')
+            print('This means the monitor will not be listening to anything.')
+            while(True):
+                answer = input('Would you like to continue anyways? [y/N]: ')
+                if(answer.upper() == 'N' or answer == ''):
+                    sys.exit(0)
+                elif(answer.upper() == 'Y'):
+                    break
+                else:
+                    print(f'Invalid response: {answer}')
+
         init_dirs()
         eds_configs = load_eds_files()
         mt = MessageTable(CANOpenParser(eds_configs))
