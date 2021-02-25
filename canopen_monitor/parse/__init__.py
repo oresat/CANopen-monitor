@@ -13,6 +13,7 @@ __all__ = [
     'load_eds_file',
 ]
 
+# This is only referenced here and not used anywhere else. Why is it here? It's not even exported
 data_types = {0x01: "BOOLEAN",
               0x02: "INTEGER8",
               0x03: "INTEGER16",
@@ -29,6 +30,7 @@ data_types = {0x01: "BOOLEAN",
               0x15: "INTEGER64",
               0x1B: "UNSIGNED64"}
 
+# This is only referenced here and not used anywhere else. Why is it here? It's not even exported
 node_names = {0x01: "C3",
               0x06: "Solar Panel",
               0x11: "SDR GPS",
@@ -40,7 +42,9 @@ node_names = {0x01: "C3",
               0x33: "Test Board 2",
               0x40: "MDC"}
 
-
+# Redundant?
+# Where are these used?
+# This is only referenced here and not used anywhere else. Why is it here? It's not even exported
 class DataTypes(enum.Enum):
     BOOLEAN = 0x1
     INTEGER8 = 0x2
@@ -58,7 +62,7 @@ class DataTypes(enum.Enum):
     INTEGER64 = 0x15
     UNSIGNED64 = 0x1B
 
-
+# This is only referenced here and not used anywhere else. Why is it here? It's not even exported
 object_types = {0x00: "NULL",
                 0x02: "DOMAIN",
                 0x05: "DEFTYPE",
@@ -67,14 +71,15 @@ object_types = {0x00: "NULL",
                 0x08: "ARRAY",
                 0x09: "RECORD"}
 
-
+# Needs comments. It's not clear what this is doing (to an uninformed user at least). 
+# If the goal is to simply lowercase a string, this seems a bit convoluted
 def camel_to_snake(old_name: str) -> str:
     new_name = ''
 
     for match in finditer('[A-Z0-9]+[a-z]*', old_name):
         span = match.span()
         substr = old_name[span[0]:span[1]]
-        # length = span[1] - span[0]
+        # length = span[1] - span[0] <- If it's not needed, get rid of it
         found_submatch = False
 
         for sub_match in finditer('[A-Z]+', substr):
