@@ -1,4 +1,3 @@
-# Comments?
 from ..can import Message, MessageType
 from . import hb as HBParser, \
     pdo as PDOParser, \
@@ -10,12 +9,12 @@ from .utilities import FailedValidationError
 
 # Comments?
 class CANOpenParser:
-    # COmments
+    # Comments?
     def __init__(self, eds_configs: dict):
         self.sdo_parser = SDOParser()
         self.eds_configs = eds_configs
 
-    # Comments
+    # Comments?
     def parse(self, message: Message) -> str:
         node_id = message.node_id
         eds_config = self.eds_configs.get(hex(node_id)) \
