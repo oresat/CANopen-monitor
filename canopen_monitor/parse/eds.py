@@ -2,7 +2,40 @@ import string
 from typing import Union
 import canopen_monitor.parse as cmp
 from dateutil.parser import parse as dtparse
+from re import finditer
 
+def camel_to_snake(old_name: str) -> str:
+    new_name = ''
+
+    for match in finditer('[A-Z0-9]+[a-z]*', old_name):
+        span = match.span()
+        substr = old_name[span[0]:span[1]]
+        # length = span[1] - span[0] <- Not needed?
+        found_submatch = False
+
+        for sub_match in finditer('[A-Z]+', substr):
+            sub_span = sub_match.span()
+            sub_substr = old_name[sub_span[0]:sub_span[1]]
+            sub_length = sub_span[1] - sub_span[0]
+
+            if (sub_length > 1):
+                found_submatch = True
+
+                if (span[0] != 0):
+                    new_name += '_'
+
+                first = sub_substr[:-1]
+                second = substr.replace(first, '')
+
+                new_name += '{}_{}'.format(first, second).lower()
+
+        if (not found_submatch):
+            if (span[0] != 0):
+                new_name += '_'
+
+            new_name += substr.lower()
+
+    return new_name
 
 class Metadata:
     def __init__(self, data):
@@ -16,7 +49,7 @@ class Metadata:
             key, value = e.split('=')
 
             # Create the proper field name
-            key = cmp.camel_to_snake(key)
+            key = camel_to_snake(key)
 
             # Turn date-time-like objects into datetimes
             if ('time' in key):
@@ -60,7 +93,7 @@ class Index:
                 elif(all(c in string.hexdigits for c in value)):
                     value = int(value, 16)
 
-            self.__setattr__(cmp.camel_to_snake(key), value)
+            self.__setattr__(camel_to_snake(key), value)
 
     def add(self, index) -> None:
         self.sub_indices.append(index)
@@ -99,7 +132,7 @@ class EDS:
                             .add(Index(section[1:], sub_id=int(id[1], 16)))
                 else:
                     name = section[0][1:-1]
-                    self.__setattr__(cmp.camel_to_snake(name),
+                    self.__setattr__(camel_to_snake(name),
                                      Metadata(section[1:]))
                 prev = i + 1
         self.node_id = self[0x2101].default_value
