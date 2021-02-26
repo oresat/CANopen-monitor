@@ -16,6 +16,11 @@ KEY_C_UP_UBUNTU = 566
 KEY_C_DOWN = 526
 KEY_C_DOWN_UBUNTU = 525
 
+# Additional User Interface Related Constants
+VERTICAL_SCROLL_RATE = 16
+HORIZONTAL_SCROLL_RATE = 4
+
+
 def pad_hex(value: int) -> str:
     return f'0x{hex(value).upper()[2:].rjust(3, "0")}'
 
@@ -32,7 +37,7 @@ class KeyMap(Enum):
     C_UP_ARR = ('Ctrl + Up Arrow', 'Move pane selection up',
                 [KEY_C_UP, KEY_C_UP_UBUNTU])
     C_DOWN_ARR = ('Ctrl + Down Arrow', 'Move pane selection down',
-                  [KEY_C_DOWN, KEY_C_UP_UBUNTU])
+                  [KEY_C_DOWN, KEY_C_DOWN_UBUNTU])
     RESIZE = ('Resize Terminal',
               'Reset the dimensions of the app',
               curses.KEY_RESIZE)
@@ -131,32 +136,32 @@ class App:
         input = self.screen.getch()
         curses.flushinp()
 
-        if (input == curses.KEY_UP):
+        if (input == KeyMap.UP_ARR.value[2]):
             self.selected_pane.scroll_up()
-        elif (input == curses.KEY_DOWN):
+        elif (input == KeyMap.DOWN_ARR.value[2]):
             self.selected_pane.scroll_down()
-        elif (input == KEY_S_UP):  # Shift + Up
-            self.selected_pane.scroll_up(rate=16)
-        elif (input == KEY_S_DOWN):  # Shift + Down
-            self.selected_pane.scroll_down(rate=16)
-        elif (input == curses.KEY_LEFT):
-            self.selected_pane.scroll_left(rate=4)
-        elif (input == curses.KEY_RIGHT):
-            self.selected_pane.scroll_right(rate=4)
-        elif (input == curses.KEY_RESIZE):
+        elif (input == KeyMap.S_UP_ARR.value[2]):  # Shift + Up
+            self.selected_pane.scroll_up(rate=VERTICAL_SCROLL_RATE)
+        elif (input == KeyMap.S_DOWN_ARR.value[2]):  # Shift + Down
+            self.selected_pane.scroll_down(rate=VERTICAL_SCROLL_RATE)
+        elif (input == KeyMap.LEFT_ARR.value[2]):
+            self.selected_pane.scroll_left(rate=HORIZONTAL_SCROLL_RATE)
+        elif (input == KeyMap.RIGHT_ARR.value[2]):
+            self.selected_pane.scroll_right(rate=HORIZONTAL_SCROLL_RATE)
+        elif (input == KeyMap.RESIZE.value[2]):
             self.hb_pane._reset_scroll_positions()
             self.misc_pane._reset_scroll_positions()
             self.screen.clear()
-        elif (input in [KEY_C_UP, KEY_C_UP_UBUNTU]):  # Ctrl + Up
+        elif (input in KeyMap.C_UP_ARR.value[2]):  # Ctrl + Up
             self.__select_pane(self.hb_pane, 0)
-        elif (input in [KEY_C_DOWN, KEY_C_DOWN_UBUNTU]):  # Ctrl + Down
+        elif (input in KeyMap.C_DOWN_ARR.value[2]):  # Ctrl + Down
             self.__select_pane(self.misc_pane, 1)
-        elif (input == curses.KEY_F1):
+        elif (input == KeyMap.F1.value[2]):
             if (self.hotkeys_win.enabled):
                 self.hotkeys_win.toggle()
                 self.hotkeys_win.clear()
             self.info_win.toggle()
-        elif (input == curses.KEY_F2):
+        elif (input == KeyMap.F2.value[2]):
             if (self.info_win.enabled):
                 self.info_win.toggle()
                 self.info_win.clear()
