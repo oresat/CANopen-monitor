@@ -8,7 +8,7 @@ from .can import MessageTable, MessageType
 from .ui import MessagePane, PopupWindow
 
 # Key Constants not defined in curses
-# _UBUNTU key constants work in Ububtu
+# _UBUNTU key constants work in Ubuntu
 KEY_S_UP = 337
 KEY_S_DOWN = 337
 KEY_C_UP = 567
@@ -22,10 +22,19 @@ HORIZONTAL_SCROLL_RATE = 4
 
 
 def pad_hex(value: int) -> str:
+    """Convert integer value to a hex string with padding
+    :param value: number of spaces to pad hex value
+    :return: padded string
+    """
     return f'0x{hex(value).upper()[2:].rjust(3, "0")}'
 
 
 class KeyMap(Enum):
+    """Enumerator of valid keyboard input
+    value[0]: input name
+    value[1]: input description
+    value[2]: curses input value
+    """
     F1 = ('F1', 'Toggle app info menu', curses.KEY_F1)
     F2 = ('F2', 'Toggle this menu', curses.KEY_F2)
     UP_ARR = ('Up Arrow', 'Scroll pane up 1 row', curses.KEY_UP)
@@ -44,16 +53,34 @@ class KeyMap(Enum):
 
 
 class App:
-    """The User Interface
+    """The User Interface Container
+    :param table
+    :type MessageTable
+
+    :param selected_pane_pos index of currently selected pane
+    :type int
+
+    :param selected_pane reference to currently selected Pane
+    :type MessagePane
     """
 
     def __init__(self: App, message_table: MessageTable):
+        """App Initialization function
+        :param message_table: Reference to shared message table object
+        :type MessageTable
+        """
         self.table = message_table
         self.selected_pane_pos = 0
         self.selected_pane = None
-        self.current = None
 
-    def __enter__(self: App):
+    def __enter__(self: App) -> App:
+        """Enter the runtime context related to this object
+        Create the user interface layout. Any changes to the layout should
+        be done here.
+
+        :return: self
+        :type App
+        """
         # Monitor setup, take a snapshot of the terminal state
         self.screen = curses.initscr()  # Initialize standard out
         self.screen.scrollok(True)  # Enable window scroll
@@ -118,6 +145,14 @@ class App:
         return self
 
     def __exit__(self: App, type, value, traceback) -> None:
+        """Exit the runtime context related to this object.
+        Cleanup any curses settings to allow the terminal
+        to retrun to normal
+        :param type: exception type or None
+        :param value: exception value or None
+        :param traceback: exception traceback or None
+        :return: None
+        """
         # Monitor destruction, restore terminal state
         curses.nocbreak()  # Re-enable line-buffering
         curses.noecho()  # Enable user-input echo
@@ -140,9 +175,9 @@ class App:
             self.selected_pane.scroll_up()
         elif (input == KeyMap.DOWN_ARR.value[2]):
             self.selected_pane.scroll_down()
-        elif (input == KeyMap.S_UP_ARR.value[2]):  # Shift + Up
+        elif (input == KeyMap.S_UP_ARR.value[2]):
             self.selected_pane.scroll_up(rate=VERTICAL_SCROLL_RATE)
-        elif (input == KeyMap.S_DOWN_ARR.value[2]):  # Shift + Down
+        elif (input == KeyMap.S_DOWN_ARR.value[2]):
             self.selected_pane.scroll_down(rate=VERTICAL_SCROLL_RATE)
         elif (input == KeyMap.LEFT_ARR.value[2]):
             self.selected_pane.scroll_left(rate=HORIZONTAL_SCROLL_RATE)
@@ -152,9 +187,9 @@ class App:
             self.hb_pane._reset_scroll_positions()
             self.misc_pane._reset_scroll_positions()
             self.screen.clear()
-        elif (input in KeyMap.C_UP_ARR.value[2]):  # Ctrl + Up
+        elif (input in KeyMap.C_UP_ARR.value[2]):
             self.__select_pane(self.hb_pane, 0)
-        elif (input in KeyMap.C_DOWN_ARR.value[2]):  # Ctrl + Down
+        elif (input in KeyMap.C_DOWN_ARR.value[2]):
             self.__select_pane(self.misc_pane, 1)
         elif (input == KeyMap.F1.value[2]):
             if (self.hotkeys_win.enabled):
@@ -168,6 +203,10 @@ class App:
             self.hotkeys_win.toggle()
 
     def __init_color_pairs(self: App) -> None:
+        """Initialize color options used by curses
+
+        :return: None
+        """
         curses.start_color()
         # Implied: color pair 0 is standard black and white
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -177,6 +216,12 @@ class App:
         curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
 
     def __select_pane(self: App, pane: MessagePane, pos: int) -> None:
+        """Set Pane as Selected
+
+        :param pane: Reference to selected Pane
+        :param pos: Index of Selected Pane
+        :return: None
+        """
         # Only undo previous selection if there was any
         if (self.selected_pane is not None):
             self.selected_pane.selected = False
@@ -187,6 +232,11 @@ class App:
         self.selected_pane.selected = True
 
     def __draw_header(self: App, ifaces: [tuple]) -> None:
+        """Draw the header at the top of the interface
+
+        :param ifaces: CAN Bus Interfaces
+        :return: None
+        """
         # Draw the timestamp
         date_str = f'{dt.datetime.now().ctime()},'
         self.screen.addstr(0, 0, date_str)
@@ -200,11 +250,20 @@ class App:
             pos += sl + 1
 
     def __draw__footer(self: App) -> None:
+        """Draw the footer at the bottom of the interface
+
+        :return: None
+        """
         height, width = self.screen.getmaxyx()
         footer = '<F1>: Info, <F2>: Hotkeys'
         self.screen.addstr(height - 1, 1, footer)
 
-    def draw(self: App, ifaces: [tuple]):
+    def draw(self: App, ifaces: [tuple]) -> None:
+        """Draw the entire interface
+
+        :param ifaces: CAN Bus Interfaces
+        :return: None
+        """
         window_active = self.info_win.enabled or self.hotkeys_win.enabled
         self.__draw_header(ifaces)  # Draw header info
 
@@ -217,7 +276,11 @@ class App:
         self.info_win.draw()
         self.hotkeys_win.draw()
 
-        self.__draw__footer()  # Draw footer info
+        self.__draw__footer()
 
-    def refresh(self: App):
+    def refresh(self: App) -> None:
+        """Refresh entire screen
+
+        :return: None
+        """
         self.screen.refresh()
