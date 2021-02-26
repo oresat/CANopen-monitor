@@ -2,10 +2,19 @@ from __future__ import annotations
 import curses
 import datetime as dt
 from enum import Enum
-from . import APP_NAME, APP_VERSION, APP_LICENSE, APP_AUTHOR, APP_DESCRIPTION, APP_URL
+from . import APP_NAME, APP_VERSION, APP_LICENSE, APP_AUTHOR, APP_DESCRIPTION, \
+    APP_URL
 from .can import MessageTable, MessageType
 from .ui import MessagePane, PopupWindow
 
+# Key Constants not defined in curses
+# _UBUNTU key constants work in Ububtu
+KEY_S_UP = 337
+KEY_S_DOWN = 337
+KEY_C_UP = 567
+KEY_C_UP_UBUNTU = 566
+KEY_C_DOWN = 526
+KEY_C_DOWN_UBUNTU = 525
 
 def pad_hex(value: int) -> str:
     return f'0x{hex(value).upper()[2:].rjust(3, "0")}'
@@ -18,10 +27,12 @@ class KeyMap(Enum):
     DOWN_ARR = ('Down Arrow', 'Scroll pane down 1 row', curses.KEY_DOWN)
     LEFT_ARR = ('Left Arrow', 'Scroll pane left 4 cols', curses.KEY_LEFT)
     RIGHT_ARR = ('Right Arrow', 'Scroll pane right 4 cols', curses.KEY_RIGHT)
-    S_UP_ARR = ('Shift + Up Arrow', 'Scroll pane up 16 rows', 337)
-    S_DOWN_ARR = ('Shift + Down Arrow', 'Scroll pane down 16 rows', 336)
-    C_UP_ARR = ('Ctrl + Up Arrow', 'Move pane selection up', 567)
-    C_DOWN_ARR = ('Ctrl + Down Arrow', 'Move pane selection down', 526)
+    S_UP_ARR = ('Shift + Up Arrow', 'Scroll pane up 16 rows', KEY_S_UP)
+    S_DOWN_ARR = ('Shift + Down Arrow', 'Scroll pane down 16 rows', KEY_S_DOWN)
+    C_UP_ARR = ('Ctrl + Up Arrow', 'Move pane selection up',
+                [KEY_C_UP, KEY_C_UP_UBUNTU])
+    C_DOWN_ARR = ('Ctrl + Down Arrow', 'Move pane selection down',
+                  [KEY_C_DOWN, KEY_C_UP_UBUNTU])
     RESIZE = ('Resize Terminal',
               'Reset the dimensions of the app',
               curses.KEY_RESIZE)
@@ -35,15 +46,16 @@ class App:
         self.table = message_table
         self.selected_pane_pos = 0
         self.selected_pane = None
+        self.current = None
 
     def __enter__(self: App):
         # Monitor setup, take a snapshot of the terminal state
         self.screen = curses.initscr()  # Initialize standard out
-        self.screen.scrollok(True)      # Enable window scroll
-        self.screen.keypad(True)        # Enable special key input
-        self.screen.nodelay(True)       # Disable user-input blocking
-        curses.curs_set(False)          # Disable the cursor
-        self.__init_color_pairs()       # Enable colors and create pairs
+        self.screen.scrollok(True)  # Enable window scroll
+        self.screen.keypad(True)  # Enable special key input
+        self.screen.nodelay(True)  # Disable user-input blocking
+        curses.curs_set(False)  # Disable the cursor
+        self.__init_color_pairs()  # Enable colors and create pairs
 
         # Don't initialize any grids, sub-panes, or windows until standard io
         #   screen has been initialized
@@ -63,10 +75,10 @@ class App:
         self.hotkeys_win = PopupWindow(self.screen,
                                        header='Hotkeys',
                                        content=list(
-                                        map(lambda x:
-                                            f'{x.value[0]}: {x.value[1]}'
-                                            f' ({x.value[2]})',
-                                            list(KeyMap))),
+                                           map(lambda x:
+                                               f'{x.value[0]}: {x.value[1]}'
+                                               f' ({x.value[2]})',
+                                               list(KeyMap))),
                                        footer='F2: exit window',
                                        style=curses.color_pair(1))
         self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0, hex),
@@ -102,11 +114,11 @@ class App:
 
     def __exit__(self: App, type, value, traceback) -> None:
         # Monitor destruction, restore terminal state
-        curses.nocbreak()       # Re-enable line-buffering
-        curses.noecho()         # Enable user-input echo
-        curses.curs_set(True)   # Enable the cursor
-        curses.resetty()        # Restore the terminal state
-        curses.endwin()         # Destroy the virtual screen
+        curses.nocbreak()  # Re-enable line-buffering
+        curses.noecho()  # Enable user-input echo
+        curses.curs_set(True)  # Enable the cursor
+        curses.resetty()  # Restore the terminal state
+        curses.endwin()  # Destroy the virtual screen
 
     def _handle_keyboard_input(self: App) -> None:
         """This is only a temporary implementation
@@ -119,33 +131,33 @@ class App:
         input = self.screen.getch()
         curses.flushinp()
 
-        if(input == curses.KEY_UP):
+        if (input == curses.KEY_UP):
             self.selected_pane.scroll_up()
-        elif(input == curses.KEY_DOWN):
+        elif (input == curses.KEY_DOWN):
             self.selected_pane.scroll_down()
-        elif(input == 337):  # Shift + Up
+        elif (input == KEY_S_UP):  # Shift + Up
             self.selected_pane.scroll_up(rate=16)
-        elif(input == 336):  # Shift + Down
+        elif (input == KEY_S_DOWN):  # Shift + Down
             self.selected_pane.scroll_down(rate=16)
-        elif(input == curses.KEY_LEFT):
+        elif (input == curses.KEY_LEFT):
             self.selected_pane.scroll_left(rate=4)
-        elif(input == curses.KEY_RIGHT):
+        elif (input == curses.KEY_RIGHT):
             self.selected_pane.scroll_right(rate=4)
-        elif(input == curses.KEY_RESIZE):
+        elif (input == curses.KEY_RESIZE):
             self.hb_pane._reset_scroll_positions()
             self.misc_pane._reset_scroll_positions()
             self.screen.clear()
-        elif(input == 567):  # Ctrl + Up
+        elif (input in [KEY_C_UP, KEY_C_UP_UBUNTU]):  # Ctrl + Up
             self.__select_pane(self.hb_pane, 0)
-        elif(input == 526):  # Ctrl + Down
+        elif (input in [KEY_C_DOWN, KEY_C_DOWN_UBUNTU]):  # Ctrl + Down
             self.__select_pane(self.misc_pane, 1)
-        elif(input == curses.KEY_F1):
-            if(self.hotkeys_win.enabled):
+        elif (input == curses.KEY_F1):
+            if (self.hotkeys_win.enabled):
                 self.hotkeys_win.toggle()
                 self.hotkeys_win.clear()
             self.info_win.toggle()
-        elif(input == curses.KEY_F2):
-            if(self.info_win.enabled):
+        elif (input == curses.KEY_F2):
+            if (self.info_win.enabled):
                 self.info_win.toggle()
                 self.info_win.clear()
             self.hotkeys_win.toggle()
@@ -161,7 +173,7 @@ class App:
 
     def __select_pane(self: App, pane: MessagePane, pos: int) -> None:
         # Only undo previous selection if there was any
-        if(self.selected_pane is not None):
+        if (self.selected_pane is not None):
             self.selected_pane.selected = False
 
         # Select the new pane and change internal Pane state to indicate it
@@ -192,7 +204,7 @@ class App:
         self.__draw_header(ifaces)  # Draw header info
 
         # Draw panes
-        if(not window_active):
+        if (not window_active):
             self.hb_pane.draw()
             self.misc_pane.draw()
 
