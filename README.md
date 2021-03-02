@@ -30,12 +30,6 @@ An NCurses-based TUI application for tracking activity over the CAN bus and deco
 
 ***
 
-# Configuration
-
-The default configurations provided by CANOpen Monitor can be found in [canopen_monitor/assets](./canopen_monitor/assets). These are the default assets provided. At runtime these configs are copied to `~/.config/canopen-monitor` where they can be modified and the changes will persist.
-
-***
-
 # Development and Contribution
 
 ### Documentation
@@ -45,30 +39,36 @@ Check out our [Read The Docs](https://canopen-monitor.readthedocs.io) pages for 
 ### Pre-Requisites
 * Ubuntu/Debian Linux System
   
-* Python 3.8.5 or higher (may use pyenv, https://realpython.com/intro-to-pyenv/#build-dependencies)
+* Python 3.8.5 or higher (pyenv is recommended for managing different python versions, https://realpython.com/intro-to-pyenv/#build-dependencies)
 
 ### Install Locally
+
+#### Setup a virtual CAN signal generator
+`$` `sudo apt-get install can-utils`
+
+#### Start a virtual CAN
+`$` `sudo ip link add dev vcan0 type vcan`
+
+`$` `sudo ip link set up vcan0`
+
+#### Clone the repo
+`$` `git clone https://github.com/Boneill3/CANopen-monitor.git`
+
+`$` `cd CANopen-monitor`
 
 `$` `pip install -e .[dev]`
 
 *(Note: the `-e` flag creates a symbolic-link to your local development version. Set it once, and forget it)*
 
-### Test
-
-#### How to setup a Virtual CAN Signal Generator
-`$` `sudo apt-get install can-utils`
-
-#### How to start a Virtual CAN
-`$` `sudo ip link add dev vcan0 type vcan`
-
-`$` `sudo ip link set up vcan0`
-
-#### Generate Random Messages with socketcan-dev
+#### Generate random messages with socketcan-dev
 `$` `chmod 700 socketcan-dev`
 
 `$` `./socketcan-dev.py --random-id --random-message -r`
 
-### Create Documentation Locally
+#### Start the monitor
+`$` `canopen-monitor`
+
+### Create documentation locally
 
 `$` `make -C docs clean html`
 
