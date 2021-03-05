@@ -49,11 +49,9 @@ class MessageType(Enum):
         :return: The supertype of this type
         :rtype: MessageType
         """
-        if(self.value[0] >= self.PDO.value[0]
-                and self.value[0] <= self.PDO.value[1]):
+        if self.PDO.value[0] <= self.value[0] <= self.PDO.value[1]:
             return MessageType['PDO']
-        elif(self.value[0] >= self.SDO.value[0]
-                and self.value[0] <= self.SDO.value[1]):
+        elif self.SDO.value[0] <= self.value[0] <= self.SDO.value[1]:
             return MessageType['SDO']
         else:
             return MessageType['UKNOWN']
@@ -98,7 +96,7 @@ class MessageType(Enum):
         :rtype: MessageType
         """
         for t in list(MessageType):
-            if(cob_id >= t.value[0] and cob_id <= t.value[1]):
+            if t.value[0] <= cob_id <= t.value[1]:
                 return t
         return MessageType['UKNOWN']
 
@@ -160,9 +158,9 @@ class Message(Frame):
         :return: State of the message
         :rtype: MessageState
         """
-        if(self.age >= DEAD_TIME):
+        if self.age >= DEAD_TIME:
             return MessageState['DEAD']
-        elif(self.age >= STALE_TIME):
+        elif self.age >= STALE_TIME:
             return MessageState['STALE']
         else:
             return MessageState['ALIVE']
