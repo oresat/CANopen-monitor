@@ -34,8 +34,12 @@ class MessageType(Enum):
 
     # Special Types
     UKNOWN = (-0x1, -0x1)  # Pseudo type unknown
-    PDO = (0x180, 0x57F)   # Super type PDO
-    SDO = (0x580, 0x680)   # Super type SDO
+    PDO = (0x180, 0x57F)  # Super type PDO
+    SDO = (0x580, 0x680)  # Super type SDO
+
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
 
     @property
     def supertype(self: MessageType) -> MessageType:
@@ -49,15 +53,15 @@ class MessageType(Enum):
         :return: The supertype of this type
         :rtype: MessageType
         """
-        if self.PDO.value[0] <= self.value[0] <= self.PDO.value[1]:
+        if self.PDO.start <= self.start <= self.PDO.end:
             return MessageType['PDO']
-        elif self.SDO.value[0] <= self.value[0] <= self.SDO.value[1]:
+        elif self.SDO.start <= self.start <= self.SDO.end:
             return MessageType['SDO']
         else:
             return MessageType['UKNOWN']
 
     @staticmethod
-    def cob_to_node(mtype: MessageType, cob_id: int) -> int:
+    def cob_to_node(msg_type: MessageType, cob_id: int) -> int:
         """Determines the Node ID based on the given COB ID
 
         The COB ID is the raw ID sent with the CAN message, and the node id is
@@ -83,7 +87,7 @@ class MessageType(Enum):
         :return: The Node ID
         :rtype: int
         """
-        return cob_id - mtype.value[0]
+        return cob_id - msg_type.start
 
     @staticmethod
     def cob_id_to_type(cob_id: int) -> MessageType:
@@ -95,9 +99,9 @@ class MessageType(Enum):
         :return: The message type (range) the COB ID fits into
         :rtype: MessageType
         """
-        for t in list(MessageType):
-            if t.value[0] <= cob_id <= t.value[1]:
-                return t
+        for msg_type in list(MessageType):
+            if msg_type.start <= cob_id <= msg_type.end:
+                return msg_type
         return MessageType['UKNOWN']
 
     def __str__(self) -> str:
@@ -122,8 +126,6 @@ class MessageState(Enum):
     DEAD = 'Dead'
 
     def __str__(self: MessageState) -> str:
-        """ Overloaded `str()` operator
-        """
         return self.value + ' '
 
 
