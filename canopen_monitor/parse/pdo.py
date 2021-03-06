@@ -5,6 +5,17 @@ from math import ceil, floor
 from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
 
+#informal constants used in parse(cob_id, data, eds)
+PDO1_tx_min = 0x180
+PDO1_rx_min = 0x200
+PDO2_tx_min = 0x280
+PDO2_rx_min = 0x300
+PDO3_tx_min = 0x380
+PDO3_rx_min = 0x400
+PDO4_tx_min = 0x480
+PDO4_rx_min = 0x500
+PDO4_rx_max_plus_1 = 0x580
+
 PDO1_TX = 0x1A00
 PDO1_RX = 0x1600
 PDO2_TX = 0x1A01
@@ -24,36 +35,36 @@ def parse(cob_id: int, data: bytes, eds: EDS):
     The eds mapping is determined by the cob_id passed ot this function. That
     indicated which PDO record to look up in the EDS file.
     """
-    if 0x180 <= cob_id < 0x200:  # PDO1 tx
+    if PDO1_tx_min <= cob_id < PDO1_rx_min:  # PDO1 tx
         pdo_type = PDO1_TX
-    elif 0x200 <= cob_id < 0x280:  # PDO1 rx
+    elif PDO1_rx_min <= cob_id < PDO2_tx_min:  # PDO1 rx
         pdo_type = PDO1_RX
-    elif 0x280 <= cob_id < 0x300:  # PDO2 tx
+    elif PDO2_tx_min <= cob_id < PDO2_rx_min:  # PDO2 tx
         pdo_type = PDO2_TX
-    elif 0x300 <= cob_id < 0x380:  # PDO2 rx
+    elif PDO2_rx_min <= cob_id < PDO3_tx_min:  # PDO2 rx
         pdo_type = PDO2_RX
-    elif 0x380 <= cob_id < 0x400:  # PDO3 tx
+    elif PDO3_tx_min <= cob_id < PDO3_rx_min:  # PDO3 tx
         pdo_type = PDO3_TX
-    elif 0x400 <= cob_id < 0x480:  # PDO3 rx
+    elif PDO3_rx_min <= cob_id < PDO4_tx_min:  # PDO3 rx
         pdo_type = PDO3_RX
-    elif 0x480 <= cob_id < 0x500:  # PDO4 tx
+    elif PDO4_tx_min <= cob_id < PDO4_rx_min:  # PDO4 tx
         pdo_type = PDO4_TX
-    elif 0x500 <= cob_id < 0x580:  # PDO4 rx
+    elif PDO4_rx_min <= cob_id < PDO4_rx_max_plus_1:  # PDO4 rx
         pdo_type = PDO4_RX
     else:
-        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
                                     f"Unable to determine pdo type with given "
                                     f"cob_id {hex(cob_id)}, expected value "
-                                    f"between 0x180 and 0x580")
+                                    f"between PDO1_tx_min and PDO4_rx_max_plus_1")
 
     if len(data) > 8 or len(data) < 1:
-        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
                                     f"Invalid payload length {len(data)} "
                                     f"expected between 1 and 8")
     try:
         eds_elements = eds[hex(pdo_type)][0]
     except TypeError:
-        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
                                     f"Unable to find eds data for pdo type "
                                     f"{hex(pdo_type)}")
 
@@ -68,12 +79,12 @@ def parse(cob_id: int, data: bytes, eds: EDS):
 
     if num_elements in (0xFE, 0xFF):
         if len(data) != 8:
-            raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+            raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
                                         f"Invalid payload length {len(data)} "
                                         f"expected 8")
         return parse_mpdo(num_elements, pdo_type, eds, data, cob_id)
 
-    raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+    raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
                                 f"Invalid pdo mapping detected in eds file at "
                                 f"[{pdo_type}sub0]")
 
@@ -89,7 +100,7 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
         try:
             eds_record = eds[hex(pdo_type)][i]
         except TypeError:
-            raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+            raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
                                         f"Unable to find eds data for pdo type "
                                         f"{hex(pdo_type)} index {i}")
 
@@ -122,7 +133,7 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
 def parse_mpdo(num_elements, pdo_type, eds, data, cob_id):
     mpdo = MPDO(data)
     if mpdo.is_source_addressing and num_elements != 0xFE:
-        raise FailedValidationError(data, cob_id - 0x180, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
                                     f"MPDO type and definition do not match. "
                                     f"Check eds file at [{pdo_type}sub0]")
 
