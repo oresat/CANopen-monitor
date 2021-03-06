@@ -7,15 +7,17 @@ from . import hb as HBParser, \
 from .sdo import SDOParser
 from .utilities import FailedValidationError
 
-# Comments?
 class CANOpenParser:
+    """
+    A convenience wrapper for the parse function
+    """
     def __init__(self, eds_configs: dict):
         self.sdo_parser = SDOParser()
         self.eds_configs = eds_configs
 
     def parse(self, message: Message) -> str:
         """
-        Detect the type of the given message and returns the parsed version
+        Detect the type of the given message and return the parsed version
 
         Arguments
         ---------
