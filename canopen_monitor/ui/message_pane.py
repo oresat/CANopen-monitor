@@ -5,7 +5,8 @@ import curses
 
 
 class MessagePane(Pane):
-    """A derivative of Pane customized specifically to list miscellaneous CAN
+    """
+    A derivative of Pane customized specifically to list miscellaneous CAN
     messages stored in a MessageTable
 
     :param name: The name of the pane (to be printed in the top left)
@@ -58,7 +59,8 @@ class MessagePane(Pane):
         self.__reset_col_widths()
 
     def resize(self: MessagePane, height: int, width: int) -> None:
-        """A wrapper for `Pane.resize()`. This intercepts a call for a resize
+        """
+        A wrapper for `Pane.resize()`. This intercepts a call for a resize
         in order to upate MessagePane-specific details that change on a resize
         event. The parent `resize()` gets called first and then MessagePane's
         details are updated.
@@ -78,26 +80,34 @@ class MessagePane(Pane):
         self.__top_max = occluded if occluded > 0 else 0
 
     def _reset_scroll_positions(self: MessagePane) -> None:
+        """
+        Reset the scroll positions.
+        Initialize the y position to be zero.
+        Initialize the x position to be zero.
+        """
         self.cursor = self.cursor_max
         self.scroll_position_y = 0
         self.scroll_position_x = 0
 
     @property
     def scroll_limit_y(self: MessagePane) -> int:
-        """The maximim rows the pad is allowed to shift by when scrolling
+        """
+        The maximim rows the pad is allowed to shift by when scrolling
         """
         return self.d_height - 2
 
     @property
     def scroll_limit_x(self: MessagePane) -> int:
-        """The maximim columns the pad is allowed to shift by when scrolling
+        """
+        The maximim columns the pad is allowed to shift by when scrolling
         """
         max_length = sum(list(map(lambda x: x[1], self.cols.values())))
         occluded = max_length - self.d_width + 7
         return occluded if(occluded > 0) else 0
 
     def scroll_up(self: MessagePane, rate: int = 1) -> None:
-        """This overrides `Pane.scroll_up()`. Instead of shifting the
+        """
+        This overrides `Pane.scroll_up()`. Instead of shifting the
         pad vertically, the slice of messages from the `MessageTable` is
         shifted.
 
@@ -123,7 +133,8 @@ class MessagePane(Pane):
             self.__top = min if(self.__top < min) else self.__top
 
     def scroll_down(self: MessagePane, rate: int = 1) -> None:
-        """This overrides `Pane.scroll_up()`. Instead of shifting the
+        """
+        This overrides `Pane.scroll_up()`. Instead of shifting the
         pad vertically, the slice of messages from the `MessageTable` is
         shifted.
 
@@ -149,7 +160,8 @@ class MessagePane(Pane):
             self.__top = max if(self.__top > max) else self.__top
 
     def __draw_header(self: Pane) -> None:
-        """Draw the table header at the top of the Pane
+        """
+        Draw the table header at the top of the Pane
 
         This uses the `cols` dictionary to determine what to write
         """
@@ -169,7 +181,8 @@ class MessagePane(Pane):
             pos += data[1] + self.__col_sep
 
     def draw(self: MessagePane) -> None:
-        """Draw all records from the MessageTable to the Pane
+        """
+        Draw all records from the MessageTable to the Pane
         """
         super().draw()
         self.resize(self.v_height, self.v_width)
@@ -199,11 +212,21 @@ class MessagePane(Pane):
         super().refresh()
 
     def __reset_col_widths(self: Message):
+        """
+        Reset the width of Pane collumn. 
+        Based on the length of data to change the width.
+        """
         for name, data in self.cols.items():
             self.cols[name] = (data[0], len(name), data[2]) \
                 if (len(data) == 3) else (data[0], len(name))
 
     def __check_col_widths(self: MessagePane, messages: [Message]) -> None:
+        """
+        Check the width of the message in Pane column.
+
+        :param messages: The list of the messages
+        :type messages: list
+        """
         for message in messages:
             for name, data in self.cols.items():
                 attr = getattr(message, data[0])
