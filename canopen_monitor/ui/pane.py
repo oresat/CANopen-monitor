@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 
 
 class Pane(ABC):
-    """Abstract Pane Class, contains a PAD and a window
+    """
+    Abstract Pane Class, contains a PAD and a window
 
     :param v_height: The virtual height of the embedded pad
     :type v_height: int
@@ -30,7 +31,8 @@ class Pane(ABC):
                  x: int = 0,
                  border: bool = True,
                  color_pair: int = 0):
-        """Abstract pane initialization
+        """
+        Abstract pane initialization
 
         :param border: Toggiling whether or not to draw a border
         :type border: bool
@@ -64,15 +66,22 @@ class Pane(ABC):
 
     @property
     def scroll_limit_y(self: Pane) -> int:
+        """
+        Limit the scroll on the y axis
+        """
         return 0
 
     @property
     def scroll_limit_x(self: Pane) -> int:
+        """
+        Limit the scroll on the x axis
+        """
         return 0
 
     @abstractmethod
     def draw(self: Pane) -> None:
-        """Abstract draw method, must be overwritten in child class
+        """
+        Abstract draw method, must be overwritten in child class
         draw should first resize the pad using: `super().resize(w, h)`
         then add content using: self._pad.addstr()
         then refresh using: `super().refresh()`
@@ -91,7 +100,8 @@ class Pane(ABC):
             self._pad.box()
 
     def resize(self: Pane, height: int, width: int) -> None:
-        """Resize the virtual pad and change internal variables to reflect that
+        """
+        Resize the virtual pad and change internal variables to reflect that
 
         :param height: New virtual height
         :type height: int
@@ -105,12 +115,17 @@ class Pane(ABC):
         self._pad.resize(self.v_height, self.v_width)
 
     def __reset_draw_dimensions(self: Pane) -> None:
+        """
+        Reset the pane dimensions. 
+        You can change the width and height of the pane.
+        """
         p_height, p_width = self.parent.getmaxyx()
         self.d_height = min(self.v_height, p_height - 1)
         self.d_width = min(self.v_width, p_width - 1)
 
     def clear(self: Pane) -> None:
-        """Clear all contents of pad and parent window
+        """
+        Clear all contents of pad and parent window
 
         .. warning::
 
@@ -123,7 +138,8 @@ class Pane(ABC):
         # self.refresh()
 
     def clear_line(self: Pane, y: int, style: any = None) -> None:
-        """Clears a single line of the Pane
+        """
+        Clears a single line of the Pane
 
         :param y: The line to clear
         :type y: int
@@ -139,7 +155,8 @@ class Pane(ABC):
         self._pad.attroff(line_style)
 
     def refresh(self: Pane) -> None:
-        """Refresh the pane based on configured draw dimensions
+        """
+        Refresh the pane based on configured draw dimensions
         """
         self._pad.refresh(self.scroll_position_y,
                           self.scroll_position_x,
@@ -150,7 +167,8 @@ class Pane(ABC):
         self.needs_refresh = False
 
     def scroll_up(self: Pane, rate: int = 1) -> bool:
-        """Scroll pad upwards
+        """
+        Scroll pad upwards
 
         .. note::
 
@@ -171,7 +189,8 @@ class Pane(ABC):
         return True
 
     def scroll_down(self: Pane, rate: int = 1) -> bool:
-        """Scroll pad downwards
+        """
+        Scroll pad downwards
 
         .. note::
 
@@ -192,7 +211,8 @@ class Pane(ABC):
         return True
 
     def scroll_left(self: Pane, rate: int = 1) -> bool:
-        """Scroll pad left
+        """
+        Scroll pad left
 
         .. note::
 
@@ -213,7 +233,8 @@ class Pane(ABC):
         return True
 
     def scroll_right(self: Pane, rate: int = 1) -> bool:
-        """Scroll pad right
+        """
+        Scroll pad right
 
         .. note::
 
@@ -241,7 +262,8 @@ class Pane(ABC):
                  underline: bool = False,
                  highlight: bool = False,
                  color: any = None) -> None:
-        """Adds a line of text to the Pane and if needed, it handles the
+        """
+        Adds a line of text to the Pane and if needed, it handles the
         process of resizing the embedded pad
 
         :param y: Line's row position
