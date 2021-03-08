@@ -33,23 +33,20 @@ class KeyMap(Enum):
     """Enumerator of valid keyboard input
     value[0]: input name
     value[1]: input description
-    value[2]: curses input value
+    value[2]: curses input value key
     """
-    F1 = ('F1', 'Toggle app info menu', curses.KEY_F1)
-    F2 = ('F2', 'Toggle this menu', curses.KEY_F2)
-    UP_ARR = ('Up Arrow', 'Scroll pane up 1 row', curses.KEY_UP)
-    DOWN_ARR = ('Down Arrow', 'Scroll pane down 1 row', curses.KEY_DOWN)
-    LEFT_ARR = ('Left Arrow', 'Scroll pane left 4 cols', curses.KEY_LEFT)
-    RIGHT_ARR = ('Right Arrow', 'Scroll pane right 4 cols', curses.KEY_RIGHT)
-    S_UP_ARR = ('Shift + Up Arrow', 'Scroll pane up 16 rows', KEY_S_UP)
-    S_DOWN_ARR = ('Shift + Down Arrow', 'Scroll pane down 16 rows', KEY_S_DOWN)
-    C_UP_ARR = ('Ctrl + Up Arrow', 'Move pane selection up',
-                [KEY_C_UP, KEY_C_UP_UBUNTU])
-    C_DOWN_ARR = ('Ctrl + Down Arrow', 'Move pane selection down',
-                  [KEY_C_DOWN, KEY_C_DOWN_UBUNTU])
-    RESIZE = ('Resize Terminal',
-              'Reset the dimensions of the app',
-              curses.KEY_RESIZE)
+
+    F1 = {'name':'F1','description':'Toggle app info menu','key' : curses.KEY_F1}
+    F2 = {'name':'F2', 'description':'Toggle this menu', 'key': curses.KEY_F2}
+    UP_ARR = {'name':'Up Arrow', 'description':'Scroll pane up 1 row', 'key':curses.KEY_UP}
+    DOWN_ARR = {'name':'Down Arrow', 'description':'Scroll pane down 1 row', 'key':curses.KEY_DOWN}
+    LEFT_ARR = {'name':'Left Arrow', 'description':'Scroll pane left 4 cols', 'key':curses.KEY_LEFT}
+    RIGHT_ARR = {'name':'Right Arrow', 'description':'Scroll pane right 4 cols', 'key':curses.KEY_RIGHT}
+    S_UP_ARR = {'name':'Shift + Up Arrow', 'description':'Scroll pane up 16 rows', 'key':KEY_S_UP}
+    S_DOWN_ARR ={'name':'Shift + Down Arrow', 'description':'Scroll pane down 16 rows', 'key':KEY_S_DOWN}
+    C_UP_ARR ={'name':'Ctrl + Up Arrow', 'description':'Move pane selection up', 'key':[KEY_C_UP, KEY_C_UP_UBUNTU]}
+    C_DOWN_ARR ={'name':'Ctrl + Down Arrow', 'description':'Move pane selection down', 'key':[KEY_C_DOWN, KEY_C_DOWN_UBUNTU]}
+    RESIZE ={'name':'Resize Terminal', 'description':'Reset the dimensions of the app', 'key':curses.KEY_RESIZE}
 
 
 class App:
@@ -108,8 +105,8 @@ class App:
                                        header='Hotkeys',
                                        content=list(
                                            map(lambda x:
-                                               f'{x.value[0]}: {x.value[1]}'
-                                               f' ({x.value[2]})',
+                                               f'{x.value["name"]}: {x.value["description"]}'
+                                               f' ({x.value["key"]})',
                                                list(KeyMap))),
                                        footer='F2: exit window',
                                        style=curses.color_pair(1))
@@ -171,32 +168,32 @@ class App:
         input = self.screen.getch()
         curses.flushinp()
 
-        if (input == KeyMap.UP_ARR.value[2]):
+        if (input == KeyMap.UP_ARR.value['key']): # KEY_UP
             self.selected_pane.scroll_up()
-        elif (input == KeyMap.DOWN_ARR.value[2]):
+        elif (input == KeyMap.DOWN_ARR.value['key']): # KEY_DOWN
             self.selected_pane.scroll_down()
-        elif (input == KeyMap.S_UP_ARR.value[2]):
+        elif (input == KeyMap.S_UP_ARR.value['key']): # KEY_S_UP
             self.selected_pane.scroll_up(rate=VERTICAL_SCROLL_RATE)
-        elif (input == KeyMap.S_DOWN_ARR.value[2]):
+        elif (input == KeyMap.S_DOWN_ARR.value['key']): # KEY_S_DOWN
             self.selected_pane.scroll_down(rate=VERTICAL_SCROLL_RATE)
-        elif (input == KeyMap.LEFT_ARR.value[2]):
+        elif (input == KeyMap.LEFT_ARR.value['key']): # KEY_LEFT
             self.selected_pane.scroll_left(rate=HORIZONTAL_SCROLL_RATE)
-        elif (input == KeyMap.RIGHT_ARR.value[2]):
+        elif (input == KeyMap.RIGHT_ARR.value['key']): # KEY_RIGHT
             self.selected_pane.scroll_right(rate=HORIZONTAL_SCROLL_RATE)
-        elif (input == KeyMap.RESIZE.value[2]):
+        elif (input == KeyMap.RESIZE.value['key']): # KEY_RESIZE
             self.hb_pane._reset_scroll_positions()
             self.misc_pane._reset_scroll_positions()
             self.screen.clear()
-        elif (input in KeyMap.C_UP_ARR.value[2]):
+        elif (input in KeyMap.C_UP_ARR.value['key']): # KEY_C_UP
             self.__select_pane(self.hb_pane, 0)
-        elif (input in KeyMap.C_DOWN_ARR.value[2]):
+        elif (input in KeyMap.C_DOWN_ARR.value['key']): # KEY_C_DOWN
             self.__select_pane(self.misc_pane, 1)
-        elif (input == KeyMap.F1.value[2]):
+        elif (input == KeyMap.F1.value['key']): # KEY_F1
             if (self.hotkeys_win.enabled):
                 self.hotkeys_win.toggle()
                 self.hotkeys_win.clear()
             self.info_win.toggle()
-        elif (input == KeyMap.F2.value[2]):
+        elif (input == KeyMap.F2.value['key']): # KEY_F2
             if (self.info_win.enabled):
                 self.info_win.toggle()
                 self.info_win.clear()
