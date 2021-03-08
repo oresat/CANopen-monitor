@@ -5,38 +5,6 @@ from dateutil.parser import parse as dtparse
 from re import sub, finditer
 
 
-"""def camel_to_snake(old_name: str) -> str:
-    new_name = ''
-
-    for match in finditer('[A-Z0-9]+[a-z]*', old_name):
-        span = match.span()
-        substr = old_name[span[0]:span[1]]
-        found_submatch = False
-
-        for sub_match in finditer('[A-Z]+', substr):
-            sub_span = sub_match.span()
-            sub_substr = old_name[sub_span[0]:sub_span[1]]
-            sub_length = sub_span[1] - sub_span[0]
-
-            if (sub_length > 1):
-                found_submatch = True
-
-                if (span[0] != 0):
-                    new_name += '_'
-
-                first = sub_substr[:-1]
-                second = substr.replace(first, '')
-
-                new_name += '{}_{}'.format(first, second).lower()
-
-        if (not found_submatch):
-            if (span[0] != 0):
-                new_name += '_'
-
-            new_name += substr.lower()
-
-    return new_name"""
-
 def camel_to_snake(old_str: str) -> str:
     """
     Converts camel cased string to snake case, counting groups of repeated capital letters (such as "PDO") as one unit 
