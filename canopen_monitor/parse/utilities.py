@@ -1,5 +1,3 @@
-# Under review by jseigman - in-progress
-
 import array
 import datetime
 from struct import unpack
@@ -83,16 +81,10 @@ UNSIGNED64 = '0x001B'
 
 def decode(defined_type: str, data: List[int]) -> str:
     """
-    Does something?
-
-    Arguments
-    ---------
-    defined_type `str`: The data type?
-    data `[int]`: The data?
-
-    Returns
-    -------
-    `str`: something
+    Decodes data by defined type
+    :param defined_type: Hex constant for type
+    :param data: list of ints to be decoded
+    :return: Decoded data as string
     """
     if defined_type in (UNSIGNED8, UNSIGNED16, UNSIGNED32, UNSIGNED64):
         result = str(int.from_bytes(data, byteorder="little", signed=False))
