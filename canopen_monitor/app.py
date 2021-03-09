@@ -22,7 +22,8 @@ HORIZONTAL_SCROLL_RATE = 4
 
 
 def pad_hex(value: int) -> str:
-    """Convert integer value to a hex string with padding
+    """
+    Convert integer value to a hex string with padding
     :param value: number of spaces to pad hex value
     :return: padded string
     """
@@ -30,7 +31,8 @@ def pad_hex(value: int) -> str:
 
 
 class KeyMap(Enum):
-    """Enumerator of valid keyboard input
+    """
+    Enumerator of valid keyboard input
     value[0]: input name
     value[1]: input description
     value[2]: curses input value key
@@ -50,7 +52,8 @@ class KeyMap(Enum):
 
 
 class App:
-    """The User Interface Container
+    """
+    The User Interface Container
     :param table
     :type MessageTable
 
@@ -62,19 +65,35 @@ class App:
     """
 
     def __init__(self: App, message_table: MessageTable):
-        """App Initialization function
+        """
+        App Initialization function
         :param message_table: Reference to shared message table object
         :type MessageTable
         """
         self.table = message_table
         self.selected_pane_pos = 0
         self.selected_pane = None
+        self.key_dict = {
+            KeyMap.UP_ARR.value['key']: self.up,
+            KeyMap.S_UP_ARR.value['key']: self.shift_up,
+            KeyMap.C_UP_ARR.value['key'][0]: self.ctrl_up,
+            KeyMap.C_UP_ARR.value['key'][1]: self.ctrl_up,  # Ubuntu key
+            KeyMap.DOWN_ARR.value['key']: self.down,
+            KeyMap.S_DOWN_ARR.value['key']: self.shift_down,
+            KeyMap.C_DOWN_ARR.value['key'][0]: self.ctrl_down,
+            KeyMap.C_DOWN_ARR.value['key'][1]: self.ctrl_down,  # Ubuntu key
+            KeyMap.LEFT_ARR.value['key']: self.left,
+            KeyMap.RIGHT_ARR.value['key']: self.right,
+            KeyMap.RESIZE.value['key']: self.resize,
+            KeyMap.F1.value['key']: self.f1,
+            KeyMap.F2.value['key']: self.f2
+        }
 
     def __enter__(self: App) -> App:
-        """Enter the runtime context related to this object
+        """
+        Enter the runtime context related to this object
         Create the user interface layout. Any changes to the layout should
         be done here.
-
         :return: self
         :type App
         """
@@ -142,9 +161,10 @@ class App:
         return self
 
     def __exit__(self: App, type, value, traceback) -> None:
-        """Exit the runtime context related to this object.
+        """
+        Exit the runtime context related to this object.
         Cleanup any curses settings to allow the terminal
-        to retrun to normal
+        to return to normal
         :param type: exception type or None
         :param value: exception value or None
         :param traceback: exception traceback or None
@@ -157,51 +177,106 @@ class App:
         curses.resetty()  # Restore the terminal state
         curses.endwin()  # Destroy the virtual screen
 
-    def _handle_keyboard_input(self: App) -> None:
-        """This is only a temporary implementation
-
-        .. deprecated::
-
-            Soon to be removed
+    def up(self):
         """
-        # Grab user input
-        input = self.screen.getch()
+        Up arrow key scrolls pane up 1 row
+        :return: None
+        """
+        self.selected_pane.scroll_up()
+
+    def shift_up(self):
+        """
+        Shift + Up arrow key scrolls pane up 16 rows
+        :return: None
+        """
+        self.selected_pane.scroll_up(rate=VERTICAL_SCROLL_RATE)
+
+    def ctrl_up(self):
+        """
+        Ctrl + Up arrow key moves pane selection up
+        :return: None
+        """
+        self.__select_pane(self.hb_pane, 0)
+
+    def down(self):
+        """
+        Down arrow key scrolls pane down 1 row
+        :return: None
+        """
+        self.selected_pane.scroll_down()
+
+    def shift_down(self):
+        """
+        Shift + Down arrow key scrolls down pane 16 rows
+        :return:
+        """
+        self.selected_pane.scroll_down(rate=VERTICAL_SCROLL_RATE)
+
+    def ctrl_down(self):
+        """
+        Ctrl + Down arrow key moves pane selection down
+        :return: None
+        """
+        self.__select_pane(self.misc_pane, 1)
+
+    def left(self):
+        """
+        Left arrow key scrolls pane left 4 cols
+        :return: None
+        """
+        self.selected_pane.scroll_left(rate=HORIZONTAL_SCROLL_RATE)
+
+    def right(self):
+        """
+        Right arrow key scrolls pane right 4 cols
+        :return: None
+        """
+        self.selected_pane.scroll_right(rate=HORIZONTAL_SCROLL_RATE)
+
+    def resize(self):
+        """
+        Resets the dimensions of the app
+        :return: None
+        """
+        self.hb_pane._reset_scroll_positions()
+        self.misc_pane._reset_scroll_positions()
+        self.screen.clear()
+
+    def f1(self):
+        """
+        Toggle app info menu
+        :return: None
+        """
+        if self.hotkeys_win.enabled:
+            self.hotkeys_win.toggle()
+            self.hotkeys_win.clear()
+        self.info_win.toggle()
+
+    def f2(self):
+        """
+        Toggles KeyMap
+        :return: None
+        """
+        if self.info_win.enabled:
+            self.info_win.toggle()
+            self.info_win.clear()
+        self.hotkeys_win.toggle()
+
+    def _handle_keyboard_input(self: App) -> None:
+        """
+        Retrieves keyboard input and calls the associated key function
+        """
+        keyboard_input = self.screen.getch()
         curses.flushinp()
 
-        if (input == KeyMap.UP_ARR.value['key']): # KEY_UP
-            self.selected_pane.scroll_up()
-        elif (input == KeyMap.DOWN_ARR.value['key']): # KEY_DOWN
-            self.selected_pane.scroll_down()
-        elif (input == KeyMap.S_UP_ARR.value['key']): # KEY_S_UP
-            self.selected_pane.scroll_up(rate=VERTICAL_SCROLL_RATE)
-        elif (input == KeyMap.S_DOWN_ARR.value['key']): # KEY_S_DOWN
-            self.selected_pane.scroll_down(rate=VERTICAL_SCROLL_RATE)
-        elif (input == KeyMap.LEFT_ARR.value['key']): # KEY_LEFT
-            self.selected_pane.scroll_left(rate=HORIZONTAL_SCROLL_RATE)
-        elif (input == KeyMap.RIGHT_ARR.value['key']): # KEY_RIGHT
-            self.selected_pane.scroll_right(rate=HORIZONTAL_SCROLL_RATE)
-        elif (input == KeyMap.RESIZE.value['key']): # KEY_RESIZE
-            self.hb_pane._reset_scroll_positions()
-            self.misc_pane._reset_scroll_positions()
-            self.screen.clear()
-        elif (input in KeyMap.C_UP_ARR.value['key']): # KEY_C_UP
-            self.__select_pane(self.hb_pane, 0)
-        elif (input in KeyMap.C_DOWN_ARR.value['key']): # KEY_C_DOWN
-            self.__select_pane(self.misc_pane, 1)
-        elif (input == KeyMap.F1.value['key']): # KEY_F1
-            if (self.hotkeys_win.enabled):
-                self.hotkeys_win.toggle()
-                self.hotkeys_win.clear()
-            self.info_win.toggle()
-        elif (input == KeyMap.F2.value['key']): # KEY_F2
-            if (self.info_win.enabled):
-                self.info_win.toggle()
-                self.info_win.clear()
-            self.hotkeys_win.toggle()
+        try:
+            self.key_dict[keyboard_input]()
+        except KeyError:
+            ...
 
     def __init_color_pairs(self: App) -> None:
-        """Initialize color options used by curses
-
+        """
+        Initialize color options used by curses
         :return: None
         """
         curses.start_color()
@@ -213,8 +288,8 @@ class App:
         curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
 
     def __select_pane(self: App, pane: MessagePane, pos: int) -> None:
-        """Set Pane as Selected
-
+        """
+        Set Pane as Selected
         :param pane: Reference to selected Pane
         :param pos: Index of Selected Pane
         :return: None
@@ -229,8 +304,8 @@ class App:
         self.selected_pane.selected = True
 
     def __draw_header(self: App, ifaces: [tuple]) -> None:
-        """Draw the header at the top of the interface
-
+        """
+        Draw the header at the top of the interface
         :param ifaces: CAN Bus Interfaces
         :return: None
         """
@@ -247,8 +322,8 @@ class App:
             pos += sl + 1
 
     def __draw__footer(self: App) -> None:
-        """Draw the footer at the bottom of the interface
-
+        """
+        Draw the footer at the bottom of the interface
         :return: None
         """
         height, width = self.screen.getmaxyx()
@@ -256,8 +331,8 @@ class App:
         self.screen.addstr(height - 1, 1, footer)
 
     def draw(self: App, ifaces: [tuple]) -> None:
-        """Draw the entire interface
-
+        """
+        Draw the entire interface
         :param ifaces: CAN Bus Interfaces
         :return: None
         """
@@ -276,8 +351,8 @@ class App:
         self.__draw__footer()
 
     def refresh(self: App) -> None:
-        """Refresh entire screen
-
+        """
+        Refresh entire screen
         :return: None
         """
         self.screen.refresh()
