@@ -898,7 +898,7 @@ class SDOParser:
     def parse(self, cob_id: int, data: List[int], eds: EDS):
         node_id = None
         try:
-            if MessageType.SDO_TX[0] <= cob_id < MessageType.SDO_TX[0]:
+            if MessageType.SDO_TX[0] <= cob_id < MessageType.SDO_RX[0]:
                 sdo_type = SDO_TX
                 node_id = cob_id - MessageType.SDO_TX[0]
             # unsure if MessageType.SDO_RX[1] is reaching the right value (0x680), but it seems to
