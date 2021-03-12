@@ -2,6 +2,11 @@ import array
 from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
 from typing import List
+# Using import method from here (and canopen.py):
+# https://www.kite.com/python/answers/how-to-import-a-class-from-another-file-in-python
+# This was also a useful resource:
+# https://www.kite.com/python/answers/how-to-import-a-class-from-another-file-in-python
+from ..can import MessageType
 
 SDO_TX = 'SDO_TX'
 SDO_RX = 'SDO_RX'
@@ -880,10 +885,11 @@ class SDOParser:
         self.__last_sequence = 0
         self.__awaiting_conf = False
 
+        # (no longer necessary, using range of values from message.py)
         # informal constants used in parse(cob_id, data, eds)
-        self.SDO_tx_min = 0x580
-        self.SDO_rx_min = 0x600
-        self.SDO_rx_max_plus_1 = 0x680
+        # self.SDO_tx_min = 0x580
+        # self.SDO_rx_min = 0x600
+        # self.SDO_rx_max_plus_1 = 0x680
 
     @property
     def is_complete(self):
@@ -892,12 +898,13 @@ class SDOParser:
     def parse(self, cob_id: int, data: List[int], eds: EDS):
         node_id = None
         try:
-            if self.SDO_tx_min <= cob_id < self.SDO_rx_min:
+            if MessageType.SDO_TX[0] <= cob_id < MessageType.SDO_TX[0]:
                 sdo_type = SDO_TX
-                node_id = cob_id - self.SDO_tx_min
-            elif self.SDO_rx_min <= cob_id < self.SDO_rx_max_plus_1:
+                node_id = cob_id - MessageType.SDO_TX[0]
+            # unsure if MessageType.SDO_RX[1] is reaching the right value (0x680), but it seems to
+            elif MessageType.SDO_RX[0] <= cob_id < (MessageType.SDO_RX[1] + 1):
                 sdo_type = SDO_RX
-                node_id = cob_id - self.SDO_rx_min
+                node_id = cob_id - MessageType.SDO_RX[0]
             else:
                 raise ValueError(f"Provided COB-ID {str(cob_id)} "
                                  f"is outside of the range of SDO messages")
