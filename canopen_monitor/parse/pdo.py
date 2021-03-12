@@ -6,6 +6,7 @@ from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
 from ..can import MessageType
 
+# (no longer necessary, using the tuple values from message.py)
 #informal constants used in parse(cob_id, data, eds)
 # PDO1_tx_min = 0x180
 # PDO1_rx_min = 0x200
