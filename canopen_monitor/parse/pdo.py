@@ -51,7 +51,7 @@ def parse(cob_id: int, data: bytes, eds: EDS):
         pdo_type = PDO3_RX
     elif MessageType.PDO4_TX[0] <= cob_id < MessageType.PDO4_RX[0]:  # PDO4 tx
         pdo_type = PDO4_TX
-    elif MessageType.PDO4_RX[0] <= cob_id < (MessageType.PDO4_RX[0] + 1):  # PDO4 rx
+    elif MessageType.PDO4_RX[0] <= cob_id < (MessageType.PDO4_RX[1] + 1):  # PDO4 rx
         pdo_type = PDO4_RX
     else:
         raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
