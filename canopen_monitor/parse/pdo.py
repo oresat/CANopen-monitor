@@ -8,7 +8,7 @@ from ..can import MessageType
 
 # (no longer necessary, using the tuple values from message.py)
 #informal constants used in parse(cob_id, data, eds)
-# MessageType.PDO1_TX[0] = 0x180
+# PDO1_tx_min = 0x180
 # PDO1_rx_min = 0x200
 # PDO2_tx_min = 0x280
 # PDO2_rx_min = 0x300
