@@ -4,17 +4,18 @@ import string
 from math import ceil, floor
 from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
+from ..can import MessageType
 
 #informal constants used in parse(cob_id, data, eds)
-PDO1_tx_min = 0x180
-PDO1_rx_min = 0x200
-PDO2_tx_min = 0x280
-PDO2_rx_min = 0x300
-PDO3_tx_min = 0x380
-PDO3_rx_min = 0x400
-PDO4_tx_min = 0x480
-PDO4_rx_min = 0x500
-PDO4_rx_max_plus_1 = 0x580
+# PDO1_tx_min = 0x180
+# PDO1_rx_min = 0x200
+# PDO2_tx_min = 0x280
+# PDO2_rx_min = 0x300
+# PDO3_tx_min = 0x380
+# PDO3_rx_min = 0x400
+# PDO4_tx_min = 0x480
+# PDO4_rx_min = 0x500
+# PDO4_rx_max_plus_1 = 0x580
 
 PDO1_TX = 0x1A00
 PDO1_RX = 0x1600
@@ -35,24 +36,24 @@ def parse(cob_id: int, data: bytes, eds: EDS):
     The eds mapping is determined by the cob_id passed ot this function. That
     indicated which PDO record to look up in the EDS file.
     """
-    if PDO1_tx_min <= cob_id < PDO1_rx_min:  # PDO1 tx
+    if MessageType.PDO1_TX[0] <= cob_id < MessageType.PDO1_RX[0]:  # PDO1 tx
         pdo_type = PDO1_TX
-    elif PDO1_rx_min <= cob_id < PDO2_tx_min:  # PDO1 rx
+    elif MessageType.PDO1_RX[0] <= cob_id < MessageType.PDO2_TX[0]:  # PDO1 rx
         pdo_type = PDO1_RX
-    elif PDO2_tx_min <= cob_id < PDO2_rx_min:  # PDO2 tx
+    elif MessageType.PDO2_TX[0] <= cob_id < MessageType.PDO2_RX[0]:  # PDO2 tx
         pdo_type = PDO2_TX
-    elif PDO2_rx_min <= cob_id < PDO3_tx_min:  # PDO2 rx
+    elif MessageType.PDO2_RX[0] <= cob_id < MessageType.PDO3_TX[0]:  # PDO2 rx
         pdo_type = PDO2_RX
-    elif PDO3_tx_min <= cob_id < PDO3_rx_min:  # PDO3 tx
+    elif MessageType.PDO3_TX[0] <= cob_id < MessageType.PDO3_RX[0]:  # PDO3 tx
         pdo_type = PDO3_TX
-    elif PDO3_rx_min <= cob_id < PDO4_tx_min:  # PDO3 rx
+    elif MessageType.PDO3_RX[0] <= cob_id < MessageType.PDO4_TX[0]:  # PDO3 rx
         pdo_type = PDO3_RX
-    elif PDO4_tx_min <= cob_id < PDO4_rx_min:  # PDO4 tx
+    elif MessageType.PDO4_TX[0] <= cob_id < MessageType.PDO4_RX[0]:  # PDO4 tx
         pdo_type = PDO4_TX
-    elif PDO4_rx_min <= cob_id < PDO4_rx_max_plus_1:  # PDO4 rx
+    elif MessageType.PDO4_RX[0] <= cob_id < (MessageType.PDO4_RX[0] + 1):  # PDO4 rx
         pdo_type = PDO4_RX
     else:
-        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                     f"Unable to determine pdo type with given "
                                     f"cob_id {hex(cob_id)}, expected value "
                                     f"between PDO1_tx_min and PDO4_rx_max_plus_1")
