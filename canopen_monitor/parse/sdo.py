@@ -880,6 +880,11 @@ class SDOParser:
         self.__last_sequence = 0
         self.__awaiting_conf = False
 
+        # informal constants used in parse(cob_id, data, eds)
+        self.SDO_tx_min = 0x580
+        self.SDO_rx_min = 0x600
+        self.SDO_rx_max_plus_1 = 0x680
+
     @property
     def is_complete(self):
         return self.__is_complete
@@ -887,12 +892,12 @@ class SDOParser:
     def parse(self, cob_id: int, data: List[int], eds: EDS):
         node_id = None
         try:
-            if 0x580 <= cob_id < 0x600:
+            if self.SDO_tx_min <= cob_id < self.SDO_rx_min:
                 sdo_type = SDO_TX
-                node_id = cob_id - 0x580
-            elif 0x600 <= cob_id < 0x680:
+                node_id = cob_id - self.SDO_tx_min
+            elif self.SDO_rx_min <= cob_id < self.SDO_rx_max_plus_1:
                 sdo_type = SDO_RX
-                node_id = cob_id - 0x600
+                node_id = cob_id - self.SDO_rx_min
             else:
                 raise ValueError(f"Provided COB-ID {str(cob_id)} "
                                  f"is outside of the range of SDO messages")
