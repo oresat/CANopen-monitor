@@ -8,7 +8,7 @@ from ..can import MessageType
 
 # (no longer necessary, using the tuple values from message.py)
 #informal constants used in parse(cob_id, data, eds)
-# PDO1_tx_min = 0x180
+# MessageType.PDO1_TX[0] = 0x180
 # PDO1_rx_min = 0x200
 # PDO2_tx_min = 0x280
 # PDO2_rx_min = 0x300
@@ -57,16 +57,16 @@ def parse(cob_id: int, data: bytes, eds: EDS):
         raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                     f"Unable to determine pdo type with given "
                                     f"cob_id {hex(cob_id)}, expected value "
-                                    f"between PDO1_tx_min and PDO4_rx_max_plus_1")
+                                    f"between MessageType.PDO1_TX[0] and MessageType.PDO4_RX[1] + 1")
 
     if len(data) > 8 or len(data) < 1:
-        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                     f"Invalid payload length {len(data)} "
                                     f"expected between 1 and 8")
     try:
         eds_elements = eds[hex(pdo_type)][0]
     except TypeError:
-        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                     f"Unable to find eds data for pdo type "
                                     f"{hex(pdo_type)}")
 
@@ -81,12 +81,12 @@ def parse(cob_id: int, data: bytes, eds: EDS):
 
     if num_elements in (0xFE, 0xFF):
         if len(data) != 8:
-            raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
+            raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                         f"Invalid payload length {len(data)} "
                                         f"expected 8")
         return parse_mpdo(num_elements, pdo_type, eds, data, cob_id)
 
-    raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
+    raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                 f"Invalid pdo mapping detected in eds file at "
                                 f"[{pdo_type}sub0]")
 
@@ -102,7 +102,7 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
         try:
             eds_record = eds[hex(pdo_type)][i]
         except TypeError:
-            raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
+            raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                         f"Unable to find eds data for pdo type "
                                         f"{hex(pdo_type)} index {i}")
 
@@ -135,7 +135,7 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
 def parse_mpdo(num_elements, pdo_type, eds, data, cob_id):
     mpdo = MPDO(data)
     if mpdo.is_source_addressing and num_elements != 0xFE:
-        raise FailedValidationError(data, cob_id - PDO1_tx_min, cob_id, __name__,
+        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX[0], cob_id, __name__,
                                     f"MPDO type and definition do not match. "
                                     f"Check eds file at [{pdo_type}sub0]")
 
