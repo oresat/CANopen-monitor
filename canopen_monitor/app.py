@@ -10,7 +10,7 @@ from .ui import MessagePane, PopupWindow
 # Key Constants not defined in curses
 # _UBUNTU key constants work in Ubuntu
 KEY_S_UP = 337
-KEY_S_DOWN = 337
+KEY_S_DOWN = 336
 KEY_C_UP = 567
 KEY_C_UP_UBUNTU = 566
 KEY_C_DOWN = 526
