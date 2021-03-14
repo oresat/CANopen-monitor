@@ -885,12 +885,6 @@ class SDOParser:
         self.__last_sequence = 0
         self.__awaiting_conf = False
 
-        # (no longer necessary, using range of values from message.py)
-        # informal constants used in parse(cob_id, data, eds)
-        # self.SDO_tx_min = 0x580
-        # self.SDO_rx_min = 0x600
-        # self.SDO_rx_max_plus_1 = 0x680
-
     @property
     def is_complete(self):
         return self.__is_complete
@@ -898,13 +892,13 @@ class SDOParser:
     def parse(self, cob_id: int, data: List[int], eds: EDS):
         node_id = None
         try:
-            if MessageType.SDO_TX[0] <= cob_id < MessageType.SDO_RX[0]:
+            if MessageType.SDO_TX.value[0] <= cob_id < MessageType.SDO_RX.value[0]:
                 sdo_type = SDO_TX
-                node_id = cob_id - MessageType.SDO_TX[0]
+                node_id = cob_id - MessageType.SDO_TX.value[0]
             # unsure if MessageType.SDO_RX[1] is reaching the right value (0x680), but it seems to
-            elif MessageType.SDO_RX[0] <= cob_id < (MessageType.SDO_RX[1] + 1):
+            elif MessageType.SDO_RX.value[0] <= cob_id < (MessageType.SDO_RX.value[1] + 1):
                 sdo_type = SDO_RX
-                node_id = cob_id - MessageType.SDO_RX[0]
+                node_id = cob_id - MessageType.SDO_RX.value[0]
             else:
                 raise ValueError(f"Provided COB-ID {str(cob_id)} "
                                  f"is outside of the range of SDO messages")
