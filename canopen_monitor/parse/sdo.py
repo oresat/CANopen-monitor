@@ -2,10 +2,6 @@ import array
 from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
 from typing import List
-# Using import method from here (and canopen.py):
-# https://www.kite.com/python/answers/how-to-import-a-class-from-another-file-in-python
-# This was also a useful resource:
-# https://www.kite.com/python/answers/how-to-import-a-class-from-another-file-in-python
 from ..can import MessageType
 
 SDO_TX = 'SDO_TX'
@@ -892,11 +888,10 @@ class SDOParser:
     def parse(self, cob_id: int, data: List[int], eds: EDS):
         node_id = None
         try:
-            if MessageType.SDO_TX.value[0] <= cob_id < MessageType.SDO_RX.value[0]:
+            if cob_id in range(*MessageType.SDO_TX.value):
                 sdo_type = SDO_TX
                 node_id = cob_id - MessageType.SDO_TX.value[0]
-            # unsure if MessageType.SDO_RX[1] is reaching the right value (0x680), but it seems to
-            elif MessageType.SDO_RX.value[0] <= cob_id < (MessageType.SDO_RX.value[1] + 1):
+            elif cob_id in range(*MessageType.SDO_RX.value):
                 sdo_type = SDO_RX
                 node_id = cob_id - MessageType.SDO_RX.value[0]
             else:
