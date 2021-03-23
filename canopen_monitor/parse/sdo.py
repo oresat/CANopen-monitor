@@ -2,6 +2,7 @@ import array
 from .eds import EDS
 from .utilities import FailedValidationError, get_name, decode
 from typing import List
+from ..can import MessageType
 
 SDO_TX = 'SDO_TX'
 SDO_RX = 'SDO_RX'
@@ -887,12 +888,12 @@ class SDOParser:
     def parse(self, cob_id: int, data: List[int], eds: EDS):
         node_id = None
         try:
-            if 0x580 <= cob_id < 0x600:
+            if cob_id in range(*MessageType.SDO_TX.value):
                 sdo_type = SDO_TX
-                node_id = cob_id - 0x580
-            elif 0x600 <= cob_id < 0x680:
+                node_id = cob_id - MessageType.SDO_TX.value[0]
+            elif cob_id in range(*MessageType.SDO_RX.value):
                 sdo_type = SDO_RX
-                node_id = cob_id - 0x600
+                node_id = cob_id - MessageType.SDO_RX.value[0]
             else:
                 raise ValueError(f"Provided COB-ID {str(cob_id)} "
                                  f"is outside of the range of SDO messages")

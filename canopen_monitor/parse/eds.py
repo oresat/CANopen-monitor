@@ -2,6 +2,47 @@ import string
 from typing import Union
 import canopen_monitor.parse as cmp
 from dateutil.parser import parse as dtparse
+from re import sub, finditer
+
+
+def camel_to_snake(old_str: str) -> str:
+    """
+    Converts camel cased string to snake case, counting groups of repeated capital letters (such as "PDO") as one unit 
+    That is, string like "PDO_group" become "pdo_group" instead of "p_d_o_group"
+    """
+    # Find all groups that contains one or more capital letters followed by one or more lowercase letters
+    # The new, camel_cased string will be built up along the way
+    new_str = ""
+    for match in finditer('[A-Z0-9]+[a-z]*', old_str):
+        span = match.span()
+        substr = old_str[span[0]:span[1]]
+        found_submatch = False
+
+        # Add a "_" to the newstring to separate the current match group from the previous
+        # It looks like we shouldn't need to worry about getting "_strings_like_this", because they don't seem to happen
+        if (span[0] != 0):
+            new_str += '_'
+
+        # Find all sub-groups of *more than one* capital letters within the match group, and seperate them with "_" characters,
+        # Append the subgroups to the new_str as they are found 
+        # If no subgroups are found, just append the match group to the new_str
+        for sub_match in finditer('[A-Z]+', substr):
+            sub_span = sub_match.span()
+            sub_substr = old_str[sub_span[0]:sub_span[1]]
+            sub_length = sub_span[1] - sub_span[0]
+
+            if (sub_length > 1):
+                found_submatch = True
+
+                first = sub_substr[:-1]
+                second = substr.replace(first, '')
+
+                new_str += '{}_{}'.format(first, second).lower()
+
+        if (not found_submatch):
+            new_str += substr.lower()
+
+    return new_str
 
 
 class Metadata:
@@ -16,7 +57,7 @@ class Metadata:
             key, value = e.split('=')
 
             # Create the proper field name
-            key = cmp.camel_to_snake(key)
+            key = camel_to_snake(key)
 
             # Turn date-time-like objects into datetimes
             if ('time' in key):
@@ -60,7 +101,7 @@ class Index:
                 elif(all(c in string.hexdigits for c in value)):
                     value = int(value, 16)
 
-            self.__setattr__(cmp.camel_to_snake(key), value)
+            self.__setattr__(camel_to_snake(key), value)
 
     def add(self, index) -> None:
         self.sub_indices.append(index)
@@ -99,7 +140,7 @@ class EDS:
                             .add(Index(section[1:], sub_id=int(id[1], 16)))
                 else:
                     name = section[0][1:-1]
-                    self.__setattr__(cmp.camel_to_snake(name),
+                    self.__setattr__(camel_to_snake(name),
                                      Metadata(section[1:]))
                 prev = i + 1
         self.node_id = self[0x2101].default_value

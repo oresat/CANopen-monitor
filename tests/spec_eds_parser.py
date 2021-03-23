@@ -1,7 +1,9 @@
 import unittest
-import canopen_monitor.parse.eds as eds
+from canopen_monitor import parse
 from unittest.mock import mock_open, patch
 from tests import TEST_EDS
+
+eds = parse.eds
 
 
 class TestEDS(unittest.TestCase):
