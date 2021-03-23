@@ -30,6 +30,16 @@ An NCurses-based TUI application for tracking activity over the CAN bus and deco
 
 ***
 
+# Configuration
+The default configurations provided by CANOpen Monitor can be found in 
+[canopen_monitor/assets](./canopen_monitor/assets). These are the default 
+assets provided. At runtime these configs are copied to 
+`~/.config/canopen-monitor` where they can be modified and the changes 
+will persist.
+
+EDS files are loaded from `~/.cache/canopen-monitor`
+***
+
 # Development and Contribution
 
 ### Documentation
