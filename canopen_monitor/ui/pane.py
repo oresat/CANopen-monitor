@@ -135,7 +135,6 @@ class Pane(ABC):
         """
         self._pad.clear()
         self.parent.clear()
-        # self.refresh()
 
     def clear_line(self: Pane, y: int, style: any = None) -> None:
         """
