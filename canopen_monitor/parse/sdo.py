@@ -493,7 +493,8 @@ class SDOBlockUploadInitiateNoData:
     This class is used by the SDO parser to parse the SDO block initiate
     messages containing no data when uploading
 
-This message type is the first message sent from the client during an SDO Upload
+This message type is the first message sent from the client during an SDO
+Upload
 
 This message contains information about the number of blocks that the client
 expects before returning a confirmation

@@ -31,10 +31,10 @@ An NCurses-based TUI application for tracking activity over the CAN bus and deco
 ***
 
 # Configuration
-The default configurations provided by CANOpen Monitor can be found in 
-[canopen_monitor/assets](./canopen_monitor/assets). These are the default 
-assets provided. At runtime these configs are copied to 
-`~/.config/canopen-monitor` where they can be modified and the changes 
+The default configurations provided by CANOpen Monitor can be found in
+[canopen_monitor/assets](./canopen_monitor/assets). These are the default
+assets provided. At runtime these configs are copied to
+`~/.config/canopen-monitor` where they can be modified and the changes
 will persist.
 
 EDS files are loaded from `~/.cache/canopen-monitor`
@@ -47,9 +47,9 @@ EDS files are loaded from `~/.cache/canopen-monitor`
 Check out our [Read The Docs](https://canopen-monitor.readthedocs.io) pages for more info on the application sub-components and methods.
 
 ### Pre-Requisites
-* Ubuntu/Debian Linux System
-  
-* Python 3.8.5 or higher (pyenv is recommended for managing different python versions, https://realpython.com/intro-to-pyenv/#build-dependencies)
+* Linux 4.11 or greater (any distribution)
+
+* Python 3.8.5 or higher *(pyenv is recommended for managing different python versions, see [pyenv homepage](https://realpython.com/intro-to-pyenv/#build-dependencies) for information)*
 
 ### Install Locally
 

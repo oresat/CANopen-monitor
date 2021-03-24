@@ -192,7 +192,7 @@ class Message(Frame):
         This is a property that is arbitratily decided in an Object Dictionary
         and can sometimes have a name attatched to it
 
-        :Example:
+        .. example::
 
             0x621 and 0x721 are addressing the same device on the network,
             because both of them share the Node ID of 0x21

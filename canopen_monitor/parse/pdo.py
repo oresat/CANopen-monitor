@@ -23,36 +23,43 @@ def parse(cob_id: int, data: bytes, eds: EDS):
     The eds mapping is determined by the cob_id passed ot this function. That
     indicated which PDO record to look up in the EDS file.
     """
-    if MessageType.PDO1_TX.value[0] <= cob_id < MessageType.PDO1_RX.value[0]:  # PDO1 tx
-        pdo_type = PDO1_TX
-    elif MessageType.PDO1_RX.value[0] <= cob_id < MessageType.PDO2_TX.value[0]:  # PDO1 rx
-        pdo_type = PDO1_RX
-    elif MessageType.PDO2_TX.value[0] <= cob_id < MessageType.PDO2_RX.value[0]:  # PDO2 tx
-        pdo_type = PDO2_TX
-    elif MessageType.PDO2_RX.value[0] <= cob_id < MessageType.PDO3_TX.value[0]:  # PDO2 rx
-        pdo_type = PDO2_RX
-    elif MessageType.PDO3_TX.value[0] <= cob_id < MessageType.PDO3_RX.value[0]:  # PDO3 tx
-        pdo_type = PDO3_TX
-    elif MessageType.PDO3_RX.value[0] <= cob_id < MessageType.PDO4_TX.value[0]:  # PDO3 rx
-        pdo_type = PDO3_RX
-    elif MessageType.PDO4_TX.value[0] <= cob_id < MessageType.PDO4_RX.value[0]:  # PDO4 tx
-        pdo_type = PDO4_TX
-    elif MessageType.PDO4_RX.value[0] <= cob_id < (MessageType.PDO4_RX.value[1] + 1):  # PDO4 rx
-        pdo_type = PDO4_RX
-    else:
-        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX.value[0], cob_id, __name__,
-                                    f"Unable to determine pdo type with given "
-                                    f"cob_id {hex(cob_id)}, expected value "
-                                    f"between MessageType.PDO1_TX.value[0] and MessageType.PDO4_RX.value[1] + 1")
+    msg_type = MessageType.cob_id_to_type(cob_id)
+    pdo_type = {
+        MessageType.PDO1_TX: PDO1_TX,
+        MessageType.PDO1_RX: PDO1_RX,
+        MessageType.PDO2_TX: PDO2_TX,
+        MessageType.PDO2_RX: PDO2_RX,
+        MessageType.PDO3_TX: PDO3_TX,
+        MessageType.PDO3_RX: PDO3_RX,
+        MessageType.PDO4_TX: PDO4_TX,
+        MessageType.PDO4_RX: PDO4_RX,
+        MessageType.UKNOWN: None
+    }[msg_type]
+
+    if(not pdo_type or msg_type.supertype is not MessageType.PDO):
+        raise FailedValidationError(data,
+                                    cob_id - MessageType.PDO1_TX.value[0],
+                                    cob_id,
+                                    __name__,
+                                    f"Unable to determine pdo type with given"
+                                    f" cob_id {hex(cob_id)}, expected value"
+                                    f" between {MessageType.PDO1_TX.value[0]}"
+                                    f" and {MessageType.PDO4_RX.value[1] + 1}")
 
     if len(data) > 8 or len(data) < 1:
-        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX.value[0], cob_id, __name__,
+        raise FailedValidationError(data,
+                                    cob_id - MessageType.PDO1_TX.value[0],
+                                    cob_id,
+                                    __name__,
                                     f"Invalid payload length {len(data)} "
                                     f"expected between 1 and 8")
     try:
         eds_elements = eds[hex(pdo_type)][0]
     except TypeError:
-        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX.value[0], cob_id, __name__,
+        raise FailedValidationError(data,
+                                    cob_id - MessageType.PDO1_TX.value[0],
+                                    cob_id,
+                                    __name__,
                                     f"Unable to find eds data for pdo type "
                                     f"{hex(pdo_type)}")
 
@@ -67,12 +74,18 @@ def parse(cob_id: int, data: bytes, eds: EDS):
 
     if num_elements in (0xFE, 0xFF):
         if len(data) != 8:
-            raise FailedValidationError(data, cob_id - MessageType.PDO1_TX.value[0], cob_id, __name__,
+            raise FailedValidationError(data,
+                                        cob_id - MessageType.PDO1_TX.value[0],
+                                        cob_id,
+                                        __name__,
                                         f"Invalid payload length {len(data)} "
                                         f"expected 8")
         return parse_mpdo(num_elements, pdo_type, eds, data, cob_id)
 
-    raise FailedValidationError(data, cob_id - MessageType.PDO1_TX.value[0], cob_id, __name__,
+    raise FailedValidationError(data,
+                                cob_id - MessageType.PDO1_TX.value[0],
+                                cob_id,
+                                __name__,
                                 f"Invalid pdo mapping detected in eds file at "
                                 f"[{pdo_type}sub0]")
 
@@ -88,9 +101,12 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
         try:
             eds_record = eds[hex(pdo_type)][i]
         except TypeError:
-            raise FailedValidationError(data, cob_id - MessageType.PDO1_TX.value[0], cob_id, __name__,
-                                        f"Unable to find eds data for pdo type "
-                                        f"{hex(pdo_type)} index {i}")
+            raise FailedValidationError(data,
+                                        cob_id - MessageType.PDO1_TX.value[0],
+                                        cob_id,
+                                        __name__,
+                                        f"Unable to find eds data for pdo type"
+                                        f" {hex(pdo_type)} index {i}")
 
         pdo_definition = int(eds_record.default_value, 16).to_bytes(4, "big")
 
@@ -121,7 +137,10 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
 def parse_mpdo(num_elements, pdo_type, eds, data, cob_id):
     mpdo = MPDO(data)
     if mpdo.is_source_addressing and num_elements != 0xFE:
-        raise FailedValidationError(data, cob_id - MessageType.PDO1_TX.value[0], cob_id, __name__,
+        raise FailedValidationError(data,
+                                    cob_id - MessageType.PDO1_TX.value[0],
+                                    cob_id,
+                                    __name__,
                                     f"MPDO type and definition do not match. "
                                     f"Check eds file at [{pdo_type}sub0]")
 

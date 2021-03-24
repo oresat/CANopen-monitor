@@ -1,30 +1,40 @@
 import string
+from re import finditer
 from typing import Union
-import canopen_monitor.parse as cmp
 from dateutil.parser import parse as dtparse
-from re import sub, finditer
 
 
 def camel_to_snake(old_str: str) -> str:
     """
-    Converts camel cased string to snake case, counting groups of repeated capital letters (such as "PDO") as one unit 
-    That is, string like "PDO_group" become "pdo_group" instead of "p_d_o_group"
+    Converts camel cased string to snake case, counting groups of repeated
+    capital letters (such as "PDO") as one unit That is, string like
+    "PDO_group" become "pdo_group" instead of "p_d_o_group"
+
+    :param old_str: The string to convert to camel_case
+    :type old_str: str
+
+    :return: the camel-cased string
+    :rtype: str
     """
-    # Find all groups that contains one or more capital letters followed by one or more lowercase letters
-    # The new, camel_cased string will be built up along the way
+    # Find all groups that contains one or more capital letters followed by one
+    #   or more lowercase letters. The new, camel_cased string will be built
+    #   up along the way.
     new_str = ""
     for match in finditer('[A-Z0-9]+[a-z]*', old_str):
         span = match.span()
         substr = old_str[span[0]:span[1]]
         found_submatch = False
 
-        # Add a "_" to the newstring to separate the current match group from the previous
-        # It looks like we shouldn't need to worry about getting "_strings_like_this", because they don't seem to happen
+        # Add a "_" to the newstring to separate the current match group from
+        #   the previous
+        # It looks like we shouldn't need to worry about getting
+        #   "_strings_like_this", because they don't seem to happen
         if (span[0] != 0):
             new_str += '_'
 
-        # Find all sub-groups of *more than one* capital letters within the match group, and seperate them with "_" characters,
-        # Append the subgroups to the new_str as they are found 
+        # Find all sub-groups of *more than one* capital letters within the
+        #   match group, and seperate them with "_" characters,
+        # Append the subgroups to the new_str as they are found
         # If no subgroups are found, just append the match group to the new_str
         for sub_match in finditer('[A-Z]+', substr):
             sub_span = sub_match.span()
@@ -60,10 +70,10 @@ class Metadata:
             key = camel_to_snake(key)
 
             # Turn date-time-like objects into datetimes
-            if ('time' in key):
-                value = dtparse(value).time()
-            elif ('date' in key):
+            if ('date' in key):
                 value = dtparse(value).date()
+            elif ('time' in key):
+                value = dtparse(value).time()
 
             # Set the attribute
             self.__setattr__(key, value)

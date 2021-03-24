@@ -21,13 +21,20 @@ VERTICAL_SCROLL_RATE = 16
 HORIZONTAL_SCROLL_RATE = 4
 
 
-def pad_hex(value: int) -> str:
+def pad_hex(value: int, pad: int = 3) -> str:
     """
     Convert integer value to a hex string with padding
+
     :param value: number of spaces to pad hex value
+    :type value: int
+
+    :param pad: the ammount of padding to add
+    :type pad: int
+
     :return: padded string
+    :rtype: str
     """
-    return f'0x{hex(value).upper()[2:].rjust(3, "0")}'
+    return f'0x{hex(value).upper()[2:].rjust(pad, "0")}'
 
 
 class KeyMap(Enum):
@@ -54,14 +61,14 @@ class KeyMap(Enum):
 class App:
     """
     The User Interface Container
-    :param table
-    :type MessageTable
+    :param table: The table of CAN messages
+    :type table: MessageTable
 
-    :param selected_pane_pos index of currently selected pane
-    :type int
+    :param selected_pane_pos: index of currently selected pane
+    :type selected_pane_pos: int
 
-    :param selected_pane reference to currently selected Pane
-    :type MessagePane
+    :param selected_pane: A reference to the currently selected Pane
+    :type selected_pane: MessagePane
     """
 
     def __init__(self: App, message_table: MessageTable):

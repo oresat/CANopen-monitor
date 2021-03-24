@@ -4,18 +4,18 @@ from ..can import MessageType
 
 STATE_BYTE_IDX = 0
 
+
 def parse(cob_id: int, data: list, eds_config: EDS):
     """
     Parse Heartbeat message
 
     Arguments
     ---------
-    @:param: data: a byte string containing the heartbeat message,
-                   byte 0 is the heartbeat state info.
+    :param data: a byte string containing the heartbeat message, byte 0 is the
+    heartbeat state info.
 
-    Returns
-    -------
-    `str`: The parsed message
+    :return: the parsed message
+    :rtype: str
     """
     states = {
         0x00: "Boot-up",

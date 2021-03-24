@@ -33,7 +33,6 @@ class PopupWindow(Pane):
         self.style = (style or curses.color_pair(0))
         self._pad.attron(self.style)
 
-
     def setUIDimension(self, p_height, p_width):
         """Set UI Dimension (x,y) by giving parent
         height and width"""
@@ -45,14 +44,12 @@ class PopupWindow(Pane):
         self.y = int(((p_height + self.v_height) / 2) - self.v_height)
         self.x = int(((p_width + self.v_width) / 2) - self.v_width)
 
-
-    def setWindowProperties(self:PopupWindow, header, content, footer):
+    def setWindowProperties(self: PopupWindow, header, content, footer):
         """Set default window properties"""
         self.header = header
         self.content = content
         self.footer = footer
         self.enabled = False
-
 
     def break_lines(self: PopupWindow,
                     max_width: int,
@@ -74,7 +71,6 @@ class PopupWindow(Pane):
                     break
             self.apply_line_to_content_array(content, i, line, mid)
 
-
     def apply_line_to_content_array(self, content, i, line, mid):
         """Apply the line break to the content array"""
         content.pop(i)
@@ -85,11 +81,9 @@ class PopupWindow(Pane):
         self.enabled = not self.enabled
         return self.enabled
 
-
     def __draw_header(self: PopupWindow) -> None:
         """Add the header line to the window"""
         self.add_line(0, 1, self.header, underline=True)
-
 
     def __draw__footer(self: PopupWindow) -> None:
         """Add the footer to the window"""
@@ -99,12 +93,10 @@ class PopupWindow(Pane):
                       self.footer,
                       underline=True)
 
-
     def __draw_content(self):
         """Read each line of the content and add to the window"""
         for i, line in enumerate(self.content):
             self.add_line(1 + i, 2, line)
-
 
     def draw(self: PopupWindow) -> None:
         if(self.enabled):
@@ -117,5 +109,3 @@ class PopupWindow(Pane):
         else:
             # super().clear()
             ...
-
-

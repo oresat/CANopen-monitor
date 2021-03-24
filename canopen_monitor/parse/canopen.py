@@ -7,6 +7,7 @@ from . import hb as HBParser, \
 from .sdo import SDOParser
 from .utilities import FailedValidationError
 
+
 class CANOpenParser:
     """
     A convenience wrapper for the parse function
@@ -53,7 +54,9 @@ class CANOpenParser:
         # Call the parse function and save the result
         # On error, return the message data
         try:
-            parsed_message = parse_function(message.arb_id, message.data, eds_config)
+            parsed_message = parse_function(message.arb_id,
+                                            message.data,
+                                            eds_config)
         except (FailedValidationError, TypeError):
             parsed_message = ' '.join(list(map(lambda x: hex(x)[2:]
                                                .upper()
