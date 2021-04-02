@@ -1,7 +1,7 @@
 import unittest
 from canopen_monitor import parse
 from unittest.mock import mock_open, patch
-from tests import TEST_EDS
+from tests import TEST_EDS, TEST_DCF
 
 eds = parse.eds
 
@@ -69,3 +69,25 @@ class TestEDS(unittest.TestCase):
         self.assertEqual("3",
                          self.eds.mandatory_objects.supported_objects,
                          "Error parsing Comments named section")
+
+
+class TestDCF(unittest.TestCase):
+    def setUp(self):
+        with patch('builtins.open', mock_open(read_data=TEST_DCF)) as _:
+            self.eds = eds.load_eds_file("star_tracker_OD.eds")
+
+    def test_check_device_commissioning(self):
+        """
+        DCF Parsing should allow for parsing node id
+        """
+        self.assertEqual("10",
+                         self.eds.device_commissioning.node_id,
+                         "Error parsing device commissioning")
+
+    def test_get_node_id(self):
+        """
+        DCF Parsing set node id attribute
+        """
+        self.assertEqual(10,
+                         self.eds.node_id,
+                         "Error parsing node id")

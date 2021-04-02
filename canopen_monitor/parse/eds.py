@@ -1,3 +1,4 @@
+from __future__ import annotations
 import string
 from re import finditer
 from typing import Union
@@ -16,9 +17,9 @@ def camel_to_snake(old_str: str) -> str:
     :return: the camel-cased string
     :rtype: str
     """
-    # Find all groups that contains one or more capital letters followed by one
-    #   or more lowercase letters. The new, camel_cased string will be built
-    #   up along the way.
+    # Find all groups that contains one or more capital letters followed by
+    # one or more lowercase letters The new, camel_cased string will be built
+    # up along the way
     new_str = ""
     for match in finditer('[A-Z0-9]+[a-z]*', old_str):
         span = match.span()
@@ -26,16 +27,15 @@ def camel_to_snake(old_str: str) -> str:
         found_submatch = False
 
         # Add a "_" to the newstring to separate the current match group from
-        #   the previous
-        # It looks like we shouldn't need to worry about getting
-        #   "_strings_like_this", because they don't seem to happen
+        # the previous It looks like we shouldn't need to worry about getting
+        # "_strings_like_this", because they don't seem to happen
         if (span[0] != 0):
             new_str += '_'
 
         # Find all sub-groups of *more than one* capital letters within the
-        #   match group, and seperate them with "_" characters,
-        # Append the subgroups to the new_str as they are found
-        # If no subgroups are found, just append the match group to the new_str
+        # match group, and separate them with "_" characters, Append the
+        # subgroups to the new_str as they are found If no subgroups are
+        # found, just append the match group to the new_str
         for sub_match in finditer('[A-Z]+', substr):
             sub_span = sub_match.span()
             sub_substr = old_str[sub_span[0]:sub_span[1]]
@@ -60,7 +60,7 @@ class Metadata:
         # Process all sub-data
         for e in data:
             # Skip comment lines
-            if(e[0] == ';'):
+            if (e[0] == ';'):
                 continue
 
             # Separate field name from field value
@@ -98,18 +98,13 @@ class Index:
         # Process all sub-data
         for e in data:
             # Skip commented lines
-            if(e[0] == ';'):
+            if (e[0] == ';'):
                 continue
 
             # Separate field name from field value
             key, value = e.split('=')
 
-            # Turn number-like objects into numbers
-            if(value != ''):
-                if (all(c in string.digits for c in value)):
-                    value = int(value, 10)
-                elif(all(c in string.hexdigits for c in value)):
-                    value = int(value, 16)
+            value = convert_value(value)
 
             self.__setattr__(camel_to_snake(key), value)
 
@@ -120,10 +115,21 @@ class Index:
         return list(filter(lambda x: x.sub_id == key, self.sub_indices))[0]
 
     def __len__(self) -> int:
-        if(self.sub_indices is None):
+        if (self.sub_indices is None):
             return 1
         else:
             return 1 + sum(map(lambda x: len(x), self.sub_indices))
+
+
+def convert_value(value: str) -> Union[int, str]:
+    # Turn number-like objects into numbers
+    if (value != ''):
+        if (all(c in string.digits for c in value)):
+            return int(value, 10)
+        elif (all(c in string.hexdigits for c in value)):
+            return int(value, 16)
+        else:
+            return value
 
 
 class EDS:
@@ -153,7 +159,13 @@ class EDS:
                     self.__setattr__(camel_to_snake(name),
                                      Metadata(section[1:]))
                 prev = i + 1
-        self.node_id = self[0x2101].default_value
+
+        if hasattr(self, 'device_commissioning'):
+            self.node_id = convert_value(self.device_commissioning.node_id)
+        elif '0x2101' in self.indices.keys():
+            self.node_id = self['0x2101'].default_value
+        else:
+            self.node_id = None
 
     def __len__(self) -> int:
         return sum(map(lambda x: len(x), self.indices.values()))
@@ -165,13 +177,13 @@ class EDS:
 
 def load_eds_file(filepath: str) -> EDS:
     """Read in the EDS file, grab the raw lines, strip them of all escaped
-    characters, then serialize into an `EDS` and return the resulpythting
+    characters, then serialize into an `EDS` and return the resulting
     object.
 
     :param filepath: Path to an eds file
     :type filepath: str
 
-    :return: The succesfully serialized EDS file.
+    :return: The successfully serialized EDS file.
     :rtype: EDS
     """
     with open(filepath) as file:

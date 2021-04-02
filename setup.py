@@ -34,7 +34,8 @@ setuptools.setup(
     install_requires=[
         "pyvit >= 0.2.1",
         "psutil >= 5.8.0",
-        "python-dateutil >= 2.8.1"
+        "python-dateutil >= 2.8.1",
+        "easygui >= 0.98.2",
     ],
     extras_require={
         "dev": [
