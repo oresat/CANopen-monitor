@@ -8,7 +8,7 @@ from enum import Enum
 from . import APP_NAME, APP_VERSION, APP_LICENSE, APP_AUTHOR, APP_DESCRIPTION, \
     APP_URL, CACHE_DIR
 from .can import MessageTable, MessageType, MagicCANBus
-from .ui import MessagePane, PopupWindow, InputForm
+from .ui import MessagePane, PopupWindow, InputPopup, SelectionPopup
 from .parse import eds
 
 # Key Constants not defined in curses
@@ -56,6 +56,8 @@ class KeyMap(Enum):
           'key': curses.KEY_F3}
     F4 = {'name': 'F4', 'description': 'Toggle add interface',
           'key': curses.KEY_F4}
+    F5 = {'name': 'F5', 'description': 'Toggle remove interface',
+          'key': curses.KEY_F5}
     UP_ARR = {'name': 'Up Arrow', 'description': 'Scroll pane up 1 row',
               'key': curses.KEY_UP}
     DOWN_ARR = {'name': 'Down Arrow', 'description': 'Scroll pane down 1 row',
@@ -121,6 +123,7 @@ class App:
             KeyMap.F2.value['key']: self.f2,
             KeyMap.F3.value['key']: self.f3,
             KeyMap.F4.value['key']: self.f4,
+            KeyMap.F5.value['key']: self.f5,
         }
 
     def __enter__(self: App) -> App:
@@ -164,10 +167,14 @@ class App:
                                                list(KeyMap))),
                                        footer='F2: exit window',
                                        style=curses.color_pair(1))
-        self.interface_win = InputForm(self.screen,
-                                       header='Add Interface',
-                                       footer='ENTER: save, F4: exit window',
-                                       style=curses.color_pair(1))
+        self.add_if_win = InputPopup(self.screen,
+                                     header='Add Interface',
+                                     footer='ENTER: save, F4: exit window',
+                                     style=curses.color_pair(1))
+        self.remove_if_win = SelectionPopup(self.screen,
+                                            header='Remove Interface',
+                                            footer='ENTER: remove, F5: exit window',
+                                            style=curses.color_pair(1))
         self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0, hex),
                                          'State': ('state', 0),
                                          'Status': ('message', 0)},
@@ -197,6 +204,8 @@ class App:
                                      name='Miscellaneous',
                                      message_table=self.table)
         self.__select_pane(self.hb_pane, 0)
+        self.popups = [self.hotkeys_win, self.info_win, self.add_if_win,
+                       self.remove_if_win]
         return self
 
     def __exit__(self: App, type, value, traceback) -> None:
@@ -286,20 +295,14 @@ class App:
         Toggle app info menu
         :return: None
         """
-        if self.hotkeys_win.enabled:
-            self.hotkeys_win.toggle()
-            self.hotkeys_win.clear()
-        self.info_win.toggle()
+        self.toggle_popup(self.info_win)
 
     def f2(self):
         """
         Toggles KeyMap
         :return: None
         """
-        if self.info_win.enabled:
-            self.info_win.toggle()
-            self.info_win.clear()
-        self.hotkeys_win.toggle()
+        self.toggle_popup(self.hotkeys_win)
 
     def f3(self):
         """
@@ -317,37 +320,55 @@ class App:
             copy(filepath, CACHE_DIR)
             self.eds_configs[file.node_id] = file
 
-    def f4(self):
+    def f4(self) -> None:
         """
-        Toggles Add Interface
+        Toggles Add Interface Popup
         :return: None
         """
-        if self.info_win.enabled:
-            self.info_win.toggle()
-            self.info_win.clear()
+        self.toggle_popup(self.add_if_win)
 
-        if self.hotkeys_win.enabled:
-            self.hotkeys_win.toggle()
-            self.hotkeys_win.clear()
+    def f5(self) -> None:
+        """
+        Toggles Remove Interface Popup
+        :return: None
+        """
+        self.remove_if_win.content = self.bus.interface_list
+        self.toggle_popup(self.remove_if_win)
 
-        self.interface_win.toggle()
+    def toggle_popup(self, selected_popup) -> None:
+        for popup in self.popups:
+            if popup != selected_popup and popup.enabled:
+                popup.toggle()
+                popup.clear()
 
-    def _handle_keyboard_input(self: App) -> None:
+        selected_popup.toggle()
+
+    def handle_keyboard_input(self: App) -> None:
         """
         Retrieves keyboard input and calls the associated key function
         """
         keyboard_input = self.screen.getch()
         curses.flushinp()
 
-        if self.interface_win.enabled:
+        if self.add_if_win.enabled:
             if keyboard_input == curses.KEY_ENTER or \
                     keyboard_input == 10 or keyboard_input == 13:
-                value = self.interface_win.get_value()
+                value = self.add_if_win.get_value()
                 if value != "":
                     self.bus.add_interface(value)
-                self.interface_win.toggle()
+                self.add_if_win.toggle()
             else:
-                self.interface_win.read_input(keyboard_input)
+                self.add_if_win.read_input(keyboard_input)
+
+        elif self.remove_if_win.enabled:
+            if keyboard_input == curses.KEY_ENTER or \
+                    keyboard_input == 10 or keyboard_input == 13:
+                value = self.remove_if_win.get_value()
+                if value != "":
+                    self.bus.remove_interface(value)
+                self.remove_if_win.toggle()
+            else:
+                self.remove_if_win.read_input(keyboard_input)
 
         try:
             self.key_dict[keyboard_input]()
@@ -408,7 +429,7 @@ class App:
         """
         height, width = self.screen.getmaxyx()
         footer = '<F1>: Info, <F2>: Hotkeys, <F3>: Add OD File, ' \
-                 '<F4>: Add Interface'
+                 '<F4>: Add Interface, <F5> Remove Interface'
         self.screen.addstr(height - 1, 1, footer)
 
     def draw(self: App, ifaces: [tuple]) -> None:
@@ -417,8 +438,8 @@ class App:
         :param ifaces: CAN Bus Interfaces
         :return: None
         """
-        window_active = self.info_win.enabled or self.hotkeys_win.enabled or \
-                        self.interface_win.enabled
+        window_active = any(popup.enabled for popup in self.popups)
+        self.screen.refresh()
         self.__draw_header(ifaces)  # Draw header info
 
         # Draw panes
@@ -427,9 +448,8 @@ class App:
             self.misc_pane.draw()
 
         # Draw windows
-        self.info_win.draw()
-        self.hotkeys_win.draw()
-        self.interface_win.draw()
+        for popup in self.popups:
+            popup.draw()
 
         self.__draw__footer()
 

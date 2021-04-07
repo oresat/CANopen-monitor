@@ -18,6 +18,7 @@ class MagicCANBus:
         self.no_block = no_block
         self.keep_alive = t.Event()
         self.keep_alive.set()
+        self.keep_alive_list = dict()
         self.message_queue = queue.SimpleQueue()
         self.threads = []
 
@@ -39,13 +40,46 @@ class MagicCANBus:
         :type interface: string"""
 
         # Check if interface is already existing
-        interface_names = map(lambda x: str(x), self.interfaces)
+        interface_names = self.interface_list
         if interface in interface_names:
             return
+
+        self.keep_alive_list[interface] = t.Event()
+        self.keep_alive_list[interface].set()
 
         new_interface = Interface(interface)
         self.interfaces.append(new_interface)
         self.threads.append(self.start_handler(new_interface))
+
+    def remove_interface(self: MagicCANBus, interface: str) -> None:
+        """This will add an interface at runtime
+
+        :param interface: The name of the interface to add
+        :type interface: string"""
+        count = len(self.interfaces)
+        # Check if interface exists
+        interface_names = self.interface_list
+        if interface not in interface_names:
+            return
+
+        self.keep_alive_list[interface].clear()
+        for thread in self.threads:
+            if thread.name == f'canopen-monitor-{interface}':
+                thread.join()
+                self.threads.remove(thread)
+
+        for existing_interface in self.interfaces:
+            if str(existing_interface) == interface:
+                self.interfaces.remove(existing_interface)
+        assert(len(self.interfaces) == count - 1)
+
+    @property
+    def interface_list(self: MagicCANBus) -> [str]:
+        """A list of strings representing all interfaces
+        :return: a list of strings indicating the name of each interface
+        :rtype: [str]
+        """
+        return list(map(lambda x: str(x), self.interfaces))
 
     def start_handler(self: MagicCANBus, iface: Interface) -> t.Thread:
         """This is a wrapper for starting a single interface listener thread
@@ -82,25 +116,26 @@ class MagicCANBus:
         :param iface: The interface to bind to when listening for messages
         :type iface: Interface
         """
-        iface.start()
 
         # The outer loop exists to enable interface recovery, if the interface
         #   is either deleted or goes down, the handler will try to start it
         #   again and read messages as soon as possible
-        while(self.keep_alive.is_set()):
+        while (self.keep_alive.is_set() and
+               self.keep_alive_list[str(iface)].is_set()):
             try:
                 # The inner loop is the constant reading of the bus and loading
                 #   of frames into a thread-safe queue. It is necessary to
                 #   check `iface.is_up` in the inner loop as well, so that the
                 #   handler will not block on bus reading if the MCB is trying
                 #   to close all threads and destruct itself
-                while(self.keep_alive.is_set() and iface.is_up):
+                while (self.keep_alive.is_set() and iface.is_up and iface.running
+                       and self.keep_alive_list[str(iface)].is_set()):
                     frame = iface.recv()
-                    if(frame is not None):
+                    if (frame is not None):
                         self.message_queue.put(frame, block=True)
                 iface.restart()
             except OSError:
-                iface.restart()
+                pass
         iface.stop()
 
     def __enter__(self: MagicCANBus) -> MagicCANBus:
@@ -113,7 +148,7 @@ class MagicCANBus:
                  evalue: str,
                  traceback: any) -> None:
         self.keep_alive.clear()
-        if(self.no_block):
+        if (self.no_block):
             print('WARNING: Skipping wait-time for threads to close'
                   ' gracefully.')
         else:
@@ -127,7 +162,7 @@ class MagicCANBus:
         return self
 
     def __next__(self: MagicCANBus) -> Message:
-        if(self.message_queue.empty()):
+        if (self.message_queue.empty()):
             raise StopIteration
         return self.message_queue.get(block=True)
 

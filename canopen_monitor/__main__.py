@@ -78,7 +78,7 @@ def main():
                         mt += message
 
                 # User Input updates
-                app._handle_keyboard_input()
+                app.handle_keyboard_input()
 
                 # Draw update
                 app.draw(bus.statuses)
