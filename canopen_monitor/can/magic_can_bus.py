@@ -19,7 +19,7 @@ class MagicCANBus:
         self.keep_alive = t.Event()
         self.keep_alive.set()
         self.message_queue = queue.SimpleQueue()
-        self.threads = None
+        self.threads = []
 
     @property
     def statuses(self: MagicCANBus) -> [tuple]:
@@ -31,6 +31,21 @@ class MagicCANBus:
         :rtype: [tuple]
         """
         return list(map(lambda x: (x.name, x.is_up), self.interfaces))
+
+    def add_interface(self: MagicCANBus, interface: str) -> None:
+        """This will add an interface at runtime
+
+        :param interface: The name of the interface to add
+        :type interface: string"""
+
+        # Check if interface is already existing
+        interface_names = map(lambda x: str(x), self.interfaces)
+        if interface in interface_names:
+            return
+
+        new_interface = Interface(interface)
+        self.interfaces.append(new_interface)
+        self.threads.append(self.start_handler(new_interface))
 
     def start_handler(self: MagicCANBus, iface: Interface) -> t.Thread:
         """This is a wrapper for starting a single interface listener thread
@@ -51,7 +66,7 @@ class MagicCANBus:
         :rtype: threading.Thread
         """
         tr = t.Thread(target=self.handler,
-                      name=f'canopem-monitor-{iface.name}',
+                      name=f'canopen-monitor-{iface.name}',
                       args=[iface],
                       daemon=True)
         tr.start()
