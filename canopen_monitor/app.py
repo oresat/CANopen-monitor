@@ -439,7 +439,6 @@ class App:
         :return: None
         """
         window_active = any(popup.enabled for popup in self.popups)
-        self.screen.refresh()
         self.__draw_header(ifaces)  # Draw header info
 
         # Draw panes

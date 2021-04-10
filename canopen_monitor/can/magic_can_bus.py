@@ -16,8 +16,6 @@ class MagicCANBus:
     def __init__(self: MagicCANBus, if_names: [str], no_block: bool = False):
         self.interfaces = list(map(lambda x: Interface(x), if_names))
         self.no_block = no_block
-        self.keep_alive = t.Event()
-        self.keep_alive.set()
         self.keep_alive_list = dict()
         self.message_queue = queue.SimpleQueue()
         self.threads = []
@@ -33,6 +31,14 @@ class MagicCANBus:
         """
         return list(map(lambda x: (x.name, x.is_up), self.interfaces))
 
+    @property
+    def interface_list(self: MagicCANBus) -> [str]:
+        """A list of strings representing all interfaces
+        :return: a list of strings indicating the name of each interface
+        :rtype: [str]
+        """
+        return list(map(lambda x: str(x), self.interfaces))
+
     def add_interface(self: MagicCANBus, interface: str) -> None:
         """This will add an interface at runtime
 
@@ -44,20 +50,17 @@ class MagicCANBus:
         if interface in interface_names:
             return
 
-        self.keep_alive_list[interface] = t.Event()
-        self.keep_alive_list[interface].set()
-
         new_interface = Interface(interface)
         self.interfaces.append(new_interface)
         self.threads.append(self.start_handler(new_interface))
 
     def remove_interface(self: MagicCANBus, interface: str) -> None:
-        """This will add an interface at runtime
+        """This will remove an interface at runtime
 
-        :param interface: The name of the interface to add
+        :param interface: The name of the interface to remove
         :type interface: string"""
-        count = len(self.interfaces)
-        # Check if interface exists
+
+        # Check if interface is already existing
         interface_names = self.interface_list
         if interface not in interface_names:
             return
@@ -67,22 +70,16 @@ class MagicCANBus:
             if thread.name == f'canopen-monitor-{interface}':
                 thread.join()
                 self.threads.remove(thread)
+                del self.keep_alive_list[interface]
 
         for existing_interface in self.interfaces:
             if str(existing_interface) == interface:
                 self.interfaces.remove(existing_interface)
-        assert(len(self.interfaces) == count - 1)
-
-    @property
-    def interface_list(self: MagicCANBus) -> [str]:
-        """A list of strings representing all interfaces
-        :return: a list of strings indicating the name of each interface
-        :rtype: [str]
-        """
-        return list(map(lambda x: str(x), self.interfaces))
 
     def start_handler(self: MagicCANBus, iface: Interface) -> t.Thread:
         """This is a wrapper for starting a single interface listener thread
+            This wrapper also creates a keep alive event for each thread which
+            can be used to kill the thread.
 
         .. warning::
 
@@ -99,6 +96,9 @@ class MagicCANBus:
         :return: The new listener thread spawned
         :rtype: threading.Thread
         """
+        self.keep_alive_list[iface.name] = t.Event()
+        self.keep_alive_list[iface.name].set()
+
         tr = t.Thread(target=self.handler,
                       name=f'canopen-monitor-{iface.name}',
                       args=[iface],
@@ -120,16 +120,15 @@ class MagicCANBus:
         # The outer loop exists to enable interface recovery, if the interface
         #   is either deleted or goes down, the handler will try to start it
         #   again and read messages as soon as possible
-        while (self.keep_alive.is_set() and
-               self.keep_alive_list[str(iface)].is_set()):
+        while (self.keep_alive_list[iface.name].is_set()):
             try:
                 # The inner loop is the constant reading of the bus and loading
                 #   of frames into a thread-safe queue. It is necessary to
                 #   check `iface.is_up` in the inner loop as well, so that the
                 #   handler will not block on bus reading if the MCB is trying
                 #   to close all threads and destruct itself
-                while (self.keep_alive.is_set() and iface.is_up and iface.running
-                       and self.keep_alive_list[str(iface)].is_set()):
+                while (iface.is_up and iface.running and
+                       self.keep_alive_list[iface.name].is_set()):
                     frame = iface.recv()
                     if (frame is not None):
                         self.message_queue.put(frame, block=True)
@@ -147,7 +146,8 @@ class MagicCANBus:
                  etype: str,
                  evalue: str,
                  traceback: any) -> None:
-        self.keep_alive.clear()
+        for keep_alive in self.keep_alive_list.values():
+            keep_alive.clear()
         if (self.no_block):
             print('WARNING: Skipping wait-time for threads to close'
                   ' gracefully.')
@@ -172,5 +172,4 @@ class MagicCANBus:
         if_list = ', '.join(list(map(lambda x: str(x), self.interfaces)))
         return f"Magic Can Bus: {if_list}," \
                f" pending messages: {self.message_queue.qsize()}" \
-               f" threads: {alive_threads}," \
-               f" keep-alive: {self.keep_alive.is_set()}"
+               f" threads: {alive_threads}"
