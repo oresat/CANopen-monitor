@@ -184,7 +184,20 @@ class InputPopup(PopupWindow):
 
 
 class SelectionPopup(PopupWindow):
-    def __init__(self: InputPopup,
+    """
+        Input form creates a popup window for selecting
+        from a list of options
+
+        :param parent: parent ui element
+        :type: any
+        :param header: header text of popup window
+        :type: str
+        :param footer: footer text of popup window
+        :type: str
+        :param style: style of window
+        :type: any
+        """
+    def __init__(self: SelectionPopup,
                  parent: any,
                  header: str = 'Alert',
                  footer: str = 'ESC: close',
@@ -192,9 +205,9 @@ class SelectionPopup(PopupWindow):
                  ):
         content = [" " * 40]
         super().__init__(parent, header, content, footer, style)
-        self.cursor_loc = 0  # TODO: Use scroll instead?
+        self.cursor_loc = 0
 
-    def read_input(self, keyboard_input: int) -> None:
+    def read_input(self: SelectionPopup, keyboard_input: int) -> None:
         """
         Read process keyboard input (ascii or backspace)
 
@@ -204,7 +217,7 @@ class SelectionPopup(PopupWindow):
         if keyboard_input == curses.KEY_UP and self.cursor_loc > 0:
             self.cursor_loc -= 1
         elif keyboard_input == curses.KEY_DOWN and self.cursor_loc < len(
-                self.content):
+                self.content) - 1:
             self.cursor_loc += 1
 
     def __draw_header(self: SelectionPopup) -> None:
@@ -251,4 +264,7 @@ class SelectionPopup(PopupWindow):
         return super().toggle()
 
     def get_value(self):
+        if self.cursor_loc >= len(self.content):
+            return ""
+
         return self.content[self.cursor_loc]
