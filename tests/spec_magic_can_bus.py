@@ -57,6 +57,6 @@ class MagicCanBus_Spec(unittest.TestCase):
         of the bus
         """
         expected = 'Magic Can Bus: vcan0, vcan1, pending messages:' \
-                   ' 0 threads: 0, keep-alive: True'
+                   ' 0 threads: 0'
         actual = str(self.bus)
         self.assertEqual(expected, actual)

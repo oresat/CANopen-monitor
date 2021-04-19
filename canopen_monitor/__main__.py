@@ -70,7 +70,7 @@ def main():
 
         # Start the can bus and the curses app
         with MagicCANBus(args.interfaces, no_block=args.no_block) as bus, \
-             App(mt, eds_configs) as app:
+             App(mt, eds_configs, bus) as app:
             while True:
                 # Bus updates
                 for message in bus:
@@ -78,7 +78,7 @@ def main():
                         mt += message
 
                 # User Input updates
-                app._handle_keyboard_input()
+                app.handle_keyboard_input()
 
                 # Draw update
                 app.draw(bus.statuses)
