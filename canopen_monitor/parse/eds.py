@@ -145,6 +145,11 @@ class EDS:
         prev = 0
         for i, line in enumerate(eds_data):
             if line == '':
+                # Handle extra empty strings
+                if prev == i:
+                    prev = i + 1
+                    continue
+
                 section = eds_data[prev:i]
                 id = section[0][1:-1].split('sub')
 
