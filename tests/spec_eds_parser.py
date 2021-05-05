@@ -70,6 +70,11 @@ class TestEDS(unittest.TestCase):
                          self.eds.mandatory_objects.supported_objects,
                          "Error parsing Comments named section")
 
+    def test_last_index(self):
+        self.assertEqual("Last Aolved filepath",
+                         self.eds[hex(0x3102)].parameter_name,
+                         "Error parsing last index location")
+
 
 class TestDCF(unittest.TestCase):
     def setUp(self):

@@ -144,7 +144,7 @@ class EDS:
 
         prev = 0
         for i, line in enumerate(eds_data):
-            if line == '':
+            if line == '' or i == len(eds_data) - 1:
                 # Handle extra empty strings
                 if prev == i:
                     prev = i + 1
