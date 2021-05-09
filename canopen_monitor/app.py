@@ -175,7 +175,7 @@ class App:
                                             header='Remove Interface',
                                             footer='ENTER: remove, F5: exit window',
                                             style=curses.color_pair(1))
-        self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0, hex),
+        self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0),
                                          'State': ('state', 0),
                                          'Status': ('message', 0)},
                                    types=[MessageType.HEARTBEAT],
@@ -187,7 +187,7 @@ class App:
                                    name='Heartbeats',
                                    message_table=self.table)
         self.misc_pane = MessagePane(cols={'COB ID': ('arb_id', 0, pad_hex),
-                                           'Node Name': ('node_name', 0, hex),
+                                           'Node Name': ('node_name', 0),
                                            'Type': ('type', 0),
                                            'Message': ('message', 0)},
                                      types=[MessageType.NMT,

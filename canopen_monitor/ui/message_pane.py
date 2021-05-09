@@ -213,7 +213,7 @@ class MessagePane(Pane):
 
     def __reset_col_widths(self: Message):
         """
-        Reset the width of Pane collumn. 
+        Reset the width of Pane collumn.
         Based on the length of data to change the width.
         """
         for name, data in self.cols.items():

@@ -1,3 +1,4 @@
+from typing import Union
 from ..can import Message, MessageType
 from . import hb as HBParser, \
     pdo as PDOParser, \
@@ -16,6 +17,12 @@ class CANOpenParser:
         self.sdo_parser = SDOParser()
         self.eds_configs = eds_configs
 
+    def get_name(self, message: Message) -> Union[str, None]:
+        # import ipdb; ipdb.set_trace()
+        parser = self.eds_configs.get(message.node_id)
+        return parser.device_commissioning.node_name \
+            if parser else hex(message.node_id)
+
     def parse(self, message: Message) -> str:
         """
         Detect the type of the given message and return the parsed version
@@ -30,7 +37,7 @@ class CANOpenParser:
 
         """
         node_id = message.node_id
-        eds_config = self.eds_configs.get(hex(node_id)) \
+        eds_config = self.eds_configs.get(node_id) \
             if node_id is not None else None
 
         # Detect message type and select the appropriate parse function

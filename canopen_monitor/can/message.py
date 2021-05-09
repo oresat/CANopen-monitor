@@ -141,7 +141,7 @@ class Message(Frame):
 
     def __init__(self: Message, arb_id: int, **kwargs):
         super().__init__(arb_id, **kwargs)
-        self.node_name = MessageType.cob_to_node(self.type, self.arb_id)
+        self.node_name = 'N/A'
         self.message = self.data
 
     @property
