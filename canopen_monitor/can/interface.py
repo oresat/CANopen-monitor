@@ -101,7 +101,7 @@ class Interface(SocketCanDev):
         >>> iface.start()
         """
         self.stop()
-        self.start()
+        self.start(False)
 
     def recv(self: Interface) -> Message:
         """A wrapper for `pyvit.hw.SocketCanDev.recv()`
