@@ -17,8 +17,9 @@ def load_eds_files(filepath: str = CACHE_DIR) -> dict:
     configs = {}
     for file in os.listdir(filepath):
         full_path = f'{filepath}/{file}'
-        config = load_eds_file(full_path)
-        configs[config.node_id] = config
+        if file.lower().endswith(".eds") or file.lower().endswith(".dcf"):
+            config = load_eds_file(full_path)
+            configs[config.node_id] = config
     return configs
 
 
