@@ -3,8 +3,8 @@ import datetime as dt
 from enum import Enum
 from pyvit.can import Frame
 
-STALE_TIME = dt.timedelta(minutes=2)
-DEAD_TIME = dt.timedelta(minutes=4)
+STALE_TIME = dt.timedelta(seconds=5)
+DEAD_TIME = dt.timedelta(seconds=10)
 
 
 class MessageType(Enum):

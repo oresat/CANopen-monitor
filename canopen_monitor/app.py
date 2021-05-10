@@ -189,6 +189,7 @@ class App:
         self.misc_pane = MessagePane(cols={'COB ID': ('arb_id', 0, pad_hex),
                                            'Node Name': ('node_name', 0),
                                            'Type': ('type', 0),
+                                           'Age': ('age', 0),
                                            'Message': ('message', 0)},
                                      types=[MessageType.NMT,
                                             MessageType.SYNC,
