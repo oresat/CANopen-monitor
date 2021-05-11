@@ -70,6 +70,20 @@ class TestEDS(unittest.TestCase):
                          self.eds.mandatory_objects.supported_objects,
                          "Error parsing Comments named section")
 
+    def test_last_index(self):
+        """
+        Parsing should capture the last index if there is no newline
+        """
+        file_check = TEST_EDS.splitlines()
+        self.assertEqual("PDOMapping=0",
+                         file_check[len(file_check)-1],
+                         "The last line in the EDS test file should not be "
+                         "blank")
+
+        self.assertEqual("Last Aolved filepath",
+                         self.eds[hex(0x3102)].parameter_name,
+                         "Error parsing last index location")
+
 
 class TestDCF(unittest.TestCase):
     def setUp(self):
@@ -88,6 +102,24 @@ class TestDCF(unittest.TestCase):
         """
         DCF Parsing set node id attribute
         """
-        self.assertEqual(10,
+        self.assertEqual(0x10,
                          self.eds.node_id,
                          "Error parsing node id")
+
+    def test_existing_spaces(self):
+        """
+        DCF tests should test importing a file with arbitrary blank lines
+        This test confirms that the test file contains those blank lines
+        """
+        file_check = TEST_DCF.splitlines()
+        self.assertEqual("",
+                         file_check[len(file_check) - 1],
+                         "The last line in the DCF Test file should be blank")
+
+        self.assertEqual("",
+                         file_check[len(file_check) - 12],
+                         "There should be 2 blank lines before the last index")
+
+        self.assertEqual("",
+                         file_check[len(file_check) - 13],
+                         "There should be 2 blank lines before the last index")

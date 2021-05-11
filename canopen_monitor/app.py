@@ -10,6 +10,7 @@ from . import APP_NAME, APP_VERSION, APP_LICENSE, APP_AUTHOR, APP_DESCRIPTION, \
 from .can import MessageTable, MessageType, MagicCANBus
 from .ui import MessagePane, PopupWindow, InputPopup, SelectionPopup
 from .parse import eds
+from .meta import Meta
 
 # Key Constants not defined in curses
 # _UBUNTU key constants work in Ubuntu
@@ -96,7 +97,7 @@ class App:
     """
 
     def __init__(self: App, message_table: MessageTable, eds_configs: dict,
-                 bus: MagicCANBus):
+                 bus: MagicCANBus, meta: Meta):
         """
         App Initialization function
         :param message_table: Reference to shared message table object
@@ -107,6 +108,7 @@ class App:
         self.bus = bus
         self.selected_pane_pos = 0
         self.selected_pane = None
+        self.meta = meta
         self.key_dict = {
             KeyMap.UP_ARR.value['key']: self.up,
             KeyMap.S_UP_ARR.value['key']: self.shift_up,
@@ -175,7 +177,7 @@ class App:
                                             header='Remove Interface',
                                             footer='ENTER: remove, F5: exit window',
                                             style=curses.color_pair(1))
-        self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0, hex),
+        self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0),
                                          'State': ('state', 0),
                                          'Status': ('message', 0)},
                                    types=[MessageType.HEARTBEAT],
@@ -187,8 +189,9 @@ class App:
                                    name='Heartbeats',
                                    message_table=self.table)
         self.misc_pane = MessagePane(cols={'COB ID': ('arb_id', 0, pad_hex),
-                                           'Node Name': ('node_name', 0, hex),
+                                           'Node Name': ('node_name', 0),
                                            'Type': ('type', 0),
+                                           'Age': ('age', 0),
                                            'Message': ('message', 0)},
                                      types=[MessageType.NMT,
                                             MessageType.SYNC,
@@ -356,6 +359,7 @@ class App:
                 value = self.add_if_win.get_value()
                 if value != "":
                     self.bus.add_interface(value)
+                    self.meta.save_devices(self.bus)
                 self.add_if_win.toggle()
             else:
                 self.add_if_win.read_input(keyboard_input)
@@ -366,6 +370,7 @@ class App:
                 value = self.remove_if_win.get_value()
                 if value != "":
                     self.bus.remove_interface(value)
+                    self.meta.save_devices(self.bus)
                 self.remove_if_win.toggle()
             else:
                 self.remove_if_win.read_input(keyboard_input)

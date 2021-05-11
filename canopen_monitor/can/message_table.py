@@ -4,11 +4,12 @@ from .message import Message, MessageType
 
 class MessageTable:
     def __init__(self: MessageTable, parser=None):
-        self.parser = parser
         self.table = {}
+        self.parser = parser
 
     def __add__(self: MessageTable, message: Message) -> MessageTable:
         if(self.parser is not None):
+            message.node_name = self.parser.get_name(message)
             message.message = self.parser.parse(message)
         self.table[message.arb_id] = message
         return self
