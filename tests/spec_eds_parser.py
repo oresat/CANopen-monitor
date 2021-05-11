@@ -102,7 +102,7 @@ class TestDCF(unittest.TestCase):
         """
         DCF Parsing set node id attribute
         """
-        self.assertEqual(10,
+        self.assertEqual(0x10,
                          self.eds.node_id,
                          "Error parsing node id")
 
