@@ -546,3 +546,32 @@ class TestSDO(unittest.TestCase):
 
         self.assertEqual("Invalid SDO payload length, expected 8, received "
                           "0", str(context.exception))
+
+    def test_expedited_invalid_index(self):
+        """
+        Text expedited SDO transfer with an invalid index being used
+        """
+        parser = SDOParser()
+        client_initiate_message = [0x27, 0x10, 0x17, 0x00, 0x0A, 0x00, 0x00,
+                                   0x00]
+        self.assertEqual("Downloaded - Unknown: 0A 00 00 00",
+                         parser.parse(0x600, client_initiate_message,
+                                      self.eds_data),
+                         "Error on Client Initiate Message")
+        self.assertEqual(False, parser.is_complete,
+                         "Parser should be incomplete")
+
+    def test_expedited_invalid_subindex(self):
+        """
+        Text expedited SDO transfer with a valid index and invalid subindex
+        being used
+        """
+        parser = SDOParser()
+        client_initiate_message = [0x27, 0x10, 0x18, 0x07, 0x0A, 0x00, 0x00,
+                                   0x00]
+        self.assertEqual("Downloaded - Unknown: 0A 00 00 00",
+                         parser.parse(0x600, client_initiate_message,
+                                      self.eds_data),
+                         "Error on Client Initiate Message")
+        self.assertEqual(False, parser.is_complete,
+                         "Parser should be incomplete")

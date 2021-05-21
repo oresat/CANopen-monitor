@@ -3,6 +3,7 @@ from unittest.mock import patch, mock_open
 
 from canopen_monitor.parse import eds
 from canopen_monitor.parse.pdo import parse
+from canopen_monitor.parse.utilities import FailedValidationError
 from tests import TEST_EDS
 
 
@@ -62,3 +63,13 @@ class TestPDO(unittest.TestCase):
         self.assertEqual("Orientation orientation - 1.0",
                          parse(0x380, pdo_message, self.eds_data),
                          "Error on MPDO SAM Message parse")
+
+    def test_pdo_trasmit_with_invalid_index(self):
+        """
+        Test PDO transmit with invalid OD File index
+        """
+        pdo_message = [0x3f, 0x80, 0x0, 0x0]
+        self.assertEqual("Unknown - 3F 80 00 00",
+                         parse(0x480, pdo_message, self.eds_data),
+                         "Error on PDO Message parse")
+

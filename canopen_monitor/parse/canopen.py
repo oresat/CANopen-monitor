@@ -6,7 +6,7 @@ from . import hb as HBParser, \
     emcy as EMCYParser, \
     time as TIMEParser
 from .sdo import SDOParser
-from .utilities import FailedValidationError
+from .utilities import FailedValidationError, format_bytes
 
 
 class CANOpenParser:
@@ -65,8 +65,6 @@ class CANOpenParser:
                                             message.data,
                                             eds_config)
         except (FailedValidationError, TypeError):
-            parsed_message = ' '.join(list(map(lambda x: hex(x)[2:]
-                                               .upper()
-                                               .rjust(2, '0'),
-                                               message.data)))
+            parsed_message = format_bytes(message.data)
+
         return parsed_message

@@ -2,7 +2,7 @@ import array
 import datetime
 from struct import unpack
 from .eds import EDS
-from typing import List
+from typing import List, Union
 
 
 class FailedValidationError(Exception):
@@ -51,15 +51,19 @@ def get_name(eds_config: EDS, index: List[int]) -> (str, str):
     if current is None:
         return "Unknown", "Unknown"
 
-    result = eds_config[hex(key)].parameter_name
+    try:
+        result = eds_config[hex(key)].parameter_name
 
-    if len(current) > 0:
-        result += " " + eds_config[hex(key)][subindex_key].parameter_name
-        defined_type = eds_config[hex(key)][subindex_key].data_type
-    else:
-        defined_type = eds_config[hex(key)].data_type
+        if len(current) > 0:
+            result += " " + eds_config[hex(key)][subindex_key].parameter_name
+            defined_type = eds_config[hex(key)][subindex_key].data_type
+        else:
+            defined_type = eds_config[hex(key)].data_type
 
-    return defined_type, result
+        return defined_type, result
+
+    except IndexError:
+        return "Unknown", "Unknown"
 
 
 BOOLEAN = '0x0001'
@@ -77,6 +81,7 @@ DOMAIN = '0x000F'
 REAL64 = '0x0011'
 INTEGER64 = '0x0015'
 UNSIGNED64 = '0x001B'
+UNKNOWN = 'Unknown'
 
 
 def decode(defined_type: str, data: List[int]) -> str:
@@ -107,8 +112,17 @@ def decode(defined_type: str, data: List[int]) -> str:
     elif defined_type == UNICODE_STRING:
         data = array.array('B', data).tobytes()
         result = data.decode('utf-16-be')
+    elif defined_type == UNKNOWN:
+        result = format_bytes(data)
     else:
         raise ValueError(f"Invalid data type {defined_type}. "
                          f"Unable to decode data {str(data)}")
 
     return result
+
+
+def format_bytes(data: Union[List[int], bytes]) -> str:
+    return ' '.join(list(map(lambda x: hex(x)[2:]
+                             .upper()
+                             .rjust(2, '0'),
+                             data)))

@@ -55,7 +55,7 @@ def parse(cob_id: int, data: bytes, eds: EDS):
                                     f"expected between 1 and 8")
     try:
         eds_elements = eds[hex(pdo_type)][0]
-    except TypeError:
+    except (TypeError, IndexError):
         raise FailedValidationError(data,
                                     cob_id - MessageType.PDO1_TX.value[0],
                                     cob_id,
@@ -100,7 +100,7 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
     for i in range(num_elements, 0, -1):
         try:
             eds_record = eds[hex(pdo_type)][i]
-        except TypeError:
+        except (TypeError, IndexError):
             raise FailedValidationError(data,
                                         cob_id - MessageType.PDO1_TX.value[0],
                                         cob_id,
