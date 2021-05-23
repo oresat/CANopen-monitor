@@ -1,7 +1,7 @@
 import string
 from math import ceil, floor
 from .eds import EDS
-from .utilities import FailedValidationError, get_name, decode
+from .utilities import FailedValidationError, get_name, decode, format_bytes
 from ..can import MessageType
 
 PDO1_TX = 0x1A00
@@ -116,6 +116,10 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
         for j in range(1, size):
             mask = mask << 1
             mask += 1
+
+        # Possible exceptions from get_name are not caught because they indicate
+        # an issue with the PDO definition in the OD file, which should be
+        # checked when the file is loaded
         eds_details = get_name(eds, index)
         num_bytes = ceil(size / 8)
 
@@ -144,7 +148,25 @@ def parse_mpdo(num_elements, pdo_type, eds, data, cob_id):
                                     f"MPDO type and definition do not match. "
                                     f"Check eds file at [{pdo_type}sub0]")
 
-    eds_details = get_name(eds, mpdo.index)
+    try:
+        eds_details = get_name(eds, mpdo.index)
+    except KeyError as e:
+        raise FailedValidationError(data,
+                                    cob_id - MessageType.PDO1_TX.value[0],
+                                    cob_id,
+                                    __name__,
+                                    f"MPDO provided type index does not exist. "
+                                    f"Check provided index {str(e)}")
+
+    except ValueError:
+        raise FailedValidationError(data,
+                                    cob_id - MessageType.PDO1_TX.value[0],
+                                    cob_id,
+                                    __name__,
+                                    f"MPDO provided type index is missing "
+                                    f"attributes. Check OD file provided index "
+                                    f"[{format_bytes(mpdo.index)}")
+
     return f"{eds_details[1]} - {decode(eds_details[0], mpdo.data)}"
 
 

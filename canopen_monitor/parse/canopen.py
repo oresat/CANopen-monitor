@@ -64,7 +64,8 @@ class CANOpenParser:
             parsed_message = parse_function(message.arb_id,
                                             message.data,
                                             eds_config)
-        except (FailedValidationError, TypeError):
-            parsed_message = format_bytes(message.data)
+        except (FailedValidationError, TypeError) as exception:
+            parsed_message = f"{format_bytes(message.data)}  " \
+                             f"Parse Error:  {str(exception)}"
 
         return parsed_message

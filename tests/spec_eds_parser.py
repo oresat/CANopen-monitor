@@ -123,3 +123,39 @@ class TestDCF(unittest.TestCase):
         self.assertEqual("",
                          file_check[len(file_check) - 13],
                          "There should be 2 blank lines before the last index")
+
+
+class TestErrors(unittest.TestCase):
+    def setUp(self):
+        with patch('builtins.open', mock_open(read_data=TEST_EDS)) as _:
+            self.eds = eds.load_eds_file("star_tracker_OD.eds")
+
+    def test_invalid_index(self):
+        """
+        OD file should throw a key error when accessing an invalid index
+        """
+        with self.assertRaises(KeyError) as context:
+            _ = self.eds[hex(0x9999)]
+
+        self.assertEqual("'9999'", str(context.exception))
+
+    def test_invalid_subindex(self):
+        """
+        OD file should throw a key error when accessing an invalid subindex
+        with a valid index provided
+        """
+        with self.assertRaises(KeyError) as context:
+            _ = self.eds[hex(0x1003)][9]
+
+        self.assertEqual("'1003sub9'", str(context.exception))
+
+    def test_invalid_subindex_when_no_subindices(self):
+        """
+        OD file should throw a key error when accessing an invalid subindex
+        with a valid index provided that does not contain any subindices
+        """
+        with self.assertRaises(KeyError) as context:
+            _ = self.eds[hex(0x1000)][1]
+
+        self.assertEqual("'1000sub1'", str(context.exception))
+

@@ -64,12 +64,26 @@ class TestPDO(unittest.TestCase):
                          parse(0x380, pdo_message, self.eds_data),
                          "Error on MPDO SAM Message parse")
 
-    def test_pdo_trasmit_with_invalid_index(self):
+    def test_pdo_transmit_with_invalid_index(self):
         """
         Test PDO transmit with invalid OD File index
+        An exception is returned here because this is due
+        to an malformed OD file, not a malformed message
         """
         pdo_message = [0x3f, 0x80, 0x0, 0x0]
-        self.assertEqual("Unknown - 3F 80 00 00",
-                         parse(0x480, pdo_message, self.eds_data),
-                         "Error on PDO Message parse")
+        with self.assertRaises(KeyError) as context:
+            parse(0x480, pdo_message, self.eds_data)
 
+        self.assertEqual("'3101sub6'", str(context.exception))
+
+    def test_mpdo_with_invalid_index(self):
+        """
+        Test MPDO transmit with source addressing mode and an invalid index
+        This should return a Failed Validation Error
+        """
+        pdo_message = [0x00, 0x31, 0x0A, 0x03, 0x3F, 0x80, 0x00, 0x00]
+        with self.assertRaises(FailedValidationError) as context:
+            parse(0x380, pdo_message, self.eds_data),
+
+        self.assertEqual("MPDO provided type index does not exist. Check "
+                         "provided index '310a'", str(context.exception))

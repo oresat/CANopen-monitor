@@ -1,6 +1,6 @@
 import array
 from .eds import EDS
-from .utilities import FailedValidationError, get_name, decode
+from .utilities import FailedValidationError, get_name, decode, format_bytes
 from typing import List
 from ..can import MessageType
 
@@ -1127,8 +1127,12 @@ class SDOParser:
     def __set_name(self, eds, index: List[int]):
         try:
             values = get_name(eds, index)
-        except TypeError:
-            raise ValueError(f"Unable to eds content at index {str(index)}")
+        except KeyError as e:
+            raise ValueError(f"SDO provided index does not exist. Check "
+                             f"provided index {str(e)}")
+        except ValueError:
+            raise ValueError(f"SDO provided index is missing attributes. "
+                             f"Check OD file index {format_bytes(index)}")
 
         self.__inProgressType = values[0]
         self.__inProgressName = values[1]

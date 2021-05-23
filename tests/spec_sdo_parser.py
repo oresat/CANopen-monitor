@@ -552,12 +552,14 @@ class TestSDO(unittest.TestCase):
         Text expedited SDO transfer with an invalid index being used
         """
         parser = SDOParser()
-        client_initiate_message = [0x27, 0x10, 0x17, 0x00, 0x0A, 0x00, 0x00,
+        client_initiate_message = [0x27, 0xFF, 0xFF, 0x00, 0x0A, 0x00, 0x00,
                                    0x00]
-        self.assertEqual("Downloaded - Unknown: 0A 00 00 00",
-                         parser.parse(0x600, client_initiate_message,
-                                      self.eds_data),
-                         "Error on Client Initiate Message")
+        with self.assertRaises(FailedValidationError) as context:
+            parser.parse(0x600, client_initiate_message, self.eds_data)
+
+        self.assertEqual("SDO provided index does not exist. Check provided "
+                         "index 'ffff'", str(context.exception))
+
         self.assertEqual(False, parser.is_complete,
                          "Parser should be incomplete")
 
@@ -569,9 +571,11 @@ class TestSDO(unittest.TestCase):
         parser = SDOParser()
         client_initiate_message = [0x27, 0x10, 0x18, 0x07, 0x0A, 0x00, 0x00,
                                    0x00]
-        self.assertEqual("Downloaded - Unknown: 0A 00 00 00",
-                         parser.parse(0x600, client_initiate_message,
-                                      self.eds_data),
-                         "Error on Client Initiate Message")
+        with self.assertRaises(FailedValidationError) as context:
+            parser.parse(0x600, client_initiate_message, self.eds_data)
+
+        self.assertEqual("SDO provided index does not exist. Check provided "
+                         "index '1018sub7'", str(context.exception))
+
         self.assertEqual(False, parser.is_complete,
                          "Parser should be incomplete")

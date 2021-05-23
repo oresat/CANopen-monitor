@@ -85,15 +85,16 @@ class Index:
     Note: Not all possible properties are stored
     """
 
-    def __init__(self, data, sub_id=None):
+    def __init__(self, data, index: Union[str, int], is_sub=False):
         # Determine if this is a parent index or a child index
-        if (sub_id is None):
-            self.is_parent = True
-            self.sub_indices = []
+        if not is_sub:
+            self.sub_indices = {}
+            self.index = index[2:]
         else:
-            self.is_parent = False
-            self.sub_id = sub_id
             self.sub_indices = None
+            self.index = str(index)
+
+        self.is_sub = is_sub
 
         # Process all sub-data
         for e in data:
@@ -107,18 +108,34 @@ class Index:
             value = convert_value(value)
 
             self.__setattr__(camel_to_snake(key), value)
+    """
+    Add a subindex to an index object
+    :param index: The subindex being added 
+    :type Index
+    :raise ValueError: A subindex has already been added a this subindex
+    """
+    def add(self, index: Index) -> None:
+        if self.sub_indices.setdefault(int(index.index), index) != index:
+            raise ValueError
 
-    def add(self, index) -> None:
-        self.sub_indices.append(index)
-
+    """
+    Add a subindex to an index object
+    :param index: The subindex being added 
+    :type Index
+    :raise ValueError: A subindex has already been added a this subindex
+    """
     def __getitem__(self, key: int):
-        return list(filter(lambda x: x.sub_id == key, self.sub_indices))[0]
+        if key not in self.sub_indices:
+            raise KeyError(f"{self.index}sub{key}")
+
+        return self.sub_indices[key]
 
     def __len__(self) -> int:
         if (self.sub_indices is None):
             return 1
         else:
-            return 1 + sum(map(lambda x: len(x), self.sub_indices))
+            return len(self.sub_indices)
+            # return 1 + sum(map(lambda x: len(x), self.sub_indices))
 
 
 def convert_value(value: str) -> Union[int, str]:
@@ -154,11 +171,13 @@ class EDS:
                 id = section[0][1:-1].split('sub')
 
                 if all(c in string.hexdigits for c in id[0]):
+                    index = hex(int(id[0], 16))
                     if len(id) == 1:
-                        self.indices[hex(int(id[0], 16))] = Index(section[1:])
+                        self.indices[index] = Index(section[1:], index)
                     else:
-                        self.indices[hex(int(id[0], 16))] \
-                            .add(Index(section[1:], sub_id=int(id[1], 16)))
+                        self.indices[index] \
+                            .add(Index(section[1:], int(id[1], 16),
+                                       is_sub=True))
                 else:
                     name = section[0][1:-1]
                     self.__setattr__(camel_to_snake(name),
@@ -177,7 +196,11 @@ class EDS:
 
     def __getitem__(self, key: Union[int, str]) -> Index:
         callable = hex if type(key) == int else str
-        return self.indices.get(callable(key))
+        key = callable(key)
+        if key not in self.indices:
+            raise KeyError(key[2:])
+
+        return self.indices[callable(key)]
 
 
 def load_eds_file(filepath: str) -> EDS:
