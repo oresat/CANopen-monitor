@@ -23,7 +23,7 @@ class CANOpenParser:
         return parser.device_commissioning.node_name \
             if parser else hex(message.node_id)
 
-    def parse(self, message: Message) -> str:
+    def parse(self, message: Message) -> (str, str):
         """
         Detect the type of the given message and return the parsed version
 
@@ -64,8 +64,9 @@ class CANOpenParser:
             parsed_message = parse_function(message.arb_id,
                                             message.data,
                                             eds_config)
+            error = ""
         except (FailedValidationError, TypeError) as exception:
-            parsed_message = f"{format_bytes(message.data)}  " \
-                             f"Parse Error:  {str(exception)}"
+            parsed_message = format_bytes(message.data)
+            error = str(exception)
 
-        return parsed_message
+        return parsed_message, error
