@@ -4,9 +4,11 @@ Data Sheet files, provided by the end user.
 """
 from .eds import EDS, load_eds_file
 from .canopen import CANOpenParser
+from .utilities import DataType
 
 __all__ = [
     'CANOpenParser',
     'EDS',
     'load_eds_file',
+    'DataType',
 ]

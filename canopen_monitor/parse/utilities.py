@@ -96,6 +96,9 @@ class DataType(Enum):
     SDO_PARAMETER = '0x0022'
     IDENTITY = '0x0023'
 
+    # Used by ECSS Time feature only
+    ECSS_TIME = 'ECSS_TIME'
+
     # Data Type Groupings
     UNSIGNED_INTEGERS = (UNSIGNED8, UNSIGNED16, UNSIGNED32, UNSIGNED24,
                          UNSIGNED40, UNSIGNED48, UNSIGNED56, UNSIGNED64)
@@ -146,6 +149,16 @@ def decode(defined_type: Union[str, DataType], data: List[int]) -> str:
         result = str(get_time_values(data))
     elif defined_type in DataType.NON_FORMATTED.value:
         result = format_bytes(data)
+    elif defined_type == DataType.ECSS_TIME.value:
+        # This is ECSS SCET Time
+        # data[0:4]: Fine Time: Microseconds
+        # data[4:8]: Coarse Time: Seconds
+        coarse = data[4:8]
+        fine = int.from_bytes(data[:4], byteorder="little", signed=False)
+        coarse = int.from_bytes(data[4:8], byteorder="little", signed=False)
+        delta = timedelta(seconds=coarse, microseconds=fine)
+        date = datetime(1970, 1, 1) + delta
+        result = date.isoformat()
     else:
         raise ValueError(f"Invalid data type {defined_type}. "
                          f"Unable to decode data {str(data)}")
