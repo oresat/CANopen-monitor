@@ -5,7 +5,7 @@ from . import APP_NAME, APP_VERSION, APP_DESCRIPTION, CONFIG_DIR, CACHE_DIR
 from .app import App
 from .meta import Meta
 from .can import MagicCANBus, MessageTable
-from .parse import CANOpenParser, load_eds_file
+from .parse import CANOpenParser, load_eds_file, EDS, DataType
 
 
 def init_dirs():
@@ -21,6 +21,12 @@ def load_eds_files(filepath: str = CACHE_DIR) -> dict:
             config = load_eds_file(full_path)
             configs[config.node_id] = config
     return configs
+
+
+def enable_ecss_time(configs: dict) -> None:
+    for od in configs:
+        if '0x2101' in od:
+            od['0x2101'].data_type = DataType.ECSS_TIME.value
 
 
 def main():
@@ -47,20 +53,23 @@ def main():
                         help='Display the app version then exit.')
     args = parser.parse_args()
 
-    if(args.version):
+    if (args.version):
         print(f'{APP_NAME} v{APP_VERSION}\n\n{APP_DESCRIPTION}')
         sys.exit(0)
 
     try:
         init_dirs()
-        eds_configs = load_eds_files()
-        mt = MessageTable(CANOpenParser(eds_configs))
         meta = Meta(CONFIG_DIR, CACHE_DIR)
-        interfaces = meta.load_devices(args.interfaces)
+        features = meta.load_features()
+        eds_configs = load_eds_files()
+        if features.ecss_time:
+            enable_ecss_time(eds_configs)
+        mt = MessageTable(CANOpenParser(eds_configs))
+        interfaces = meta.load_interfaces(args.interfaces)
 
         # Start the can bus and the curses app
         with MagicCANBus(interfaces, no_block=args.no_block) as bus, \
-             App(mt, eds_configs, bus, meta) as app:
+                App(mt, eds_configs, bus, meta) as app:
             while True:
                 # Bus updates
                 for message in bus:

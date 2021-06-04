@@ -361,7 +361,7 @@ class App:
                 value = self.add_if_win.get_value()
                 if value != "":
                     self.bus.add_interface(value)
-                    self.meta.save_devices(self.bus)
+                    self.meta.save_interfaces(self.bus)
                 self.add_if_win.toggle()
             else:
                 self.add_if_win.read_input(keyboard_input)
@@ -372,7 +372,7 @@ class App:
                 value = self.remove_if_win.get_value()
                 if value != "":
                     self.bus.remove_interface(value)
-                    self.meta.save_devices(self.bus)
+                    self.meta.save_interfaces(self.bus)
                 self.remove_if_win.toggle()
             else:
                 self.remove_if_win.read_input(keyboard_input)
