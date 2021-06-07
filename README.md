@@ -1,12 +1,13 @@
 # CANOpen Monitor
 
 [![license](https://img.shields.io/github/license/oresat/CANopen-monitor)](./LICENSE)
+[![CodeQL](https://github.com/oresat/CANopen-monitor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/oresat/CANopen-monitor/actions/workflows/codeql-analysis.yml)
 [![pypi](https://img.shields.io/pypi/v/canopen-monitor)](https://pypi.org/project/canopen-monitor)
-[![read the docs](https://readthedocs.org/projects/canopen-monitor/badge/?version=latest)](https://canopen-monitor.readthedocs.io)
-[![issues](https://img.shields.io/github/issues/oresat/CANopen-monitor/bug?label=issues)](https://github.com/oresat/CANopen-monitor/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
-[![feature requests](https://img.shields.io/github/issues/oresat/CANopen-monitor/feature%20request?color=purple&label=feature%20requests)](https://github.com/oresat/CANopen-monitor/labels/feature%20request)
+[![read the docs](https://img.shields.io/readthedocs/canopen-monitor?color=blue&label=read%20the%20docs)](https://canopen-monitor.readthedocs.io)
 [![unit tests](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Unit%20Tests?label=unit%20tests)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Unit+Tests%22)
 [![deployment](https://img.shields.io/github/workflow/status/oresat/CANopen-monitor/Deploy%20to%20PyPi?label=deployment)](https://github.com/oresat/CANopen-monitor/actions?query=workflow%3A%22Deploy+to+PyPi%22)
+[![bugs](https://img.shields.io/github/issues/oresat/CANopen-monitor/bug?color=red&label=bugs)](https://github.com/oresat/CANopen-monitor/labels/bug)
+[![feature requests](https://img.shields.io/github/issues/oresat/CANopen-monitor/feature%20request?color=purple&label=feature%20requests)](https://github.com/oresat/CANopen-monitor/labels/feature%20request)
 
 An NCurses-based TUI application for tracking activity over the CAN bus and decoding messages with provided EDS/OD files.
 
