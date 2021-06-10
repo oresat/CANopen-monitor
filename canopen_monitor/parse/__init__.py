@@ -2,7 +2,7 @@
 for parsing CANOpen messages according to Object Definiton files or Electronic
 Data Sheet files, provided by the end user.
 """
-from .eds import EDS, load_eds_file
+from .eds import EDS, load_eds_file, load_eds_files
 from .canopen import CANOpenParser
 from .utilities import DataType
 
@@ -11,4 +11,5 @@ __all__ = [
     'EDS',
     'load_eds_file',
     'DataType',
+    'load_eds_files'
 ]

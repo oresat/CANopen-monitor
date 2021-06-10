@@ -5718,7 +5718,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5729,7 +5729,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5740,7 +5740,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5751,7 +5751,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5762,7 +5762,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5773,7 +5773,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5784,7 +5784,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5795,7 +5795,7 @@ ParameterValue=
 PDOMapping=0
 
 [1600sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5824,7 +5824,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5835,7 +5835,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5846,7 +5846,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5857,7 +5857,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5868,7 +5868,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5879,7 +5879,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5890,7 +5890,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5901,7 +5901,7 @@ ParameterValue=
 PDOMapping=0
 
 [1601sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5930,7 +5930,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5941,7 +5941,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5952,7 +5952,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5963,7 +5963,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5974,7 +5974,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5985,7 +5985,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -5996,7 +5996,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6007,7 +6007,7 @@ ParameterValue=
 PDOMapping=0
 
 [1602sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6036,7 +6036,7 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6047,7 +6047,7 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6058,7 +6058,7 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6069,7 +6069,7 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6080,7 +6080,7 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6091,7 +6091,7 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6102,7 +6102,7 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6113,7 +6113,1173 @@ ParameterValue=
 PDOMapping=0
 
 [1603sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1604sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1604sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1604sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1605sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1605sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1605sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1606sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1606sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1606sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1607sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1607sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1607sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1608sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1608sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1608sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1609sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1609sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1609sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160A]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[160Asub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[160Asub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Asub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Asub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Asub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Asub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Asub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Asub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Asub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160B]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[160Bsub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[160Bsub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Bsub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Bsub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Bsub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Bsub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Bsub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Bsub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Bsub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160C]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[160Csub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[160Csub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Csub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Csub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Csub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Csub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Csub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Csub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Csub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160D]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[160Dsub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[160Dsub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Dsub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Dsub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Dsub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Dsub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Dsub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Dsub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Dsub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160E]
+ParameterName=RPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[160Esub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[160Esub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Esub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Esub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Esub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Esub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Esub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Esub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[160Esub8]
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6473,56 +7639,56 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0x04
 ParameterValue=
 PDOMapping=0
 
 [1A00sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000110
 ParameterValue=
 PDOMapping=0
 
 [1A00sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000210
 ParameterValue=
 PDOMapping=0
 
 [1A00sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000310
 ParameterValue=
 PDOMapping=0
 
 [1A00sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000410
 ParameterValue=
 PDOMapping=0
 
 [1A00sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6533,7 +7699,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A00sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6544,7 +7710,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A00sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6555,7 +7721,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A00sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6579,45 +7745,45 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0x03
 ParameterValue=
 PDOMapping=0
 
 [1A01sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000510
 ParameterValue=
 PDOMapping=0
 
 [1A01sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000610
 ParameterValue=
 PDOMapping=0
 
 [1A01sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000710
 ParameterValue=
 PDOMapping=0
 
 [1A01sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6628,7 +7794,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A01sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6639,7 +7805,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A01sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6650,7 +7816,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A01sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6661,7 +7827,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A01sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6685,56 +7851,56 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0x04
 ParameterValue=
 PDOMapping=0
 
 [1A02sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000810
 ParameterValue=
 PDOMapping=0
 
 [1A02sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000910
 ParameterValue=
 PDOMapping=0
 
 [1A02sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000A10
 ParameterValue=
 PDOMapping=0
 
 [1A02sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60000B10
 ParameterValue=
 PDOMapping=0
 
 [1A02sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6745,7 +7911,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A02sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6756,7 +7922,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A02sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6767,7 +7933,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A02sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6791,56 +7957,56 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0005
 AccessType=rw
-DefaultValue=0
+DefaultValue=0x04
 ParameterValue=
 PDOMapping=0
 
 [1A03sub1]
-ParameterName=Mapping object 1
+ParameterName=Application object 1
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60001210
 ParameterValue=
 PDOMapping=0
 
 [1A03sub2]
-ParameterName=Mapping object 2
+ParameterName=Application object 2
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60001310
 ParameterValue=
 PDOMapping=0
 
 [1A03sub3]
-ParameterName=Mapping object 3
+ParameterName=Application object 3
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60001410
 ParameterValue=
 PDOMapping=0
 
 [1A03sub4]
-ParameterName=Mapping object 4
+ParameterName=Application object 4
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0007
 AccessType=rw
-DefaultValue=0x00000000
+DefaultValue=0x60001510
 ParameterValue=
 PDOMapping=0
 
 [1A03sub5]
-ParameterName=Mapping object 5
+ParameterName=Application object 5
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6851,7 +8017,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A03sub6]
-ParameterName=Mapping object 6
+ParameterName=Application object 6
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6862,7 +8028,7 @@ ParameterValue=
 PDOMapping=0
 
 [1A03sub7]
-ParameterName=Mapping object 7
+ParameterName=Application object 7
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
@@ -6873,7 +8039,1279 @@ ParameterValue=
 PDOMapping=0
 
 [1A03sub8]
-ParameterName=Mapping object 8
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A04]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A04sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0x04
+ParameterValue=
+PDOMapping=0
+
+[1A04sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60000C10
+ParameterValue=
+PDOMapping=0
+
+[1A04sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60000D10
+ParameterValue=
+PDOMapping=0
+
+[1A04sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60001108
+ParameterValue=
+PDOMapping=0
+
+[1A04sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60001608
+ParameterValue=
+PDOMapping=0
+
+[1A04sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A04sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A04sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A04sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A05]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A05sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0x04
+ParameterValue=
+PDOMapping=0
+
+[1A05sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010110
+ParameterValue=
+PDOMapping=0
+
+[1A05sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010210
+ParameterValue=
+PDOMapping=0
+
+[1A05sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010310
+ParameterValue=
+PDOMapping=0
+
+[1A05sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010410
+ParameterValue=
+PDOMapping=0
+
+[1A05sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A05sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A05sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A05sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A06]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A06sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0x03
+ParameterValue=
+PDOMapping=0
+
+[1A06sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010510
+ParameterValue=
+PDOMapping=0
+
+[1A06sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010610
+ParameterValue=
+PDOMapping=0
+
+[1A06sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010710
+ParameterValue=
+PDOMapping=0
+
+[1A06sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A06sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A06sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A06sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A06sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A07]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A07sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0x04
+ParameterValue=
+PDOMapping=0
+
+[1A07sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010810
+ParameterValue=
+PDOMapping=0
+
+[1A07sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010910
+ParameterValue=
+PDOMapping=0
+
+[1A07sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010A10
+ParameterValue=
+PDOMapping=0
+
+[1A07sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010B10
+ParameterValue=
+PDOMapping=0
+
+[1A07sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A07sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A07sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A07sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A08]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A08sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0x04
+ParameterValue=
+PDOMapping=0
+
+[1A08sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60011210
+ParameterValue=
+PDOMapping=0
+
+[1A08sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60011310
+ParameterValue=
+PDOMapping=0
+
+[1A08sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60011410
+ParameterValue=
+PDOMapping=0
+
+[1A08sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60011510
+ParameterValue=
+PDOMapping=0
+
+[1A08sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A08sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A08sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A08sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A09]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A09sub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0x04
+ParameterValue=
+PDOMapping=0
+
+[1A09sub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010C10
+ParameterValue=
+PDOMapping=0
+
+[1A09sub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60010D10
+ParameterValue=
+PDOMapping=0
+
+[1A09sub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60011108
+ParameterValue=
+PDOMapping=0
+
+[1A09sub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x60011608
+ParameterValue=
+PDOMapping=0
+
+[1A09sub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A09sub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A09sub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A09sub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0A]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A0Asub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Asub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0B]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A0Bsub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Bsub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0C]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A0Csub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Csub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0D]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A0Dsub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Dsub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0E]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A0Esub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Esub8]
+ParameterName=Application object 8
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0F]
+ParameterName=TPDO mapping parameter
+Denotation=
+ObjectType=0x9
+;StorageLocation=PERSIST_COMM
+SubNumber=0x9
+
+[1A0Fsub0]
+ParameterName=Number of mapped application objects in PDO
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0005
+AccessType=rw
+DefaultValue=0
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub1]
+ParameterName=Application object 1
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub2]
+ParameterName=Application object 2
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub3]
+ParameterName=Application object 3
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub4]
+ParameterName=Application object 4
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub5]
+ParameterName=Application object 5
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub6]
+ParameterName=Application object 6
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub7]
+ParameterName=Application object 7
+Denotation=
+ObjectType=0x7
+;StorageLocation=RAM
+DataType=0x0007
+AccessType=rw
+DefaultValue=0x00000000
+ParameterValue=
+PDOMapping=0
+
+[1A0Fsub8]
+ParameterName=Application object 8
 Denotation=
 ObjectType=0x7
 ;StorageLocation=RAM
