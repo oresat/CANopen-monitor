@@ -65,6 +65,17 @@ def get_name(eds_config: EDS, index: Union[List[int], bytes]) -> (str, str):
     return defined_type, result
 
 
+class ObjectType(Enum):
+    NULL = '0x0'
+    DOMAIN = '0x2'
+    DEFTYPE = '0x5'
+    DEFSTRUCT = '0x6'
+    VAR = '0x7'
+    ARRAY = '0x8'
+    RECORD = '0x9'
+    COMPLEX_TYPES = (DEFSTRUCT, ARRAY, RECORD)
+
+
 class DataType(Enum):
     BOOLEAN = '0x0001'
     INTEGER8 = '0x0002'

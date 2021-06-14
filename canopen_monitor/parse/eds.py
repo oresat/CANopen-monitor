@@ -6,6 +6,8 @@ from re import finditer
 from typing import Union
 from dateutil.parser import parse as dtparse
 import os
+from configparser import ConfigParser, SectionProxy
+from utilities import DataType, ObjectType
 
 
 def camel_to_snake(old_str: str) -> str:
@@ -82,7 +84,7 @@ class Metadata:
             self.__setattr__(key, value)
 
 
-class Index:
+class LegacyIndex:
     """
     Index Class is used to contain data from a single section of an .eds file
     Note: Not all possible properties are stored
@@ -119,7 +121,7 @@ class Index:
     :raise ValueError: A subindex has already been added a this subindex
     """
 
-    def add(self, index: Index) -> None:
+    def add(self, index: LegacyIndex) -> None:
         if self.sub_indices.setdefault(int(index.index), index) != index:
             raise ValueError
 
@@ -155,6 +157,194 @@ def convert_value(value: str) -> Union[int, str]:
             return value
 
 
+class FileInfo:
+    """This class encapsulates the Object Directory file's File Information
+    identified in section [FileInfo] and ensures compliance with
+    CANOpen Specification CiA 306 version 1.3.0"""
+    def __init__(self, data: SectionProxy):
+        """Create File info using configparser section
+        :param data: File info section of data
+        :type data: SectionProxy
+        :raises KeyError: Indicates that a required entry is missing from the
+        section. Check CiA 306 specification.
+        :raises ValueError: Indicates that a type conversion failed"""
+
+        self.file_name = str(data['FileName'])
+        self.file_version = int(data['FileVersion'])
+        self.file_revision = int(data['FileRevision'])
+        self.eds_version = str(data['EDSVersion'])
+        self.description = str(data['Description'])
+        # creation time format is hh:mm(AM|PM)
+        self.creation_time = dtparse(data['CreationTime']).time()
+        # creation date format is mm-dd-yyyy
+        self.creation_date = dtparse(data['CreationDate']).date()
+        self.created_by = str(data['CreatedBy'])
+        # modification time format is hh:mm(AM|PM)
+        self.modification_time = dtparse(data['ModificationTime']).time()
+        # modification date format is mm-dd-yyyy
+        self.modification_date = dtparse(data['ModificationDate']).date()
+        self.modified_by = str(data['ModifiedBy'])
+
+
+class DeviceInfo:
+    """This class encapsulates the Object Directory file's General Device
+    Information identified in section [DeviceInfo] and ensures compliance with
+    CANOpen Specification CiA 306 version 1.3.0"""
+    def __init__(self, data: SectionProxy):
+        """Create Device info using configparser section
+        :param data: Device info section of data
+        :type data: SectionProxy
+        :raises KeyError: Indicates that a required entry is missing from the
+        section. Check CiA 306 specification.
+        :raises ValueError: Indicates that a type conversion failed"""
+
+        self.vendor_name = str(data['VendorName'])
+        self.vendor_number = int(data['VendorNumber'])
+        self.product_name = str(data['ProductName'])
+        self.product_number = int(data['ProductNumber'])
+        self.revision_number = int(data['RevisionNumber'])
+        self.order_code = str(data['OrderCode'])
+        self.lss_supported = bool(data['LSS_Supported'])
+        self.baud_rate_50 = bool(data['BaudRate_50'])
+        self.baud_rate_250 = bool(data['BaudRate_250'])
+        self.baud_rate_500 = bool(data['BaudRate_500'])
+        self.baud_rate_1000 = bool(data['BaudRate_1000'])
+        self.simple_boot_up_slave = bool(data['SimpleBootUpSlave'])
+        self.simple_boot_up_master = bool(data['SimpleBootUpMaster'])
+        self.nr_of_rx_pdo = int(data['NrOfRxPdo'])
+        self.nr_of_tx_pdo = int(data['NrOfTxPdo'])
+
+
+class DummyUsage:
+    """This class encapsulates the Object Directory file's General Device
+    Information identified in section [DeviceInfo] and ensures compliance with
+    CANOpen Specification CiA 306 version 1.3.0"""
+    def __init__(self, data: SectionProxy):
+        """Dummy usage attributes are created dynamically because we do not
+        know which indexes are selected for dummy usage. The format must use
+        the following scheme defined in CiA 306:
+        Dummy<data type index (without 0x-prefix)>={0|1}
+
+        :param data: DeviceInfo section from OD file
+        :type data: SectionProxy
+        :raises KeyError: Indicates that the file was not generated correctly for this section
+        :raises ValueError: Indicates that a type conversion failed"""
+
+        for key, value in data:
+            if len(key) != 10 or key[:6] != "Dummy":
+                raise KeyError("Non dummy value in Dummy Usage section. Check "
+                               "CiA 306")
+            dummy_key = f"dummy_{key[6:11]}"
+            self.__setattr__(dummy_key, bool(value))
+
+
+class ObjectLists(list):
+    """This class encapsulates the Object Directory file's object
+    lists identified in sections [MandatoryObjects], [OptionalObjects] and
+    [ManufacturerObjects] and ensures compliance with CANOpen Specification
+    CiA 306 version 1.3.0"""
+    def __init__(self, data: SectionProxy):
+        """Object list data is stored as a list
+
+        :param data: DeviceInfo section from OD file
+        :type data: SectionProxy
+        :raises KeyError: Indicates that the number of items in the object
+        list does not match the supported objects attribute or the required
+        supported objects attribute is missing.
+        :raises ValueError: Indicates that a type conversion failed"""
+
+        super().__init__()
+        self.supported_objects = int(data['SupportedObjects'])
+        for i in range(self.supported_objects):
+            self.append(data[str(i)])
+
+
+class Index:
+    """This class encapsulates the Object Directory file's index definitions
+    identified in sections [<index>] and ensures compliance with CANOpen
+    Specification CiA 306 version 1.3.0"""
+
+    def __init__(self, data: SectionProxy):
+        """Create index object from a given index Section
+        :param data: index section from OD file
+        :type data: SectionProxy
+        :raises KeyError: indicates that a required attribute is missing
+        :raises ValueError: Indicates that a type conversion failed"""
+
+        # Sub number may be empty or missing of no sub objects exist
+        sub_number = data.get('SubNumber', '0')
+        sub_number = sub_number if sub_number is not None else '0'
+        self.sub_number = int(sub_number)
+        self.parameter_name = str(data['ParameterName'])
+        # Per CiA 306 Object Type is optional and 0x7 (VAR) is to be used
+        self.object_type = data.get('ObjectType', str(ObjectType.VAR))
+        if self.object_type not in ObjectType:
+            raise ValueError("Object type not identified")
+        self.data_type = data.get('DataType')
+        # Per CiA 306 Low and High Limit is optional
+        self.low_limit = data.get('LowLimit' )
+        self.high_limit = data.get('HighLimit')
+        self.access_type = data.get('AccessType')
+        self.default_value = data.get('DefaultValue')
+        self.pdo_mapping = data.get('PDOMapping')
+        self.compact_sub_obj = data.get('CompactSubObj')
+        self.obj_flags = data.get('ObjFlags', '0')
+
+        # Type Dependent Validations
+        if self.object_type == ObjectType.DOMAIN:
+            self.data_type = self.data_type if self.data_type is not None \
+                else DataType.DOMAIN
+            self.access_type = self.access_type if self.access_type is not None else "rw"
+            if self.pdo_mapping is not None:
+                raise ValueError("Invalid PDO Mapping")
+            if self.sub_number == 0:
+                raise ValueError("Invalid Sub Number")
+            if self.low_limit is not None:
+                raise ValueError("Invalid Low Limit")
+            if self.high_limit is not None:
+                raise ValueError("Invalid High Limit")
+            if self.compact_sub_obj is not None:
+                raise ValueError("Invalid Compact Sub Obj")
+            if self.data_type not in DataType:
+                raise ValueError("Data type not identified")
+
+        elif self.object_type in ObjectType.COMPLEX_TYPES and self.compact_sub_obj is None:
+            if self.data_type is not None:
+                raise ValueError("Invalid Data Type")
+            if self.access_type is not None:
+                raise ValueError("Invalid Access Type")
+            if self.default_value is not None:
+                raise ValueError("Invalid Default Value")
+            if self.pdo_mapping is not None:
+                raise ValueError("Invalid PDO Mapping")
+            if self.sub_number == 0:
+                raise ValueError("Invalid Sub Number")
+            if self.low_limit is not None:
+                raise ValueError("Invalid Low Limit")
+            if self.high_limit is not None:
+                raise ValueError("Invalid High Limit")
+
+        elif self.object_type in ObjectType.COMPLEX_TYPES:
+            self.pdo_mapping = bool(self.pdo_mapping) if self.pdo_mapping is not None else False
+            if self.sub_number != 0:
+                raise ValueError("Invalid Sub Number")
+            if self.data_type not in DataType:
+                raise ValueError("Data type not identified")
+
+        elif self.object_type in (ObjectType.DEFTYPE, ObjectType.VAR):
+            self.pdo_mapping = bool(self.pdo_mapping) if self.pdo_mapping is not None else False
+            if self.sub_number != 0:
+                raise ValueError("Invalid Sub Number")
+            if self.compact_sub_obj is not None:
+                raise ValueError("Invalid Compact Sub Obj")
+            if self.data_type not in DataType:
+                raise ValueError("Data type not identified")
+
+        else:
+            raise ValueError(f"Invalid Object Type {self.object_type}")
+
+
+
 class OD:
     def __init__(self):
         self.node_id = None
@@ -171,6 +361,8 @@ class OD:
         self.optional_objects = None
         self.manufacturer_objects = None
 
+    # consider class method if we can avoid using constructor with no
+    # parameters
     def extended_pdo_definition(self, offset: int) -> OD:
         # TODO: Move to constant with message types
         pdo_tx = 0x1A00
@@ -211,7 +403,7 @@ class OD:
     def __len__(self) -> int:
         return sum(map(lambda x: len(x), self.indices.values()))
 
-    def __getitem__(self, key: Union[int, str]) -> Index:
+    def __getitem__(self, key: Union[int, str]) -> LegacyIndex:
         callable = hex if type(key) == int else str
         key = callable(key)
         if key not in self.indices:
@@ -228,6 +420,14 @@ class OD:
         callable = hex if type(item) == int else str
         item = callable(item)
         return item in self.indices
+
+
+class FileOD(OD):
+    def __init__(self, od_file):
+        super().__init__()
+        parser = ConfigParser(allow_no_value=True)
+        parser.read_file(od_file)
+        self.device_info = DeviceInfo(parser['DeviceInfo'])
 
 
 class EDS(OD):
@@ -255,11 +455,11 @@ class EDS(OD):
                 if all(c in string.hexdigits for c in id[0]):
                     index = hex(int(id[0], 16))
                     if len(id) == 1:
-                        self.indices[index] = Index(section[1:], index)
+                        self.indices[index] = LegacyIndex(section[1:], index)
                     else:
                         self.indices[index] \
-                            .add(Index(section[1:], int(id[1], 16),
-                                       is_sub=True))
+                            .add(LegacyIndex(section[1:], int(id[1], 16),
+                                             is_sub=True))
                 else:
                     name = section[0][1:-1]
                     self.__setattr__(camel_to_snake(name),
@@ -304,11 +504,9 @@ def load_eds_files(filepath: str) -> dict:
             config = load_eds_file(full_path)
             configs[config.node_id] = config
             try:
-                i = 1
-                while True:
-                    extended_node = config.extended_pdo_definition(i)
+                for i in range(config.device_info.nr_of_nrof_rxpdo):
+                    extended_node = config.extended_pdo_definition(i+1)
                     configs[config.node_id+i] = extended_node
-                    i += 1
             except KeyError:
                 ...
 
