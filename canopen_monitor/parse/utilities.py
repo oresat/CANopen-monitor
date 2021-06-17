@@ -1,7 +1,6 @@
 import array
 from datetime import datetime, timedelta
 from struct import unpack
-from .eds import EDS
 from typing import List, Union
 from enum import Enum
 
@@ -37,7 +36,7 @@ class FailedValidationError(Exception):
         super().__init__(self.message)
 
 
-def get_name(eds_config: EDS, index: Union[List[int], bytes]) -> (str, str):
+def get_name(eds_config, index: Union[List[int], bytes]) -> (str, str):
     """
     Get the name and data type for a given index
     :param eds_config: An EDS file for the current node

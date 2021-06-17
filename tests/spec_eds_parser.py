@@ -1,15 +1,13 @@
 import unittest
-from canopen_monitor import parse
+from canopen_monitor.parse import load_eds_files, load_eds_file
 from unittest.mock import mock_open, patch, MagicMock
 from tests import TEST_EDS, TEST_DCF
-
-eds = parse.eds
 
 
 class TestEDS(unittest.TestCase):
     def setUp(self):
         with patch('builtins.open', mock_open(read_data=TEST_EDS)) as _:
-            self.eds = eds.load_eds_file("star_tracker_OD.eds")
+            self.eds = load_eds_file("star_tracker_OD.eds")
 
     def test_parse_index(self):
         """
@@ -88,7 +86,7 @@ class TestEDS(unittest.TestCase):
 class TestDCF(unittest.TestCase):
     def setUp(self):
         with patch('builtins.open', mock_open(read_data=TEST_DCF)) as _:
-            self.eds = eds.load_eds_file("star_tracker_OD.eds")
+            self.eds = load_eds_file("star_tracker_OD.eds")
 
     def test_check_device_commissioning(self):
         """
@@ -128,7 +126,7 @@ class TestDCF(unittest.TestCase):
 class TestErrors(unittest.TestCase):
     def setUp(self):
         with patch('builtins.open', mock_open(read_data=TEST_EDS)) as _:
-            self.eds = eds.load_eds_file("star_tracker_OD.eds")
+            self.eds = load_eds_file("star_tracker_OD.eds")
 
     def test_invalid_index(self):
         """
@@ -167,7 +165,7 @@ class TestExtendedPDODefinition(unittest.TestCase):
         with patch('builtins.open', mock_open(read_data=TEST_DCF)) as _:
             with patch('os.listdir') as mocked_listdir:
                 mocked_listdir.return_value = ["battery.dcf"]
-                self.nodes = eds.load_eds_files("/")
+                self.nodes = load_eds_files("/")
 
     def test_load_PDOs(self):
 

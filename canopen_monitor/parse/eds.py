@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import copy
+import re
 import string
 from re import finditer
-from typing import Union
+from typing import Union, Callable
 from dateutil.parser import parse as dtparse
 import os
 from configparser import ConfigParser, SectionProxy
-from utilities import DataType, ObjectType
+
+from .utilities import ObjectType, DataType
 
 
 def camel_to_snake(old_str: str) -> str:
@@ -161,6 +163,7 @@ class FileInfo:
     """This class encapsulates the Object Directory file's File Information
     identified in section [FileInfo] and ensures compliance with
     CANOpen Specification CiA 306 version 1.3.0"""
+
     def __init__(self, data: SectionProxy):
         """Create File info using configparser section
         :param data: File info section of data
@@ -190,6 +193,7 @@ class DeviceInfo:
     """This class encapsulates the Object Directory file's General Device
     Information identified in section [DeviceInfo] and ensures compliance with
     CANOpen Specification CiA 306 version 1.3.0"""
+
     def __init__(self, data: SectionProxy):
         """Create Device info using configparser section
         :param data: Device info section of data
@@ -203,7 +207,8 @@ class DeviceInfo:
         self.product_name = str(data['ProductName'])
         self.product_number = int(data['ProductNumber'])
         self.revision_number = int(data['RevisionNumber'])
-        self.order_code = str(data['OrderCode'])
+        # Listed as required in CiA 306, but not listed in example
+        self.order_code = data.get('OrderCode', "")
         self.lss_supported = bool(data['LSS_Supported'])
         self.baud_rate_50 = bool(data['BaudRate_50'])
         self.baud_rate_250 = bool(data['BaudRate_250'])
@@ -219,6 +224,7 @@ class DummyUsage:
     """This class encapsulates the Object Directory file's General Device
     Information identified in section [DeviceInfo] and ensures compliance with
     CANOpen Specification CiA 306 version 1.3.0"""
+
     def __init__(self, data: SectionProxy):
         """Dummy usage attributes are created dynamically because we do not
         know which indexes are selected for dummy usage. The format must use
@@ -230,12 +236,12 @@ class DummyUsage:
         :raises KeyError: Indicates that the file was not generated correctly for this section
         :raises ValueError: Indicates that a type conversion failed"""
 
-        for key, value in data:
-            if len(key) != 10 or key[:6] != "Dummy":
+        for key in data:
+            if len(key) != 9 or key[:5].lower() != "dummy":
                 raise KeyError("Non dummy value in Dummy Usage section. Check "
                                "CiA 306")
-            dummy_key = f"dummy_{key[6:11]}"
-            self.__setattr__(dummy_key, bool(value))
+            dummy_key = f"dummy_{key[5:]}"
+            self.__setattr__(dummy_key, bool(data[key]))
 
 
 class ObjectLists(list):
@@ -243,6 +249,7 @@ class ObjectLists(list):
     lists identified in sections [MandatoryObjects], [OptionalObjects] and
     [ManufacturerObjects] and ensures compliance with CANOpen Specification
     CiA 306 version 1.3.0"""
+
     def __init__(self, data: SectionProxy):
         """Object list data is stored as a list
 
@@ -255,7 +262,7 @@ class ObjectLists(list):
 
         super().__init__()
         self.supported_objects = int(data['SupportedObjects'])
-        for i in range(self.supported_objects):
+        for i in range(1, self.supported_objects + 1):
             self.append(data[str(i)])
 
 
@@ -278,11 +285,11 @@ class Index:
         self.parameter_name = str(data['ParameterName'])
         # Per CiA 306 Object Type is optional and 0x7 (VAR) is to be used
         self.object_type = data.get('ObjectType', str(ObjectType.VAR))
-        if self.object_type not in ObjectType:
+        if self.object_type not in ObjectType.__members__:
             raise ValueError("Object type not identified")
         self.data_type = data.get('DataType')
         # Per CiA 306 Low and High Limit is optional
-        self.low_limit = data.get('LowLimit' )
+        self.low_limit = data.get('LowLimit')
         self.high_limit = data.get('HighLimit')
         self.access_type = data.get('AccessType')
         self.default_value = data.get('DefaultValue')
@@ -292,9 +299,10 @@ class Index:
 
         # Type Dependent Validations
         if self.object_type == ObjectType.DOMAIN:
-            self.data_type = self.data_type if self.data_type is not None \
-                else DataType.DOMAIN
-            self.access_type = self.access_type if self.access_type is not None else "rw"
+            self.data_type = self.data_type \
+                if self.data_type is not None else DataType.DOMAIN
+            self.access_type = self.access_type \
+                if self.access_type is not None else "rw"
             if self.pdo_mapping is not None:
                 raise ValueError("Invalid PDO Mapping")
             if self.sub_number == 0:
@@ -308,7 +316,8 @@ class Index:
             if self.data_type not in DataType:
                 raise ValueError("Data type not identified")
 
-        elif self.object_type in ObjectType.COMPLEX_TYPES and self.compact_sub_obj is None:
+        elif self.object_type in ObjectType.COMPLEX_TYPES \
+                and self.compact_sub_obj is None:
             if self.data_type is not None:
                 raise ValueError("Invalid Data Type")
             if self.access_type is not None:
@@ -325,14 +334,16 @@ class Index:
                 raise ValueError("Invalid High Limit")
 
         elif self.object_type in ObjectType.COMPLEX_TYPES:
-            self.pdo_mapping = bool(self.pdo_mapping) if self.pdo_mapping is not None else False
+            self.pdo_mapping = bool(
+                self.pdo_mapping) if self.pdo_mapping is not None else False
             if self.sub_number != 0:
                 raise ValueError("Invalid Sub Number")
             if self.data_type not in DataType:
                 raise ValueError("Data type not identified")
 
         elif self.object_type in (ObjectType.DEFTYPE, ObjectType.VAR):
-            self.pdo_mapping = bool(self.pdo_mapping) if self.pdo_mapping is not None else False
+            self.pdo_mapping = bool(
+                self.pdo_mapping) if self.pdo_mapping is not None else False
             if self.sub_number != 0:
                 raise ValueError("Invalid Sub Number")
             if self.compact_sub_obj is not None:
@@ -342,7 +353,6 @@ class Index:
 
         else:
             raise ValueError(f"Invalid Object Type {self.object_type}")
-
 
 
 class OD:
@@ -383,8 +393,8 @@ class OD:
 
         if (pdo_tx_offset not in self and pdo_rx_offset not in self) or \
                 (self[pdo_tx_offset].parameter_name != "TPDO mapping parameter"
-                 and self[pdo_rx_offset].parameter_name != "RPDO mapping parameter"):
-
+                 and self[
+                     pdo_rx_offset].parameter_name != "RPDO mapping parameter"):
             raise KeyError("Extended PDO definitions not found")
 
         self.get_pdo_offset(node, pdo_tx, pdo_tx_offset)
@@ -422,12 +432,38 @@ class OD:
         return item in self.indices
 
 
+def parse_function(section: str) -> Callable:
+
+    parsers = {
+        'FileInfo': FileInfo,
+        'DeviceInfo': DeviceInfo,
+        'DummyUsage': DummyUsage,
+        'MandatoryObjects': ObjectLists,
+        'OptionalObjects': ObjectLists,
+        'ManufacturerObjects': ObjectLists,
+        'Comments': lambda x: None,
+        'Tools': lambda x: None,
+        'DeviceCommissioning': lambda x: None
+    }
+
+    if section not in parsers:
+        if re.search(r"([0-9a-fA-F]+|[0-9a-fA-F]+sub[0-9a-fA-F]+)", section) is not None:
+            return Index
+        else:
+            breakpoint()
+
+    return parsers.get(section, lambda x: None)
+
+
 class FileOD(OD):
     def __init__(self, od_file):
         super().__init__()
         parser = ConfigParser(allow_no_value=True)
-        parser.read_file(od_file)
-        self.device_info = DeviceInfo(parser['DeviceInfo'])
+        with open(od_file) as file:
+            parser.read_file(file.readlines())
+
+        for section in parser.sections():
+            parse_function(section)(parser[section])
 
 
 class EDS(OD):
@@ -501,12 +537,13 @@ def load_eds_files(filepath: str) -> dict:
     for file in os.listdir(filepath):
         full_path = f'{filepath}/{file}'
         if file.lower().endswith(".eds") or file.lower().endswith(".dcf"):
-            config = load_eds_file(full_path)
+            # config = load_eds_file(full_path)
+            config = FileOD(full_path)
             configs[config.node_id] = config
             try:
-                for i in range(config.device_info.nr_of_nrof_rxpdo):
-                    extended_node = config.extended_pdo_definition(i+1)
-                    configs[config.node_id+i] = extended_node
+                for i in range(config.device_info.nr_of_rxpdo):
+                    extended_node = config.extended_pdo_definition(i + 1)
+                    configs[config.node_id + i] = extended_node
             except KeyError:
                 ...
 
