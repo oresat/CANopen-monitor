@@ -274,26 +274,32 @@ class EDS(OD):
             self.node_id = None
 
 
-def load_eds_file(filepath: str) -> EDS:
+def load_eds_file(filepath: str, enable_ecss: bool = False) -> EDS:
     """Read in the EDS file, grab the raw lines, strip them of all escaped
     characters, then serialize into an `EDS` and return the resulting
     object.
 
     :param filepath: Path to an eds file
     :type filepath: str
-
+    :param enable_ecss: Flag to enable ECSS time, defaults to False
+    :type enable_ecss: bool, optional
     :return: The successfully serialized EDS file.
     :rtype: EDS
     """
     with open(filepath) as file:
-        return EDS(list(map(lambda x: x.strip(), file.read().split('\n'))))
+        od = EDS(list(map(lambda x: x.strip(), file.read().split('\n'))))
+        if enable_ecss and 0x2101 in od:
+            od[0x2101].data_type = DataType.ECSS_TIME.value
+        return od
 
 
-def load_eds_files(filepath: str) -> dict:
+def load_eds_files(filepath: str, enable_ecss: bool = False) -> dict:
     """Read a directory of OD files
 
     :param filepath: Directory to load files from
     :type filepath: str
+    :param enable_ecss: Flag to enable ECSS time, defaults to False
+    :type enable_ecss: bool, optional
     :return: dictionary of OD files with node id as key and OD as value
     :rtype: dict
     """
@@ -301,7 +307,7 @@ def load_eds_files(filepath: str) -> dict:
     for file in os.listdir(filepath):
         full_path = f'{filepath}/{file}'
         if file.lower().endswith(".eds") or file.lower().endswith(".dcf"):
-            config = load_eds_file(full_path)
+            config = load_eds_file(full_path, enable_ecss)
             configs[config.node_id] = config
             try:
                 i = 1

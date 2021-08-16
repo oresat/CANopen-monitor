@@ -10,7 +10,7 @@ from . import APP_NAME, APP_VERSION, APP_LICENSE, APP_AUTHOR, APP_DESCRIPTION, \
 from .can import MessageTable, MessageType, MagicCANBus
 from .ui import MessagePane, PopupWindow, InputPopup, SelectionPopup
 from .parse import eds
-from .meta import Meta
+from .meta import Meta, FeatureConfig
 
 # Key Constants not defined in curses
 # _UBUNTU key constants work in Ubuntu
@@ -97,11 +97,13 @@ class App:
     """
 
     def __init__(self: App, message_table: MessageTable, eds_configs: dict,
-                 bus: MagicCANBus, meta: Meta):
+                 bus: MagicCANBus, meta: Meta, features: FeatureConfig):
         """
         App Initialization function
         :param message_table: Reference to shared message table object
         :type MessageTable
+        :param features: Application feature settings
+        :type features: FeatureConfig
         """
         self.table = message_table
         self.eds_configs = eds_configs
@@ -109,6 +111,7 @@ class App:
         self.selected_pane_pos = 0
         self.selected_pane = None
         self.meta = meta
+        self.features = features
         self.key_dict = {
             KeyMap.UP_ARR.value['key']: self.up,
             KeyMap.S_UP_ARR.value['key']: self.shift_up,
@@ -321,7 +324,7 @@ class App:
                                default='~/.cache/canopen-monitor/')
 
         if (filepath is not None):
-            file = eds.load_eds_file(filepath)
+            file = eds.load_eds_file(filepath, self.features.ecss_time)
             copy(filepath, CACHE_DIR)
             self.eds_configs[file.node_id] = file
 

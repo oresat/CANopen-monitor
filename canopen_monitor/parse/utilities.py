@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import array
 from datetime import datetime, timedelta
 from struct import unpack
-from .eds import EDS
 from typing import List, Union
 from enum import Enum
 
