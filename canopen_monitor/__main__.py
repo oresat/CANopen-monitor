@@ -5,7 +5,7 @@ from . import APP_NAME, APP_VERSION, APP_DESCRIPTION, CONFIG_DIR, CACHE_DIR
 from .app import App
 from .meta import Meta
 from .can import MagicCANBus, MessageTable
-from .parse import CANOpenParser, load_eds_files, EDS, DataType
+from .parse import CANOpenParser, load_eds_files
 
 
 def init_dirs():

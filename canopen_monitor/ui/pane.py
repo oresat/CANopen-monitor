@@ -116,7 +116,7 @@ class Pane(ABC):
 
     def __reset_draw_dimensions(self: Pane) -> None:
         """
-        Reset the pane dimensions. 
+        Reset the pane dimensions.
         You can change the width and height of the pane.
         """
         p_height, p_width = self.parent.getmaxyx()
