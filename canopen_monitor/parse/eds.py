@@ -235,6 +235,7 @@ class OD:
         node.mandatory_objects = copy.deepcopy(self.dummy_usage)
         node.optional_objects = copy.deepcopy(self.optional_objects)
         node.manufacturer_objects = copy.deepcopy(self.manufacturer_objects)
+        node.indices = copy.deepcopy(self.indices)
 
         if (pdo_tx_offset not in self and pdo_rx_offset not in self) or \
                 (self[pdo_tx_offset].parameter_name != "TPDO mapping parameter"
