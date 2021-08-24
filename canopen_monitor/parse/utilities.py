@@ -1,9 +1,9 @@
+from __future__ import annotations
 import array
 from datetime import datetime, timedelta
 from struct import unpack
-from .eds import EDS
 from typing import List, Union
-from enum import Enum
+from .eds import DataType, EDS
 
 
 class FailedValidationError(Exception):
@@ -63,53 +63,6 @@ def get_name(eds_config: EDS, index: Union[List[int], bytes]) -> (str, str):
         defined_type = eds_config[hex(key)].data_type
 
     return defined_type, result
-
-
-class DataType(Enum):
-    BOOLEAN = '0x0001'
-    INTEGER8 = '0x0002'
-    INTEGER16 = '0x0003'
-    INTEGER32 = '0x0004'
-    UNSIGNED8 = '0x0005'
-    UNSIGNED16 = '0x0006'
-    UNSIGNED32 = '0x0007'
-    REAL32 = '0x0008'
-    VISIBLE_STRING = '0x0009'
-    OCTET_STRING = '0x000A'
-    UNICODE_STRING = '0x000B'
-    TIME_OF_DAY = '0x000C'
-    TIME_DIFFERENCE = '0x000D'
-    DOMAIN = '0x000F'
-    INTEGER24 = '0x0010'
-    REAL64 = '0x0011'
-    INTEGER40 = '0x0012'
-    INTEGER48 = '0x0013'
-    INTEGER56 = '0x0014'
-    INTEGER64 = '0x0015'
-    UNSIGNED24 = '0x0016'
-    UNSIGNED40 = '0x0018'
-    UNSIGNED48 = '0x0019'
-    UNSIGNED56 = '0x001A'
-    UNSIGNED64 = '0x001B'
-    PDO_COMMUNICATION_PARAMETER = '0x0020'
-    PDO_MAPPING = '0x0021'
-    SDO_PARAMETER = '0x0022'
-    IDENTITY = '0x0023'
-
-    # Used by ECSS Time feature only
-    ECSS_TIME = 'ECSS_TIME'
-
-    # Data Type Groupings
-    UNSIGNED_INTEGERS = (UNSIGNED8, UNSIGNED16, UNSIGNED32, UNSIGNED24,
-                         UNSIGNED40, UNSIGNED48, UNSIGNED56, UNSIGNED64)
-
-    SIGNED_INTEGERS = (INTEGER8, INTEGER16, INTEGER32, INTEGER24,
-                       INTEGER40, INTEGER48, INTEGER56, INTEGER64)
-
-    FLOATING_POINTS = (REAL32, REAL64)
-
-    NON_FORMATTED = (DOMAIN, PDO_COMMUNICATION_PARAMETER, PDO_MAPPING,
-                     SDO_PARAMETER, IDENTITY)
 
 
 def decode(defined_type: Union[str, DataType], data: List[int]) -> str:

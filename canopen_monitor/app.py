@@ -5,12 +5,16 @@ import datetime as dt
 from easygui import fileopenbox
 from shutil import copy
 from enum import Enum
-from . import APP_NAME, APP_VERSION, APP_LICENSE, APP_AUTHOR, APP_DESCRIPTION, \
-    APP_URL, CACHE_DIR
+from . import APP_NAME, \
+              APP_VERSION, \
+              APP_LICENSE, \
+              APP_AUTHOR, \
+              APP_DESCRIPTION, \
+              APP_URL, CACHE_DIR
 from .can import MessageTable, MessageType, MagicCANBus
-from .ui import MessagePane, PopupWindow, InputPopup, SelectionPopup
+from .ui import MessagePane, PopupWindow, InputPopup, SelectionPopup, Column
 from .parse import eds
-from .meta import Meta
+from .meta import Meta, FeatureConfig
 
 # Key Constants not defined in curses
 # _UBUNTU key constants work in Ubuntu
@@ -40,6 +44,23 @@ def pad_hex(value: int, pad: int = 3) -> str:
     :rtype: str
     """
     return f'0x{hex(value).upper()[2:].rjust(pad, "0")}'
+
+
+def trunc_timedelta(value: dt.timedelta, pad: int = 0):
+    TIME_UNITS = {'d': 86400, 'h': 3600, 'm': 60, 's': 1, 'ms': 0.1}
+    time_str = ""
+    seconds = value.total_seconds()
+
+    for name, unit_len in TIME_UNITS.items():
+        if(name == 'ms' and time_str != ''):
+            continue
+        res = int(seconds // unit_len)
+        seconds -= (res * unit_len)
+
+        if(res > 0):
+            time_str += f'{res}{name}'
+
+    return time_str
 
 
 class KeyMap(Enum):
@@ -97,11 +118,13 @@ class App:
     """
 
     def __init__(self: App, message_table: MessageTable, eds_configs: dict,
-                 bus: MagicCANBus, meta: Meta):
+                 bus: MagicCANBus, meta: Meta, features: FeatureConfig):
         """
         App Initialization function
         :param message_table: Reference to shared message table object
         :type MessageTable
+        :param features: Application feature settings
+        :type features: FeatureConfig
         """
         self.table = message_table
         self.eds_configs = eds_configs
@@ -109,6 +132,7 @@ class App:
         self.selected_pane_pos = 0
         self.selected_pane = None
         self.meta = meta
+        self.features = features
         self.key_dict = {
             KeyMap.UP_ARR.value['key']: self.up,
             KeyMap.S_UP_ARR.value['key']: self.shift_up,
@@ -123,7 +147,8 @@ class App:
             KeyMap.RESIZE.value['key']: self.resize,
             KeyMap.F1.value['key']: self.f1,
             KeyMap.F2.value['key']: self.f2,
-            KeyMap.F3.value['key']: self.f3,
+            # TODO: F3 Disabled until easywin is replaced
+            # KeyMap.F3.value['key']: self.f3,
             KeyMap.F4.value['key']: self.f4,
             KeyMap.F5.value['key']: self.f5,
         }
@@ -177,10 +202,10 @@ class App:
                                             header='Remove Interface',
                                             footer='ENTER: remove, F5: exit window',
                                             style=curses.color_pair(1))
-        self.hb_pane = MessagePane(cols={'Node ID': ('node_name', 0),
-                                         'State': ('state', 0),
-                                         'Status': ('message', 0),
-                                         'Error': ('error', 0)},
+        self.hb_pane = MessagePane(cols=[Column('Node ID', 'node_name'),
+                                         Column('State', 'state'),
+                                         Column('Status', 'message'),
+                                         Column('Error', 'error')],
                                    types=[MessageType.HEARTBEAT],
                                    parent=self.screen,
                                    height=int(height / 2) - 1,
@@ -189,12 +214,15 @@ class App:
                                    x=0,
                                    name='Heartbeats',
                                    message_table=self.table)
-        self.misc_pane = MessagePane(cols={'COB ID': ('arb_id', 0, pad_hex),
-                                           'Node Name': ('node_name', 0),
-                                           'Type': ('type', 0),
-                                           'Age': ('age', 0),
-                                           'Message': ('message', 0),
-                                           'Error': ('error', 0)},
+        self.misc_pane = MessagePane(cols=[Column('COB ID', 'arb_id',
+                                                  fmt_fn=pad_hex),
+                                           Column('Node Name', 'node_name'),
+                                           Column('Type', 'type'),
+                                           Column('Age',
+                                                  'age',
+                                                  trunc_timedelta),
+                                           Column('Message', 'message'),
+                                           Column('Error', 'error')],
                                      types=[MessageType.NMT,
                                             MessageType.SYNC,
                                             MessageType.TIME,
@@ -321,7 +349,7 @@ class App:
                                default='~/.cache/canopen-monitor/')
 
         if (filepath is not None):
-            file = eds.load_eds_file(filepath)
+            file = eds.load_eds_file(filepath, self.features.ecss_time)
             copy(filepath, CACHE_DIR)
             self.eds_configs[file.node_id] = file
 

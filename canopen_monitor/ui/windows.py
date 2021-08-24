@@ -87,20 +87,20 @@ class PopupWindow(Pane):
 
     def __draw_header(self: PopupWindow) -> None:
         """Add the header line to the window"""
-        self.add_line(0, 1, self.header, underline=True)
+        self.add_line(self.header, y=0, x=1, underline=True)
 
     def __draw__footer(self: PopupWindow) -> None:
         """Add the footer to the window"""
         f_width = len(self.footer) + 2
-        self.add_line(self.v_height - 1,
-                      self.v_width - f_width,
-                      self.footer,
+        self.add_line(self.footer,
+                      y=self.v_height - 1,
+                      x=self.v_width - f_width,
                       underline=True)
 
     def __draw_content(self):
         """Read each line of the content and add to the window"""
         for i, line in enumerate(self.content):
-            self.add_line(1 + i, 2, line)
+            self.add_line(line, y=(1 + i), x=2)
 
     def draw(self: PopupWindow) -> None:
         if (self.enabled):
@@ -222,20 +222,20 @@ class SelectionPopup(PopupWindow):
 
     def __draw_header(self: SelectionPopup) -> None:
         """Add the header line to the window"""
-        self.add_line(0, 1, self.header, underline=True)
+        self.add_line(self.header, y=0, x=1, underline=True)
 
     def __draw__footer(self: SelectionPopup) -> None:
         """Add the footer to the window"""
         f_width = len(self.footer) + 2
-        self.add_line(self.v_height - 1,
-                      self.v_width - f_width,
-                      self.footer,
+        self.add_line(self.footer,
+                      y=(self.v_height - 1),
+                      x=(self.v_width - f_width),
                       underline=True)
 
     def __draw_content(self: SelectionPopup) -> None:
         """Read each line of the content and add to the window"""
         for i, line in enumerate(self.content):
-            self.add_line(1 + i, 2, line, highlight=i == self.cursor_loc)
+            self.add_line(line, y=(1 + i), x=2, highlight=i == self.cursor_loc)
 
     def draw(self: SelectionPopup) -> None:
         if (self.enabled):

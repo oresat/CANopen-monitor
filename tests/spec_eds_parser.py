@@ -1,6 +1,6 @@
 import unittest
 from canopen_monitor import parse
-from unittest.mock import mock_open, patch
+from unittest.mock import mock_open, patch, MagicMock
 from tests import TEST_EDS, TEST_DCF
 
 eds = parse.eds
@@ -76,7 +76,7 @@ class TestEDS(unittest.TestCase):
         """
         file_check = TEST_EDS.splitlines()
         self.assertEqual("PDOMapping=0",
-                         file_check[len(file_check)-1],
+                         file_check[len(file_check) - 1],
                          "The last line in the EDS test file should not be "
                          "blank")
 
@@ -159,3 +159,103 @@ class TestErrors(unittest.TestCase):
 
         self.assertEqual("'1000sub1'", str(context.exception))
 
+
+class TestExtendedPDODefinition(unittest.TestCase):
+    def setUp(self):
+        # node id defined in file
+        self.node_id = 0x10
+        with patch('builtins.open', mock_open(read_data=TEST_DCF)) as _:
+            with patch('os.listdir') as mocked_listdir:
+                mocked_listdir.return_value = ["battery.dcf"]
+                self.nodes = eds.load_eds_files("/")
+
+    def test_load_PDOs(self):
+
+        od = self.nodes.get(self.node_id)
+        # RPDO 1
+        self.assertEqual("RPDO mapping parameter",
+                         od[hex(0x1600)].parameter_name,
+                         "Base RPDO 1 definition not found")
+
+        # RPDO 2
+        self.assertEqual("RPDO mapping parameter",
+                         od[hex(0x1601)].parameter_name,
+                         "Base RPDO 2 definition not found")
+
+        # RPDO 3
+        self.assertEqual("RPDO mapping parameter",
+                         od[hex(0x1602)].parameter_name,
+                         "Base RPDO 3 definition not found")
+        # RPDO 4
+        self.assertEqual("RPDO mapping parameter",
+                         od[hex(0x1603)].parameter_name,
+                         "Base RPDO 4 definition not found")
+
+        # TPDO 1
+        self.assertEqual("TPDO mapping parameter",
+                         od[hex(0x1A00)].parameter_name,
+                         "Base TPDO 1 definition not found")
+
+        # TPDO 2
+        self.assertEqual("TPDO mapping parameter",
+                         od[hex(0x1A01)].parameter_name,
+                         "Base TPDO 2 definition not found")
+
+        # TPDO 3
+        self.assertEqual("TPDO mapping parameter",
+                         od[hex(0x1A02)].parameter_name,
+                         "Base TPDO 3 definition not found")
+        # TPDO 4
+        self.assertEqual("TPDO mapping parameter",
+                         od[hex(0x1A03)].parameter_name,
+                         "Base TPDO 4 definition not found")
+
+    def test_load_Extended_PDOs(self):
+        od = self.nodes.get(self.node_id + 1)
+
+        self.assertIsNotNone(od, "Extended PDO node not set")
+
+        # RPDO 1
+        self.assertEqual("RPDO mapping parameter",
+                         od[0x1600].parameter_name,
+                         "Extended RPDO 1 definition not found")
+
+        # RPDO 2
+        self.assertEqual("RPDO mapping parameter",
+                         od[0x1601].parameter_name,
+                         "Extended RPDO 2 definition not found")
+
+        # RPDO 3
+        self.assertEqual("RPDO mapping parameter",
+                         od[0x1602].parameter_name,
+                         "Extended RPDO 3 definition not found")
+        # RPDO 4
+        self.assertEqual("RPDO mapping parameter",
+                         od[0x1603].parameter_name,
+                         "Extended RPDO 4 definition not found")
+
+        # TPDO 1
+        self.assertEqual("TPDO mapping parameter",
+                         od[0x1A00].parameter_name,
+                         "Extended TPDO 1 definition not found")
+
+        # TPDO 2
+        self.assertEqual("TPDO mapping parameter",
+                         od[0x1A01].parameter_name,
+                         "Extended TPDO 2 definition not found")
+
+        # TPDO 3
+        self.assertEqual("TPDO mapping parameter",
+                         od[0x1A02].parameter_name,
+                         "Extended TPDO 3 definition not found")
+        # TPDO 4
+        self.assertEqual("TPDO mapping parameter",
+                         od[0x1A03].parameter_name,
+                         "Extended TPDO 4 definition not found")
+
+    def test_load_invalid_node(self):
+        od = self.nodes.get(self.node_id + 5)
+        with self.assertRaises(TypeError) as context:
+            result = od[hex(0x1600)].parameter_name
+
+        self.assertEqual("'NoneType' object is not subscriptable", str(context.exception))
