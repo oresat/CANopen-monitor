@@ -1,5 +1,6 @@
 from __future__ import annotations
 from .pane import Pane
+from .colum import Column
 from ..can import Message, MessageType, MessageTable
 import curses
 
@@ -25,7 +26,7 @@ class MessagePane(Pane):
     """
 
     def __init__(self: MessagePane,
-                 cols: dict,
+                 cols: [Column],
                  types: [MessageType],
                  name: str = '',
                  parent: any = None,
@@ -46,7 +47,6 @@ class MessagePane(Pane):
         self.types = types
         self.__top = 0
         self.__top_max = 0
-        self.__col_sep = 2
         self.__header_style = curses.color_pair(4)
         self.table = message_table
 
@@ -54,9 +54,6 @@ class MessagePane(Pane):
         self.cursor = 0
         self.cursor_min = 0
         self.cursor_max = self.d_height - 10
-
-        # Reset the collumn widths to the minimum size of the collumn names
-        self.__reset_col_widths()
 
     def resize(self: MessagePane, height: int, width: int) -> None:
         """
@@ -101,7 +98,7 @@ class MessagePane(Pane):
         """
         The maximim columns the pad is allowed to shift by when scrolling
         """
-        max_length = sum(list(map(lambda x: x[1], self.cols.values())))
+        max_length = sum(list(map(lambda x: x.name, self.cols)))
         occluded = max_length - self.d_width + 7
         return occluded if(occluded > 0) else 0
 
@@ -165,20 +162,16 @@ class MessagePane(Pane):
 
         This uses the `cols` dictionary to determine what to write
         """
-        self.add_line(0,
-                      2,
-                      f'{self._name}:'
+        self.add_line(f'{self._name}:'
                       f' ({len(self.table.filter(self.types))} messages)',
+                      y=0,
+                      x=1,
                       highlight=self.selected)
-
-        pos = 1
-        for name, data in self.cols.items():
-            self.add_line(1,
-                          pos,
-                          f'{name}:'.ljust(data[1] + self.__col_sep, ' '),
+        self._pad.move(1, 1)
+        for col in self.cols:
+            self.add_line(col.header,
                           highlight=True,
                           color=curses.color_pair(4))
-            pos += data[1] + self.__col_sep
 
     def draw(self: MessagePane) -> None:
         """
@@ -190,35 +183,19 @@ class MessagePane(Pane):
         # Get the messages to be displayed based on scroll positioning,
         #   and adjust column widths accordingly
         draw_messages = self.table.filter(self.types,
-                                          self.__top,
-                                          self.__top + self.d_height - 3)
+                                         self.__top,
+                                         self.__top + self.d_height - 3)
         self.__check_col_widths(draw_messages)
 
         # Draw the header and messages
         self.__draw_header()
         for i, message in enumerate(draw_messages):
-            pos = 1
-            for name, data in self.cols.items():
-                attr = getattr(message, data[0])
-                callable = data[2] if (len(data) == 3) else str
-                self.add_line(2 + i,
-                              pos,
-                              callable(attr).ljust(data[1] + self.__col_sep,
-                                                   ' '),
+            self._pad.move(2 + i, 1)
+            for col in self.cols:
+                self.add_line(col.format(message),
                               highlight=((self.cursor == i) and self.selected))
-                pos += data[1] + self.__col_sep
-
         # Refresh the Pane and end the draw cycle
         super().refresh()
-
-    def __reset_col_widths(self: Message):
-        """
-        Reset the width of Pane collumn.
-        Based on the length of data to change the width.
-        """
-        for name, data in self.cols.items():
-            self.cols[name] = (data[0], len(name), data[2]) \
-                if (len(data) == 3) else (data[0], len(name))
 
     def __check_col_widths(self: MessagePane, messages: [Message]) -> None:
         """
@@ -227,10 +204,7 @@ class MessagePane(Pane):
         :param messages: The list of the messages
         :type messages: list
         """
-        for message in messages:
-            for name, data in self.cols.items():
-                attr = getattr(message, data[0])
-                attr_len = len(str(attr))
-                if(data[1] < attr_len):
-                    self.cols[name] = (data[0], attr_len)
-                    super().clear()
+        for col in self.cols:
+            for message in messages:
+                if(col.update_length(message)):
+                    self._pad.clear()

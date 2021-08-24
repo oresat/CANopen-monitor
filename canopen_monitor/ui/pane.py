@@ -254,9 +254,9 @@ class Pane(ABC):
         return True
 
     def add_line(self: Pane,
-                 y: int,
-                 x: int,
                  line: str,
+                 y: int = None,
+                 x: int = None,
                  bold: bool = False,
                  underline: bool = False,
                  highlight: bool = False,
@@ -265,14 +265,14 @@ class Pane(ABC):
         Adds a line of text to the Pane and if needed, it handles the
         process of resizing the embedded pad
 
+        :param line: Text to write to the Pane
+        :type line: str
+
         :param y: Line's row position
         :type y: int
 
         :param x: Line's collumn position
         :type x: int
-
-        :param line: Text to write to the Pane
-        :type line: str
 
         :param bold: A style option to bold the line written
         :type bold: bool
@@ -283,6 +283,10 @@ class Pane(ABC):
         :param style: A color option for the line
         :type style: curses.style
         """
+        # Fill the current screen cursor position if none are specified
+        if(y is None or x is None):
+            y, x = self._pad.getyx()
+
         # Set the color option to the pane default if none was specified
         line_style = color or self._style
 

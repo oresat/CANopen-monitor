@@ -2,11 +2,13 @@
 of Curses UI and general user interaction with the app,
 """
 from .pane import Pane
+from .colum import Column
 from .windows import PopupWindow, InputPopup, SelectionPopup
 from .message_pane import MessagePane
 
 __all__ = [
     "Pane",
+    "Column",
     "MessagePane",
     "PopupWindow",
     "InputPopup",
