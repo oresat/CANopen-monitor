@@ -2,7 +2,7 @@ import os
 
 MAJOR = 4
 MINOR = 0
-PATCH = 0
+PATCH = 1
 
 APP_NAME = 'canopen-monitor'
 APP_DESCRIPTION = 'An NCurses-based TUI application for tracking activity' \

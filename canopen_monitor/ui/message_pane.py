@@ -98,7 +98,7 @@ class MessagePane(Pane):
         """
         The maximim columns the pad is allowed to shift by when scrolling
         """
-        max_length = sum(list(map(lambda x: x.name, self.cols)))
+        max_length = sum(list(map(lambda x: x.length, self.cols)))
         occluded = max_length - self.d_width + 7
         return occluded if(occluded > 0) else 0
 
@@ -182,9 +182,7 @@ class MessagePane(Pane):
 
         # Get the messages to be displayed based on scroll positioning,
         #   and adjust column widths accordingly
-        draw_messages = self.table.filter(self.types,
-                                         self.__top,
-                                         self.__top + self.d_height - 3)
+        draw_messages = self.table.filter(self.types, self.__top, self.__top + self.d_height - 3)
         self.__check_col_widths(draw_messages)
 
         # Draw the header and messages
