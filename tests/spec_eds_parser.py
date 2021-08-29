@@ -102,7 +102,7 @@ class TestDCF(unittest.TestCase):
         """
         DCF Parsing set node id attribute
         """
-        self.assertEqual(0x10,
+        self.assertEqual(10,
                          self.eds.node_id,
                          "Error parsing node id")
 
@@ -163,7 +163,7 @@ class TestErrors(unittest.TestCase):
 class TestExtendedPDODefinition(unittest.TestCase):
     def setUp(self):
         # node id defined in file
-        self.node_id = 0x10
+        self.node_id = 10
         with patch('builtins.open', mock_open(read_data=TEST_DCF)) as _:
             with patch('os.listdir') as mocked_listdir:
                 mocked_listdir.return_value = ["battery.dcf"]

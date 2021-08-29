@@ -194,10 +194,12 @@ class Index:
 def convert_value(value: str) -> Union[int, str]:
     # Turn number-like objects into numbers
     if (value != ''):
-        if (all(c in string.hexdigits for c in value)):
-            return int(value, 16)
-        elif (all(c in string.digits for c in value)):
+        if value.startswith("0x") and all(c in string.hexdigits for c in value):
+            return int(value[2:], 16)
+        if (all(c in string.digits for c in value)):
             return int(value, 10)
+        elif (all(c in string.hexdigits for c in value)):
+            return int(value, 16)
         else:
             return value
 
