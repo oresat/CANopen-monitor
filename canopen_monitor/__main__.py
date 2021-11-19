@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import logging
 import argparse
 from . import APP_NAME, \
@@ -7,7 +8,8 @@ from . import APP_NAME, \
               APP_DESCRIPTION, \
               CONFIG_DIR, \
               CACHE_DIR, \
-              LOG_DIR
+              LOG_DIR, \
+              LOG_FMT
 from .app import App
 from .meta import Meta
 from .can import MagicCANBus, MessageTable
@@ -18,13 +20,11 @@ def init_dirs():
     os.makedirs(CONFIG_DIR, exist_ok=True)
     os.makedirs(CACHE_DIR, exist_ok=True)
     os.makedirs(LOG_DIR, exist_ok=True)
-    init_logs()
 
 
-def init_logs():
-    logging.basicConfig(filename=f'{LOG_DIR}/info.log',
-                        level=logging.INFO)
-    logging.info(f'{APP_NAME} v{APP_VERSION}')
+def init_logs(log_level):
+    logging.basicConfig(filename=f'{LOG_DIR}/latest.log', level=log_level)
+    logging.info(f'{APP_NAME} v{APP_VERSION}', extra={'time': time.ctime()})
 
 
 def main():
@@ -44,6 +44,11 @@ def main():
                         help='Disable block-waiting for the Magic CAN Bus.'
                              ' (Warning, this may produce undefined'
                              ' behavior).')
+    parser.add_argument('--log-level',
+                        dest='log_level',
+                        choices=['info', 'warn', 'debug', 'error', 'fatal'],
+                        default='info',
+                        help='Set the log levels. (Default: info)')
     parser.add_argument('-v', '--version',
                         dest='version',
                         action='store_true',
@@ -55,8 +60,12 @@ def main():
         print(f'{APP_NAME} v{APP_VERSION}\n\n{APP_DESCRIPTION}')
         sys.exit(0)
 
+    log_level = getattr(logging, args.log_level.upper())
+
     try:
         init_dirs()
+        init_logs(log_level)
+
         meta = Meta(CONFIG_DIR, CACHE_DIR)
         features = meta.load_features()
         eds_configs = load_eds_files(CACHE_DIR, features.ecss_time)

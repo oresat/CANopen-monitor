@@ -105,6 +105,7 @@ class Interface(SocketCanDev):
         >>> iface.stop()
         >>> iface.start()
         """
+        logging.warn(f'Restarting interface {self.name}')
         self.stop()
         self.start(False)
 
@@ -122,12 +123,14 @@ class Interface(SocketCanDev):
         try:
             frame = super().recv()
             self.last_activity = dt.datetime.now()
-            return Message(frame.arb_id,
-                           data=list(frame.data),
-                           frame_type=frame.frame_type,
-                           interface=self.name,
-                           timestamp=dt.datetime.now(),
-                           extended=frame.is_extended_id)
+            msg = Message(frame.arb_id,
+                          data=list(frame.data),
+                          frame_type=frame.frame_type,
+                          interface=self.name,
+                          timestamp=dt.datetime.now(),
+                          extended=frame.is_extended_id)
+            logging.debug(f'Received from {self.name}: {msg}')
+            return msg
         except socket.timeout:
             return None
 
