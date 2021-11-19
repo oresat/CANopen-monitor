@@ -122,8 +122,6 @@ class Interface(SocketCanDev):
                            interface=self.name,
                            timestamp=dt.datetime.now(),
                            extended=frame.is_extended_id)
-        except OSError:
-            return None
         except socket.timeout:
             return None
 
