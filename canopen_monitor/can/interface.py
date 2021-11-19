@@ -58,8 +58,6 @@ class Interface(SocketCanDev):
     def __exit__(self: Interface, etype, evalue, traceback) -> None:
         """The exit point of an `Interface` in a `with` statement
 
-        This closes the socket previously bound to
-
         :param etype: The type of event
         :type etype: str
 
@@ -83,13 +81,15 @@ class Interface(SocketCanDev):
         """
         while(block_wait and not self.is_up):
             pass
+
+        self.socket = socket.socket(socket.PF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
         super().start()
-        self.listening = True
 
     def stop(self: Interface) -> None:
         """A wrapper for `pyvit.hw.SocketCanDev.stop()`
         """
         super().stop()
+        self.socket.close()
         self.listening = False
 
     def restart(self: Interface) -> None:
