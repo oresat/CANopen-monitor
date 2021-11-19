@@ -137,7 +137,7 @@ class Interface(SocketCanDev):
         """
         if_dev = psutil.net_if_stats().get(self.name)
         if(if_dev is not None):
-            return if_dev.isup and self.age < _STALE_INTERFACE
+            return if_dev.isup
         return False
 
     @property
