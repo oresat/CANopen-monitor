@@ -1,4 +1,5 @@
 from __future__ import annotations
+import time
 import psutil
 import socket
 import datetime as dt
@@ -79,9 +80,11 @@ class Interface(SocketCanDev):
         :type block_wait: bool
         """
         while(block_wait and not self.is_up):
-            pass
+            time.sleep(0.01)
 
-        self.socket = socket.socket(socket.PF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
+        self.socket = socket.socket(socket.PF_CAN,
+                                    socket.SOCK_RAW,
+                                    socket.CAN_RAW)
         super().start()
 
     def stop(self: Interface) -> None:
