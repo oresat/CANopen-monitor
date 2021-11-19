@@ -8,8 +8,7 @@ from . import APP_NAME, \
               APP_DESCRIPTION, \
               CONFIG_DIR, \
               CACHE_DIR, \
-              LOG_DIR, \
-              LOG_FMT
+              LOG_DIR
 from .app import App
 from .meta import Meta
 from .can import MagicCANBus, MessageTable
@@ -83,6 +82,9 @@ def main():
 
                 # User Input updates
                 app.handle_keyboard_input()
+
+                # Sleep VERY briefly so we're not using 99% of the CPU
+                time.sleep(0.01)
 
                 # Draw update
                 app.draw(bus.statuses)
