@@ -1,4 +1,5 @@
 from __future__ import annotations
+import time
 import psutil
 import socket
 import datetime as dt
@@ -33,7 +34,6 @@ class Interface(SocketCanDev):
         self.name = if_name
         self.last_activity = dt.datetime.now()
         self.socket.settimeout(_SOCK_TIMEOUT)
-        self.listening = False
 
     def __enter__(self: Interface) -> Interface:
         """The entry point of an `Interface` in a `with` statement
@@ -58,8 +58,6 @@ class Interface(SocketCanDev):
     def __exit__(self: Interface, etype, evalue, traceback) -> None:
         """The exit point of an `Interface` in a `with` statement
 
-        This closes the socket previously bound to
-
         :param etype: The type of event
         :type etype: str
 
@@ -82,15 +80,19 @@ class Interface(SocketCanDev):
         :type block_wait: bool
         """
         while(block_wait and not self.is_up):
-            pass
+            time.sleep(0.01)
+
+        self.socket = socket.socket(socket.PF_CAN,
+                                    socket.SOCK_RAW,
+                                    socket.CAN_RAW)
         super().start()
-        self.listening = True
 
     def stop(self: Interface) -> None:
         """A wrapper for `pyvit.hw.SocketCanDev.stop()`
         """
         super().stop()
-        self.listening = False
+        self.socket.close()
+        self.running = False
 
     def restart(self: Interface) -> None:
         """A macro-fuction for restarting the interface connection
@@ -123,8 +125,6 @@ class Interface(SocketCanDev):
                            interface=self.name,
                            timestamp=dt.datetime.now(),
                            extended=frame.is_extended_id)
-        except OSError:
-            return None
         except socket.timeout:
             return None
 
@@ -137,7 +137,7 @@ class Interface(SocketCanDev):
         """
         if_dev = psutil.net_if_stats().get(self.name)
         if(if_dev is not None):
-            return if_dev.isup and self.age < _STALE_INTERFACE
+            return if_dev.isup
         return False
 
     @property

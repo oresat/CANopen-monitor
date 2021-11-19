@@ -2,18 +2,21 @@ from __future__ import annotations
 import curses
 import curses.ascii
 import datetime as dt
-from easygui import fileopenbox
-from shutil import copy
 from enum import Enum
 from . import APP_NAME, \
               APP_VERSION, \
               APP_LICENSE, \
               APP_AUTHOR, \
               APP_DESCRIPTION, \
-              APP_URL, CACHE_DIR
-from .can import MessageTable, MessageType, MagicCANBus
-from .ui import MessagePane, PopupWindow, InputPopup, SelectionPopup, Column
-from .parse import eds
+              APP_URL
+from .can import MessageTable, \
+                 MessageType, \
+                 MagicCANBus
+from .ui import MessagePane, \
+                PopupWindow, \
+                InputPopup, \
+                SelectionPopup, \
+                Column
 from .meta import Meta, FeatureConfig
 
 # Key Constants not defined in curses
@@ -74,7 +77,7 @@ class KeyMap(Enum):
     F1 = {'name': 'F1', 'description': 'Toggle app info menu',
           'key': curses.KEY_F1}
     F2 = {'name': 'F2', 'description': 'Toggle this menu', 'key': curses.KEY_F2}
-    F3 = {'name': 'F3', 'description': 'Toggle eds file select',
+    F3 = {'name': 'F3', 'description': 'DEPRECATED FUNCTION',
           'key': curses.KEY_F3}
     F4 = {'name': 'F4', 'description': 'Toggle add interface',
           'key': curses.KEY_F4}
@@ -339,19 +342,15 @@ class App:
 
     def f3(self):
         """
-        Toggles Add File window
+        DEPRECATED: The use of easygui has proven to add more dependency
+        problems than remove so this function is being dprecated for now
+
+        This function will stay here in order to not break the application
+        input handler
+
         :return: None
         """
-        filepath = fileopenbox(title='Select Object Dictionary Files',
-                               filetypes=[['*.dcf', '*.eds', '*.xdd',
-                                           'Object Dictionary Files']],
-                               multiple=False,
-                               default='~/.cache/canopen-monitor/')
-
-        if (filepath is not None):
-            file = eds.load_eds_file(filepath, self.features.ecss_time)
-            copy(filepath, CACHE_DIR)
-            self.eds_configs[file.node_id] = file
+        pass
 
     def f4(self) -> None:
         """
