@@ -2,6 +2,7 @@ from __future__ import annotations
 import time
 import psutil
 import socket
+import logging
 import datetime as dt
 from .message import Message
 from pyvit.hw.socketcan import SocketCanDev
@@ -79,6 +80,7 @@ class Interface(SocketCanDev):
         :param block_wait: Enables block-waiting
         :type block_wait: bool
         """
+        logging.info(f'Binding to socket {self.name} with last activity at {self.last_activity}')
         while(block_wait and not self.is_up):
             time.sleep(0.01)
 
@@ -90,6 +92,7 @@ class Interface(SocketCanDev):
     def stop(self: Interface) -> None:
         """A wrapper for `pyvit.hw.SocketCanDev.stop()`
         """
+        logging.info(f'Closing interface {self.name}')
         super().stop()
         self.socket.close()
         self.running = False

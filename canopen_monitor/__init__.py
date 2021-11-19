@@ -19,5 +19,7 @@ MAINTAINER_EMAIL = 'oresat@pdx.edu'
 
 CONFIG_DIR = os.path.expanduser(f'~/.config/{APP_NAME}')
 CACHE_DIR = os.path.expanduser(f'~/.cache/{APP_NAME}')
-
 CONFIG_FORMAT_VERSION = 2
+
+LOG_FMT = '%(asctime)s %(-15s) %(user)-8s $(message)s'
+LOG_DIR = CACHE_DIR + os.sep + 'logs'

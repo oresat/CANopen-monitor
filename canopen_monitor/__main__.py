@@ -1,7 +1,13 @@
 import os
 import sys
+import logging
 import argparse
-from . import APP_NAME, APP_VERSION, APP_DESCRIPTION, CONFIG_DIR, CACHE_DIR
+from . import APP_NAME, \
+              APP_VERSION, \
+              APP_DESCRIPTION, \
+              CONFIG_DIR, \
+              CACHE_DIR, \
+              LOG_DIR
 from .app import App
 from .meta import Meta
 from .can import MagicCANBus, MessageTable
@@ -11,6 +17,14 @@ from .parse import CANOpenParser, load_eds_files
 def init_dirs():
     os.makedirs(CONFIG_DIR, exist_ok=True)
     os.makedirs(CACHE_DIR, exist_ok=True)
+    os.makedirs(LOG_DIR, exist_ok=True)
+    init_logs()
+
+
+def init_logs():
+    logging.basicConfig(filename=f'{LOG_DIR}/info.log',
+                        level=logging.INFO)
+    logging.info(f'{APP_NAME} v{APP_VERSION}')
 
 
 def main():
