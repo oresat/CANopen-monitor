@@ -33,7 +33,6 @@ class Interface(SocketCanDev):
         self.name = if_name
         self.last_activity = dt.datetime.now()
         self.socket.settimeout(_SOCK_TIMEOUT)
-        self.listening = False
 
     def __enter__(self: Interface) -> Interface:
         """The entry point of an `Interface` in a `with` statement
@@ -90,7 +89,7 @@ class Interface(SocketCanDev):
         """
         super().stop()
         self.socket.close()
-        self.listening = False
+        self.running = False
 
     def restart(self: Interface) -> None:
         """A macro-fuction for restarting the interface connection
