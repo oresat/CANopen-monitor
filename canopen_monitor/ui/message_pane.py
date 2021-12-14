@@ -55,6 +55,12 @@ class MessagePane(Pane):
         self.cursor_min = 0
         self.cursor_max = self.d_height - 10
 
+    def clear_messages(self: MessagePane) -> None:
+        """
+        Clears the message table for the pane.
+        """
+        self.table.clear()
+
     def resize(self: MessagePane, height: int, width: int) -> None:
         """
         A wrapper for `Pane.resize()`. This intercepts a call for a resize

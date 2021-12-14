@@ -80,6 +80,8 @@ class KeyMap(Enum):
           'key': curses.KEY_F4}
     F5 = {'name': 'F5', 'description': 'Toggle remove interface',
           'key': curses.KEY_F5}
+    F6 = {'name': 'F6', 'description': 'Clear screen',
+          'key': curses.KEY_F6}
     UP_ARR = {'name': 'Up Arrow', 'description': 'Scroll pane up 1 row',
               'key': curses.KEY_UP}
     DOWN_ARR = {'name': 'Down Arrow', 'description': 'Scroll pane down 1 row',
@@ -151,6 +153,7 @@ class App:
             # KeyMap.F3.value['key']: self.f3,
             KeyMap.F4.value['key']: self.f4,
             KeyMap.F5.value['key']: self.f5,
+            KeyMap.F6.value['key']: self.f6,
         }
 
     def __enter__(self: App) -> App:
@@ -367,6 +370,16 @@ class App:
         """
         self.remove_if_win.content = self.bus.interface_list
         self.toggle_popup(self.remove_if_win)
+
+    def f6(self) -> None:
+        """
+        Clears screen by clearing all panes' messages and then clearing the panes themselves.
+        :return: None
+        """
+        self.hb_pane.clear_messages()
+        self.misc_pane.clear_messages()
+        self.hb_pane.clear()
+        self.misc_pane.clear()
 
     def toggle_popup(self, selected_popup) -> None:
         for popup in self.popups:
