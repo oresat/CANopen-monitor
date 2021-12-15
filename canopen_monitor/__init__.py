@@ -1,8 +1,8 @@
 import os
 
 MAJOR = 4
-MINOR = 0
-PATCH = 2
+MINOR = 1
+PATCH = 0
 
 APP_NAME = 'canopen-monitor'
 APP_DESCRIPTION = 'An NCurses-based TUI application for tracking activity' \
@@ -19,5 +19,7 @@ MAINTAINER_EMAIL = 'oresat@pdx.edu'
 
 CONFIG_DIR = os.path.expanduser(f'~/.config/{APP_NAME}')
 CACHE_DIR = os.path.expanduser(f'~/.cache/{APP_NAME}')
-
 CONFIG_FORMAT_VERSION = 2
+
+LOG_FMT = '%(time)s $(message)s'
+LOG_DIR = CACHE_DIR + os.sep + 'logs'

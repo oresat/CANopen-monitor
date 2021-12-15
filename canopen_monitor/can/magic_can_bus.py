@@ -117,23 +117,23 @@ class MagicCANBus:
         :type iface: Interface
         """
 
-        # The outer loop exists to enable interface recovery, if the interface
-        #   is either deleted or goes down, the handler will try to start it
-        #   again and read messages as soon as possible
+        # If the interface is either deleted or goes down, the handler will
+        #   try to start it again and read messages as soon as possible
         while (self.keep_alive_list[iface.name].is_set()):
             try:
-                # The inner loop is the constant reading of the bus and loading
-                #   of frames into a thread-safe queue. It is necessary to
-                #   check `iface.is_up` in the inner loop as well, so that the
-                #   handler will not block on bus reading if the MCB is trying
-                #   to close all threads and destruct itself
-                while (iface.is_up and iface.running and
-                       self.keep_alive_list[iface.name].is_set()):
+                # It is necessary to check `iface.is_up`, so that the handler
+                #   will not block on bus reading if the MCB is trying to
+                #   close all threads and destruct itself
+                if iface.is_up:
+                    if not iface.running:
+                        iface.start()
                     frame = iface.recv()
-                    if (frame is not None):
+                    if frame is not None:
                         self.message_queue.put(frame, block=True)
-                iface.restart()
+                else:
+                    iface.stop()
             except OSError:
+                iface.stop()
                 pass
         iface.stop()
 
