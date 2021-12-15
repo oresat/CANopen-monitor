@@ -476,8 +476,11 @@ class App:
         :return: None
         """
         height, width = self.screen.getmaxyx()
-        footer = '<F1>: Info, <F2>: Hotkeys, <F3>: Add OD File, ' \
-                 '<F4>: Add Interface, <F5> Remove Interface'
+        footer = '<F1>: Info, <F2>: Hotkeys, ' \
+                 '<F3>: Add OD File, ' \
+                 '<F4>: Add Interface, ' \
+                 '<F5> Remove Interface ' \
+                 '<F6> Clear Messages'
         self.screen.addstr(height - 1, 1, footer)
 
     def draw(self: App, ifaces: [tuple]) -> None:
