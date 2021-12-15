@@ -17,6 +17,12 @@ class MessageTable:
     def __len__(self: MessageTable) -> int:
         return len(self.table)
 
+    def clear(self) -> None:
+        """
+        Clear the table to remove all its messages.
+        """
+        self.table = {}
+
     def filter(self: MessageTable,
                types: MessageType,
                start: int = 0,
