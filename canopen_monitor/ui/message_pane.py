@@ -1,8 +1,19 @@
 from __future__ import annotations
+from typing import Callable
 from .pane import Pane
 from .column import Column
 from ..can import Message, MessageType, MessageTable
-import curses
+import curses, re
+
+
+def default_format_function(message: Message) -> Message:
+    if message.type == MessageType.PDO:
+        node_name_stripped = message.message.replace(message.node_name, '')
+        colons_replace_dashes = re.sub(r'\s-\s', ':', node_name_stripped)
+        slash_delimited = re.sub(r'\s\s', ' / ', colons_replace_dashes)
+        node_name_replaced = message.node_name + ":" + slash_delimited
+        message.message = node_name_replaced
+    return message
 
 
 class MessagePane(Pane):
@@ -25,21 +36,26 @@ class MessagePane(Pane):
     :type table: MessageTable
     """
 
-    def __init__(self: MessagePane,
-                 cols: [Column],
-                 types: [MessageType],
-                 name: str = '',
-                 parent: any = None,
-                 height: int = 1,
-                 width: int = 1,
-                 y: int = 0,
-                 x: int = 0,
-                 message_table: MessageTable = MessageTable()):
-        super().__init__(parent=(parent or curses.newpad(0, 0)),
-                         height=height,
-                         width=width,
-                         y=y,
-                         x=x)
+    def __init__(
+            self: MessagePane,
+            cols: [Column],
+            types: [MessageType],
+            name: str = '',
+            parent: any = None,
+            height: int = 1,
+            width: int = 1,
+            y: int = 0,
+            x: int = 0,
+            message_table: MessageTable = MessageTable(),
+            format_function: Callable[[Message], dict] = default_format_function
+    ):
+        super().__init__(
+            parent=(parent or curses.newpad(0, 0)),
+            height=height,
+            width=width,
+            y=y,
+            x=x,
+        )
 
         # Pane details
         self._name = name
@@ -49,6 +65,7 @@ class MessagePane(Pane):
         self.__top_max = 0
         self.__header_style = curses.color_pair(4)
         self.table = message_table
+        self.format = format_function
 
         # Cursor stuff
         self.cursor = 0
@@ -194,10 +211,15 @@ class MessagePane(Pane):
         # Draw the header and messages
         self.__draw_header()
         for i, message in enumerate(draw_messages):
+
+            formatted_message = self.format(message)
+
             self._pad.move(2 + i, 1)
             for col in self.cols:
-                self.add_line(col.format(message),
-                              highlight=((self.cursor == i) and self.selected))
+                self.add_line(
+                    col.format(formatted_message),
+                    highlight=((self.cursor == i) and self.selected)
+                )
         # Refresh the Pane and end the draw cycle
         super().refresh()
 
