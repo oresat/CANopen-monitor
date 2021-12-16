@@ -1,6 +1,6 @@
 from __future__ import annotations
 from .pane import Pane
-from .colum import Column
+from .column import Column
 from ..can import Message, MessageType, MessageTable
 import curses
 
