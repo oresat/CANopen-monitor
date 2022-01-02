@@ -55,6 +55,29 @@ class MessagePane(Pane):
         self.cursor_min = 0
         self.cursor_max = self.d_height - 10
 
+        self.sort_index = 0
+        self.sort_reverse = False
+
+    def handle_click(self: MessagePane, x, y) -> None:
+        """
+        Handles a click at coordinates (x, y) within the MessagePane.
+        """
+
+        # check if y is in the column row before sorting
+        if y == (self.y + 1):
+            cursor = 1
+            for col in self.cols:
+                if x <= (cursor + col.length):
+                    new_index = self.cols.index(col)
+                    if new_index == self.sort_index:
+                        self.sort_reverse = not self.sort_reverse
+                    else:
+                        self.sort_reverse = False
+                        self.sort_index = new_index
+                    return
+                else:
+                    cursor += col.length
+
     def clear_messages(self: MessagePane) -> None:
         """
         Clears the message table for the pane.
@@ -106,7 +129,7 @@ class MessagePane(Pane):
         """
         max_length = sum(list(map(lambda x: x.length, self.cols)))
         occluded = max_length - self.d_width + 7
-        return occluded if(occluded > 0) else 0
+        return occluded if (occluded > 0) else 0
 
     def scroll_up(self: MessagePane, rate: int = 1) -> None:
         """
@@ -126,14 +149,14 @@ class MessagePane(Pane):
 
         # If the cursor is less than the minimum, reset it to the minimum then
         #   do calculations for shifting the message table
-        if(self.cursor < self.cursor_min):
+        if (self.cursor < self.cursor_min):
             self.cursor = self.cursor_min
 
             # Deduct the amount of cursor movement from the message table
             #   movement and reset shift to bounds if need be
             leftover = rate - prev
             self.__top -= leftover
-            self.__top = min if(self.__top < min) else self.__top
+            self.__top = min if (self.__top < min) else self.__top
 
     def scroll_down(self: MessagePane, rate: int = 1) -> None:
         """
@@ -153,14 +176,14 @@ class MessagePane(Pane):
 
         # If the cursor is greater than the maximum, reset it to the minimum
         #   then do calculations for shifting the message table
-        if(self.cursor > (self.cursor_max - 1)):
+        if (self.cursor > (self.cursor_max - 1)):
             self.cursor = self.cursor_max - 1
 
             # Deduct the amount of cursor movement from the message table
             #   movement and reset shift to bounds if need be
             leftover = rate - (self.cursor - prev)
             self.__top += leftover
-            self.__top = max if(self.__top > max) else self.__top
+            self.__top = max if (self.__top > max) else self.__top
 
     def __draw_header(self: Pane) -> None:
         """
@@ -188,7 +211,14 @@ class MessagePane(Pane):
 
         # Get the messages to be displayed based on scroll positioning,
         #   and adjust column widths accordingly
-        draw_messages = self.table.filter(self.types, self.__top, self.__top + self.d_height - 3)
+        draw_messages = self.table.filter(
+            types=self.types,
+            start=self.__top,
+            end=self.__top + self.d_height - 3,
+            sort_by=self.cols[self.sort_index].attr_name,
+            reverse=self.sort_reverse
+        )
+
         self.__check_col_widths(draw_messages)
 
         # Draw the header and messages
@@ -210,5 +240,5 @@ class MessagePane(Pane):
         """
         for col in self.cols:
             for message in messages:
-                if(col.update_length(message)):
+                if col.update_length(message):
                     self._pad.clear()

@@ -171,6 +171,7 @@ class App:
         self.screen = curses.initscr()  # Initialize standard out
         self.screen.scrollok(True)  # Enable window scroll
         self.screen.keypad(True)  # Enable special key input
+        curses.mousemask(True)  # Enable mouse input
         self.screen.nodelay(True)  # Disable user-input blocking
         curses.noecho()  # disable user-input echo
         curses.curs_set(False)  # Disable the cursor
@@ -388,37 +389,46 @@ class App:
 
         selected_popup.toggle()
 
-    def handle_keyboard_input(self: App) -> None:
+    def handle_user_input(self: App) -> None:
         """
-        Retrieves keyboard input and calls the associated key function
+        Retrieves input and calls the associated key function
         """
-        keyboard_input = self.screen.getch()
+        user_input = self.screen.getch()
         curses.flushinp()
 
         if self.add_if_win.enabled:
-            if keyboard_input == curses.KEY_ENTER or \
-                    keyboard_input == 10 or keyboard_input == 13:
+            if user_input == curses.KEY_ENTER or \
+                    user_input == 10 or user_input == 13:
                 value = self.add_if_win.get_value()
                 if value != "":
                     self.bus.add_interface(value)
                     self.meta.save_interfaces(self.bus)
                 self.add_if_win.toggle()
             else:
-                self.add_if_win.read_input(keyboard_input)
+                self.add_if_win.read_input(user_input)
 
         elif self.remove_if_win.enabled:
-            if keyboard_input == curses.KEY_ENTER or \
-                    keyboard_input == 10 or keyboard_input == 13:
+            if user_input == curses.KEY_ENTER or \
+                    user_input == 10 or user_input == 13:
                 value = self.remove_if_win.get_value()
                 if value != "":
                     self.bus.remove_interface(value)
                     self.meta.save_interfaces(self.bus)
                 self.remove_if_win.toggle()
             else:
-                self.remove_if_win.read_input(keyboard_input)
+                self.remove_if_win.read_input(user_input)
+
+        if user_input == curses.KEY_MOUSE:
+            try:
+                _, x, y, _, _ = curses.getmouse()
+                for pane in [self.hb_pane, self.misc_pane]:
+                    if (pane.x <= x <= (pane.x + pane.d_width)) and (pane.y <= y <= (pane.y + pane.d_height)):
+                        pane.handle_click(x, y)
+            finally:
+                pass
 
         try:
-            self.key_dict[keyboard_input]()
+            self.key_dict[user_input]()
         except KeyError:
             ...
 

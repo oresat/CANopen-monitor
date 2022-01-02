@@ -81,7 +81,7 @@ def main():
                         mt += message
 
                 # User Input updates
-                app.handle_keyboard_input()
+                app.handle_user_input()
 
                 # Sleep VERY briefly so we're not using 99% of the CPU
                 time.sleep(0.01)
