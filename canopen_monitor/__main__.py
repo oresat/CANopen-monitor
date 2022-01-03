@@ -11,8 +11,8 @@ from . import APP_NAME, \
               LOG_DIR
 from .app import App
 from .meta import Meta
-from .can import MagicCANBus, MessageTable
-from .parse import CANOpenParser, load_eds_files
+from .can import MagicCANBus
+from .parse import load_eds_files
 
 
 def init_dirs():
@@ -68,26 +68,12 @@ def main():
         meta = Meta(CONFIG_DIR, CACHE_DIR)
         features = meta.load_features()
         eds_configs = load_eds_files(CACHE_DIR, features.ecss_time)
-        mt = MessageTable(CANOpenParser(eds_configs))
         interfaces = meta.load_interfaces(args.interfaces)
 
         # Start the can bus and the curses app
-        with MagicCANBus(interfaces, no_block=args.no_block) as bus, \
-                App(mt, eds_configs, bus, meta, features) as app:
-            while True:
-                # Bus updates
-                for message in bus:
-                    if message is not None:
-                        mt += message
-
-                # User Input updates
-                app.handle_keyboard_input()
-
-                # Sleep VERY briefly so we're not using 99% of the CPU
-                time.sleep(0.01)
-
-                # Draw update
-                app.draw(bus.statuses)
+        with MagicCANBus(interfaces, no_block=args.no_block) as bus:
+            app = App(eds_configs, bus, meta, features)
+            app.run()
     except KeyboardInterrupt:
         print('Goodbye!')
 

@@ -6,12 +6,12 @@ import threading as t
 
 
 class MagicCANBus:
-    """This is a macro-manager for multiple CAN interfaces
+    '''This is a macro-manager for multiple CAN interfaces
 
     :param interfaces: The list of serialized Interface objects the bus is
         managing
     :type interfaces: [Interface]
-    """
+    '''
 
     def __init__(self: MagicCANBus, if_names: [str], no_block: bool = False):
         self.interfaces = list(map(lambda x: Interface(x), if_names))
@@ -22,28 +22,28 @@ class MagicCANBus:
 
     @property
     def statuses(self: MagicCANBus) -> [tuple]:
-        """This property is simply an aggregate of all of the interfaces and
+        '''This property is simply an aggregate of all of the interfaces and
         whether or not they both exist and are in the `UP` state
 
         :return: a list of tuples containing the interface names and a bool
             indication an `UP/DOWN` status
         :rtype: [tuple]
-        """
+        '''
         return list(map(lambda x: (x.name, x.is_up), self.interfaces))
 
     @property
     def interface_list(self: MagicCANBus) -> [str]:
-        """A list of strings representing all interfaces
+        '''A list of strings representing all interfaces
         :return: a list of strings indicating the name of each interface
         :rtype: [str]
-        """
+        '''
         return list(map(lambda x: str(x), self.interfaces))
 
     def add_interface(self: MagicCANBus, interface: str) -> None:
-        """This will add an interface at runtime
+        '''This will add an interface at runtime
 
         :param interface: The name of the interface to add
-        :type interface: string"""
+        :type interface: string'''
 
         # Check if interface is already existing
         interface_names = self.interface_list
@@ -55,10 +55,10 @@ class MagicCANBus:
         self.threads.append(self.start_handler(new_interface))
 
     def remove_interface(self: MagicCANBus, interface: str) -> None:
-        """This will remove an interface at runtime
+        '''This will remove an interface at runtime
 
         :param interface: The name of the interface to remove
-        :type interface: string"""
+        :type interface: string'''
 
         # Check if interface is already existing
         interface_names = self.interface_list
@@ -77,7 +77,7 @@ class MagicCANBus:
                 self.interfaces.remove(existing_interface)
 
     def start_handler(self: MagicCANBus, iface: Interface) -> t.Thread:
-        """This is a wrapper for starting a single interface listener thread
+        '''This is a wrapper for starting a single interface listener thread
             This wrapper also creates a keep alive event for each thread which
             can be used to kill the thread.
 
@@ -95,7 +95,7 @@ class MagicCANBus:
 
         :return: The new listener thread spawned
         :rtype: threading.Thread
-        """
+        '''
         self.keep_alive_list[iface.name] = t.Event()
         self.keep_alive_list[iface.name].set()
 
@@ -107,7 +107,7 @@ class MagicCANBus:
         return tr
 
     def handler(self: MagicCANBus, iface: Interface) -> None:
-        """This is a handler for listening and block-waiting for messages on
+        '''This is a handler for listening and block-waiting for messages on
         the CAN bus
 
         It will operate on the condition that the Magic Can Bus is still
@@ -115,7 +115,7 @@ class MagicCANBus:
 
         :param iface: The interface to bind to when listening for messages
         :type iface: Interface
-        """
+        '''
 
         # If the interface is either deleted or goes down, the handler will
         #   try to start it again and read messages as soon as possible
@@ -170,6 +170,6 @@ class MagicCANBus:
         # Subtract 1 since the parent thread should not be counted
         alive_threads = t.active_count() - 1
         if_list = ', '.join(list(map(lambda x: str(x), self.interfaces)))
-        return f"Magic Can Bus: {if_list}," \
-               f" pending messages: {self.message_queue.qsize()}" \
-               f" threads: {alive_threads}"
+        return f'Magic Can Bus: {if_list},' \
+               f' pending messages: {self.message_queue.qsize()}' \
+               f' threads: {alive_threads}'

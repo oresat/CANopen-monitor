@@ -8,13 +8,13 @@ DEAD_TIME = dt.timedelta(seconds=10)
 
 
 class MessageType(Enum):
-    """This enumeration describes all of the ranges in the CANOpen spec that
+    '''This enumeration describes all of the ranges in the CANOpen spec that
     defines specific kinds of messages.
 
     See `wikipedia
     <https://en.wikipedia.org/wiki/CANopen#Predefined_Connection_Set>`_
     for details
-    """
+    '''
     # Regular CANOpen message types
     NMT = (0x0, 0x0)
     SYNC = (0x1, 0x7F)
@@ -43,7 +43,7 @@ class MessageType(Enum):
 
     @property
     def supertype(self: MessageType) -> MessageType:
-        """Determines the "Supertype" of a Message
+        '''Determines the 'Supertype' of a Message
 
         There are only two supertypes: MessageType.PDO and MessageType.SDO,
         and they emcompass all of the PDO_T/RX and SDO_T/RX ranges
@@ -52,7 +52,7 @@ class MessageType(Enum):
 
         :return: The supertype of this type
         :rtype: MessageType
-        """
+        '''
         if self.PDO.start <= self.start <= self.PDO.end:
             return MessageType['PDO']
         elif self.SDO.start <= self.start <= self.SDO.end:
@@ -62,7 +62,7 @@ class MessageType(Enum):
 
     @staticmethod
     def cob_to_node(msg_type: MessageType, cob_id: int) -> int:
-        """Determines the Node ID based on the given COB ID
+        '''Determines the Node ID based on the given COB ID
 
         The COB ID is the raw ID sent with the CAN message, and the node id is
         simply the sub-id within the COB ID, which is used as a device
@@ -86,19 +86,19 @@ class MessageType(Enum):
 
         :return: The Node ID
         :rtype: int
-        """
+        '''
         return cob_id - msg_type.start
 
     @staticmethod
     def cob_id_to_type(cob_id: int) -> MessageType:
-        """Determines the message type based on the COB ID
+        '''Determines the message type based on the COB ID
 
         :param cob_id: The Raw CAN Message COB ID
         :type cob_id: int
 
         :return: The message type (range) the COB ID fits into
         :rtype: MessageType
-        """
+        '''
         for msg_type in list(MessageType):
             if msg_type.start <= cob_id <= msg_type.end:
                 return msg_type
@@ -109,7 +109,7 @@ class MessageType(Enum):
 
 
 class MessageState(Enum):
-    """This enumeration describes all possible states of a CAN Message
+    '''This enumeration describes all possible states of a CAN Message
 
     +-----+----------+
     |State|Age (sec) |
@@ -120,7 +120,7 @@ class MessageState(Enum):
     +-----+----------+
     |DEAD |120<=x    |
     +-----+----------+
-    """
+    '''
     ALIVE = 'Alive'
     STALE = 'Stale'
     DEAD = 'Dead'
@@ -130,36 +130,51 @@ class MessageState(Enum):
 
 
 class Message(Frame):
-    """This class is a wrapper class for the `pyvit.can.Frame` class
+    '''This class is a wrapper class for the `pyvit.can.Frame` class
 
     :ref: `See this for documentation on a PyVit Frame
         <https://github.com/linklayer/pyvit/blob/master/pyvit/can.py>`_
 
     It's primary purpose is to carry all of the same CAN message data as a
     frame, while adding age and state attributes as well.
-    """
+    '''
 
     def __init__(self: Message, arb_id: int, **kwargs):
         super().__init__(arb_id, **kwargs)
         self.node_name = 'N/A'
         self.message = self.data
 
+    def __eq__(self: Message, o: Message) -> bool:
+        return self.arb_id == o.arb_id \
+            and self.node_id == o.node_id \
+            and self.age == o.age \
+            and self.state == o.state \
+            and self.type == o.type \
+            and self.message == o.message
+
+    def to_tuple(self: Message,
+                 schema: (str) = ('arb_id', 'node_id', 'type', 'age', 'message')) -> (str):
+        data = []
+        for field_name in schema:
+            data.append(str(getattr(self, field_name)))
+        return tuple(data)
+
     @property
     def age(self: Message) -> dt.timedelta:
-        """The age of the Message since it was received from the CAN bus
+        '''The age of the Message since it was received from the CAN bus
 
         :return: Age of the message
         :rtype: datetime.timedelta
-        """
+        '''
         return dt.datetime.now() - self.timestamp
 
     @property
     def state(self: Message) -> MessageState:
-        """The state of the message since it was received from the CAN bus
+        '''The state of the message since it was received from the CAN bus
 
         :return: State of the message
         :rtype: MessageState
-        """
+        '''
         if self.age >= DEAD_TIME:
             return MessageState['DEAD']
         elif self.age >= STALE_TIME:
@@ -169,25 +184,25 @@ class Message(Frame):
 
     @property
     def type(self: Message) -> MessageType:
-        """Type of CAN Message
+        '''Type of CAN Message
 
         :return: CAN Message Type
         :rtype: MessageType
-        """
+        '''
         return MessageType.cob_id_to_type(self.arb_id)
 
     @property
     def supertype(self: Message) -> MessageType:
-        """Super-Type of CAN Message
+        '''Super-Type of CAN Message
 
         :return: CAN Message Super-Type
         :rtype: MessageType
-        """
+        '''
         return self.type.supertype
 
     @property
     def node_id(self: Message) -> int:
-        """The Node ID, otherwise known as the unique device identifier
+        '''The Node ID, otherwise known as the unique device identifier
 
         This is a property that is arbitratily decided in an Object Dictionary
         and can sometimes have a name attatched to it
@@ -199,11 +214,11 @@ class Message(Frame):
 
         :return: Node ID
         :rtype: int
-        """
+        '''
         return MessageType.cob_to_node(self.type, self.arb_id)
 
         def __lt__(self: Message, src: Message):
-            """Overloaded less-than operator, primarilly to support `sorted()`
+            '''Overloaded less-than operator, primarilly to support `sorted()`
             on a list of `Message`, such that it's sorted by COB ID
 
             :param src: The right-hand message to compare against
@@ -212,5 +227,5 @@ class Message(Frame):
             .. example::
 
                 self < src
-            """
+            '''
             return self._arb_id < src._arb_id

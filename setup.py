@@ -32,6 +32,7 @@ setuptools.setup(
         "Topic :: System :: Networking :: Monitoring :: Hardware Watchdog"
     ],
     install_requires=[
+        "oresat-tpane == 1.0.0",
         "pyvit >= 0.2.1",
         "psutil >= 5.8.0",
         "python-dateutil >= 2.8.1"
