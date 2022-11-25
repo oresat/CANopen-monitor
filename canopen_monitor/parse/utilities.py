@@ -50,7 +50,7 @@ def get_name(eds_config: EDS, index: Union[List[int], bytes]) -> (str, str):
     parameter_name and data_type attribute
     """
     index_bytes = list(map(lambda x: hex(x)[2:].rjust(2, '0'), index))
-    key = int('0x' + ''.join(index_bytes[:2]), 16)
+    key = int('0x' + ''.join(index_bytes[1::-1]), 16)
     subindex_key = int('0x' + ''.join(index_bytes[2:3]), 16)
 
     current = eds_config[hex(key)]
