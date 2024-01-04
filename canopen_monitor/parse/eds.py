@@ -109,8 +109,8 @@ class Metadata:
     def __init__(self, data):
         # Process all sub-data
         for e in data:
-            # Skip comment lines
-            if (e[0] == ';'):
+            # Skip comment lines and indices
+            if (e[0] == ';' or e[0] == '['):
                 continue
 
             # Separate field name from field value
@@ -148,8 +148,8 @@ class Index:
 
         # Process all sub-data
         for e in data:
-            # Skip commented lines
-            if (e[0] == ';'):
+            # Skip commented lines and indices
+            if (e[0] == ';' or e[0] == '['):
                 continue
 
             # Separate field name from field value
@@ -300,7 +300,11 @@ class EDS(OD):
                     continue
 
                 section = eds_data[prev:i]
-                id = section[0][1:-1].split('sub')
+
+                # Get the sub split id inside the square brackets
+                id = ''
+                for v in section:
+                    if v[0] == '[': id = v[1:-1].split('sub')
 
                 if all(c in string.hexdigits for c in id[0]):
                     index = hex(int(id[0], 16))
@@ -317,7 +321,7 @@ class EDS(OD):
                 prev = i + 1
 
         if self.device_commissioning is not None:
-            self.node_id = convert_value(self.device_commissioning.node_id)
+            self.node_id = convert_value(self.device_commissioning.node_n_id)
         elif '0x2101' in self.indices.keys():
             self.node_id = self['0x2101'].default_value
         else:
