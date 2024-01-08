@@ -322,6 +322,8 @@ class EDS(OD):
 
         if self.device_commissioning is not None:
             self.node_id = convert_value(self.device_commissioning.node_n_id)
+        elif self.device_comissioning is not None:
+            self.node_id = convert_value(self.device_comissioning.node_n_id)
         elif '0x2101' in self.indices.keys():
             self.node_id = self['0x2101'].default_value
         else:

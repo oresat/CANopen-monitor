@@ -20,8 +20,14 @@ class CANOpenParser:
     def get_name(self, message: Message) -> Union[str, None]:
         node_id = hex(message.node_id)
         parser = self.eds_configs.get(node_id)
-        return parser.device_commissioning.node_name \
-            if parser else hex(message.node_id)
+        if hasattr(parser, 'device_comissioning'):
+            if parser.device_comissioning is not None:
+                return parser.device_comissioning.node_name \
+                    if parser else hex(message.node_id)
+        if hasattr(parser, 'device_commissioning'):
+            if parser.device_commissioning is not None:
+                return parser.device_commissioning.node_name \
+                    if parser else hex(message.node_id)
 
     def parse(self, message: Message) -> (str, str):
         """
