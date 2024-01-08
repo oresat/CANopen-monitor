@@ -108,7 +108,7 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
                                         f"Unable to find eds data for pdo type"
                                         f" {hex(pdo_type)} index {i}")
 
-        pdo_definition = int(eds_record.default_value, 16).to_bytes(4, "big")
+        pdo_definition = int(eds_record.default_value).to_bytes(4, "big")
 
         index = pdo_definition[0:3]
         size = pdo_definition[3]
@@ -128,8 +128,8 @@ def parse_pdo(num_elements, pdo_type, cob_id, eds, data):
         masked_data = int.from_bytes(data[start:end], "big") & mask
         masked_data = masked_data >> data_start % 8
         masked_data = masked_data.to_bytes(num_bytes, "big")
-        output_string = f"{eds_details[1]} -" \
-                        f" {decode(eds_details[0], masked_data)}" + \
+        output_string = f"{eds_details[1]}: " \
+                        f"{decode(eds_details[0], masked_data)}," + \
                         output_string
         if i > 1:
             output_string = " " + output_string

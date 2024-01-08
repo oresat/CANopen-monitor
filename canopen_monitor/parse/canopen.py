@@ -18,10 +18,16 @@ class CANOpenParser:
         self.eds_configs = eds_configs
 
     def get_name(self, message: Message) -> Union[str, None]:
-        # import ipdb; ipdb.set_trace()
-        parser = self.eds_configs.get(message.node_id)
-        return parser.device_commissioning.node_name \
-            if parser else hex(message.node_id)
+        node_id = hex(message.node_id)
+        parser = self.eds_configs.get(node_id)
+        if hasattr(parser, 'device_comissioning'):
+            if parser.device_comissioning is not None:
+                return parser.device_comissioning.node_name \
+                    if parser else hex(message.node_id)
+        if hasattr(parser, 'device_commissioning'):
+            if parser.device_commissioning is not None:
+                return parser.device_commissioning.node_name \
+                    if parser else hex(message.node_id)
 
     def parse(self, message: Message) -> (str, str):
         """
@@ -36,7 +42,7 @@ class CANOpenParser:
         `str`: The parsed message
 
         """
-        node_id = message.node_id
+        node_id = hex(message.node_id)
         eds_config = self.eds_configs.get(node_id) \
             if node_id is not None else None
 
